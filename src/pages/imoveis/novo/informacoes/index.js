@@ -228,8 +228,7 @@ export default function ImoveisNovoInformacoes() {
             <Box component='label' htmlFor="" fontWeight='bold' mb={1}>Próximo ao mar?</Box>
             <Select name="near_sea" value={state.near_sea} onChange={handleChange}>
               <MenuItem value={'Frente pro mar'}>Frente pro mar</MenuItem>
-              <MenuItem value={'Quadra do mar'}>Quadra do mar</MenuI
-              tem>
+              <MenuItem value={'Quadra do mar'}>Quadra do mar</MenuItem>
               <MenuItem value={'Próximo ao mar'}>Próximo ao mar</MenuItem>
             </Select>
           </FormControl>
