@@ -1,11 +1,16 @@
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/router'
+import { doc, updateDoc } from 'firebase/firestore'
+
 import { Box } from "@mui/system"
-import { FormControl, FormGroup, FormControlLabel, ToggleButtonGroup, ToggleButton, TextField, Checkbox } from '@mui/material'
-import { grey } from '@mui/material/colors'
+import { FormGroup, FormControlLabel, Checkbox } from '@mui/material'
+
 import AsideNav from "../../../../components/AsideNav"
 import ImoveisAsideNav from '../../../../components/imoveis/aside/AsideNav'
 import Main from "../../../../components/imoveis/main/Main"
 import Form from "../../../../components/imoveis/Form"
+
+import { Firestore } from '../../../../Firebase'
 
 export default function Proximidades() {
   const [nearby, setNearby] = useState({
@@ -25,9 +30,7 @@ export default function Proximidades() {
 
   const [nearbyChecked, setNearbyChecked] = useState()
 
-  useEffect(() => {
-    console.log(nearbyChecked)
-  }, [nearbyChecked])
+  const router = useRouter()
 
   function handleChange(event) {
     const list = { ...nearbyChecked, [event.target.name]: event.target.checked }
@@ -39,7 +42,14 @@ export default function Proximidades() {
 
   function handleSubmit(event) {
     event.preventDefault()
-    console.log('proximidades')
+
+    const ref = doc(Firestore, 'initial_informations', localStorage.getItem('new_property_id'))
+
+    updateDoc(ref, {
+      nearby: nearbyChecked
+    })
+
+    router.push('/imoveis/novo/descricao')
   }
 
   return (

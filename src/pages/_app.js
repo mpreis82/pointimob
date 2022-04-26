@@ -2,7 +2,7 @@ import { ThemeProvider, createTheme } from '@mui/material/styles'
 import CssBaseline from '@mui/material/CssBaseline'
 import { Layout } from '../components/Layout'
 import '../../styles/globals.css'
-import { pink, purple, grey, green, blue } from '@mui/material/colors'
+import { pink, purple, grey, blue } from '@mui/material/colors'
 
 function MyApp({ Component, pageProps }) {
   const theme = createTheme({

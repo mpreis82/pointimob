@@ -1,15 +1,20 @@
 import { useState } from "react"
+import { useRouter } from 'next/router'
+import { collection, addDoc } from 'firebase/firestore'
+
 import { Box } from "@mui/system"
 import { Select, ToggleButtonGroup, ToggleButton, MenuItem, FormControl, TextField } from '@mui/material';
+
 import AsideNav from "../../../../components/AsideNav"
 import ImoveisAsideNav from '../../../../components/imoveis/aside/AsideNav'
 import Main from "../../../../components/imoveis/main/Main"
 import Form from "../../../../components/imoveis/Form"
-import SubtypeSelector from "../../../../components/SubtypeSelector";
+import SelectPropertyTypes from "../../../../components/SelectPropertyTypes";
+
+import { Firestore } from "../../../../Firebase";
 
 export default function ImoveisNovoInformacoes() {
   const [state, setState] = useState({
-    id: '101',
     people: '',
     user: '',
     subtype: '0',
@@ -23,6 +28,9 @@ export default function ImoveisNovoInformacoes() {
 
   const [mobiliado, setMobiliado] = useState('não')
 
+  const router = useRouter()
+  router.prefetch('/imoveis/novo/comodos')
+
   function handleChange(event) {
     setState({
       ...state,
@@ -30,9 +38,26 @@ export default function ImoveisNovoInformacoes() {
     })
   }
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault()
-    alert('informacoes iniciais')
+
+    if (!localStorage.getItem('new_property_id')) {
+      const doc = await addDoc(collection(Firestore, 'initial_informations'), {
+        people: state.people,
+        user: state.user,
+        subtype: state.subtype,
+        profile: state.profile,
+        situation: state.situation,
+        lifetime: state.lifetime,
+        incorporation: state.incorporation,
+        near_sea: state.near_sea,
+        floor: state.floor,
+      })
+
+      localStorage.setItem('new_property_id', doc.id)
+    }
+
+    router.push('/imoveis/novo/comodos')
   }
 
   const handleMobiliado = (event, newValue) => {
@@ -48,11 +73,6 @@ export default function ImoveisNovoInformacoes() {
       <Main title='Informações iniciais'>
         <Form handleSubmit={handleSubmit}>
           <FormControl variant="outlined">
-            <Box component='label' htmlFor="" fontWeight='bold' mb={1}>Código de referência</Box>
-            <TextField name="id" value={state.id} onChange={handleChange} helperText='' disabled />
-          </FormControl>
-
-          <FormControl variant="outlined">
             <Box component='label' htmlFor="" fontWeight='bold' mb={1}>Proprietario</Box>
             <TextField name="people" value={state.people} onChange={handleChange} helperText='' />
           </FormControl>
@@ -62,7 +82,7 @@ export default function ImoveisNovoInformacoes() {
             <TextField name="user" value={state.user} onChange={handleChange} helperText='' />
           </FormControl>
 
-          <SubtypeSelector value={state.subtype} setValue={handleChange} />
+          <SelectPropertyTypes value={state.subtype} setValue={handleChange} />
 
           <FormControl>
             <Box component='label' htmlFor="" fontWeight='bold' mb={1}>Perfil do imóvel</Box>

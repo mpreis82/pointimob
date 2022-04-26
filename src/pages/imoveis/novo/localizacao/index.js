@@ -1,30 +1,116 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useRouter } from 'next/router'
+import { doc, updateDoc } from 'firebase/firestore'
+
 import { Box } from "@mui/system"
-import { FormControl, FormGroup, FormControlLabel, ToggleButtonGroup, ToggleButton, TextField, Checkbox, Autocomplete } from '@mui/material'
+import { FormControl, ToggleButtonGroup, ToggleButton, TextField, Checkbox, Autocomplete } from '@mui/material'
+
 import AsideNav from "../../../../components/AsideNav"
 import ImoveisAsideNav from '../../../../components/imoveis/aside/AsideNav'
 import Main from "../../../../components/imoveis/main/Main"
 import Form from "../../../../components/imoveis/Form"
 
+import { Firestore } from '../../../../Firebase'
+
+const ufList = ['Escolha um estado', 'AC', 'AL', 'AM', 'AP', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MG', 'MS', 'MT', 'PA', 'PB', 'PE', 'PI', 'PR', 'RJ', 'RN', 'RO', 'RR', 'RS', 'SC', 'SE', 'SP', 'TO',]
+
 export default function Localizacao() {
+  const [zipcode, setZipcode] = useState('')
+  const [cityList, setCityList] = useState(['Escolha uma cidade'])
+  const [state, setState] = useState({
+    uf: 'Escolha um estado',
+    city: 'Escolha uma cidade',
+    street: '',
+    district: '',
+    number: '',
+    complement: '',
+  })
+
   const [toggle, setToggle] = useState({
-    showStreet: '',
-    showDistrict: '',
-    showNumberComplement: '',
-    showCondoName: '',
-    showMap: '',
-    showExactLocation: '',
-    showApartamentFloor: '',
-    showApartamentNumber: '',
+    showStreet: 'sim',
+    showDistrict: 'sim',
+    showNumberComplement: 'sim',
+    showCondoName: 'sim',
+    showMap: 'sim',
+    showExactLocation: 'sim',
+    showApartamentFloor: 'sim',
+    showApartamentNumber: 'sim',
   })
 
   const handleToggleChange = (event, newValue) => {
     setToggle({ ...toggle, [event.target.name]: newValue })
   }
 
+  const router = useRouter()
+
+  async function handleZipcodeChange(event) {
+    setZipcode(event.target.value)
+
+    if (event.target.value.length == 8) {
+      const result = await fetch(`https://brasilapi.com.br/api/cep/v2/${event.target.value}`)
+
+      if (result.status == 200) {
+        const data = await result.json()
+        setState({
+          ...state,
+          uf: data.state,
+          city: data.city,
+          street: data.street,
+          district: data.neighborhood,
+        })
+      }
+    }
+  }
+
+  function handleStateChange(event) {
+    setState({ ...state, [event.target.name]: event.target.value })
+  }
+
+  function handleAutocompleteChange(target, newValue) {
+    setState({ ...state, [target]: newValue })
+  }
+
+  async function handleUfChange(event, newValue) {
+
+    if (newValue != '' && newValue != 'Escolha um estado') {
+      const result = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${newValue}/distritos`)
+
+      if (result.status == 200) {
+        const data = await result.json()
+        let newCityList = data.map(c => c.municipio.nome)
+        newCityList.unshift('Escolha uma cidade')
+        setCityList([...new Set(newCityList)])
+        setState({ ...state, uf: newValue, city: 'Escolha uma cidade' })
+      }
+    }
+  }
+
   function handleSubmit(event) {
     event.preventDefault()
-    console.log('localização')
+
+    const ref = doc(Firestore, 'initial_informations', localStorage.getItem('new_property_id'))
+
+    updateDoc(ref, {
+      location: {
+        uf: state.uf,
+        city: state.city,
+        street: state.street,
+        district: state.district,
+        number: state.number,
+        complement: state.complement,
+        zipcode: zipcode,
+        showStreet: toggle.showStreet,
+        showDistrict: toggle.showDistrict,
+        showNumberComplement: toggle.showNumberComplement,
+        showCondoName: toggle.showCondoName,
+        showMap: toggle.showMap,
+        showExactLocation: toggle.showExactLocation,
+        showApartamentFloor: toggle.showApartamentFloor,
+        showApartamentNumber: toggle.showApartamentNumber,
+      }
+    })
+
+    router.push('/imoveis/novo/proximidades')
   }
 
   return (
@@ -38,25 +124,18 @@ export default function Localizacao() {
           <Box>
             <FormControl variant="outlined" >
               <Box component='label' fontWeight='bold' mb={1}>CEP</Box>
-              <TextField value={''} helperText='' />
+              <TextField value={zipcode} onChange={handleZipcodeChange} helperText='' />
             </FormControl>
           </Box>
 
-          <Box
-            sx={{
-              display: 'grid',
-              gridTemplateColumns: {
-                xs: '1fr',
-                md: '1fr 1fr',
-                lg: '1fr 1fr 1fr'
-              },
-              gap: '1rem'
-            }}
-          >
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr', lg: '1fr 1fr 1fr' }, gap: '1rem' }}>
             <FormControl variant="outlined" >
               <Box component='label' fontWeight='bold' mb={1}>Estado</Box>
               <Autocomplete
-                options={['São Paulo', 'Rio de Janeiro', 'Rio Grande do Sul', 'Santa Catarina']}
+                value={state.uf}
+                name='uf'
+                onChange={(event, newValue) => handleUfChange(event, newValue)}
+                options={ufList}
                 renderInput={(params) => <TextField {...params} />}
               />
             </FormControl>
@@ -64,42 +143,36 @@ export default function Localizacao() {
             <FormControl variant="outlined" >
               <Box component='label' fontWeight='bold' mb={1}>Cidade</Box>
               <Autocomplete
-                options={['São Paulo', 'Rio de Janeiro', 'Porto Alegre', 'Florianópolis']}
+                value={state.city}
+                name='city'
+                onChange={(event, newValue) => handleAutocompleteChange('city', newValue)}
+                options={cityList}
                 renderInput={(params) => <TextField {...params} />}
               />
             </FormControl>
 
             <FormControl variant="outlined" >
               <Box component='label' fontWeight='bold' mb={1}>Bairro</Box>
-              <Autocomplete
-                options={['São Paulo', 'Rio de Janeiro', 'Porto Alegre', 'Florianópolis']}
-                renderInput={(params) => <TextField {...params} />}
-              />
+              <TextField name='district' value={state.district} onChange={handleStateChange} helperText='' />
             </FormControl>
 
             <FormControl variant="outlined" >
               <Box component='label' fontWeight='bold' mb={1}>Logradouro</Box>
-              <TextField value={''} helperText='' />
+              <TextField name='street' value={state.street} helperText='' onChange={handleStateChange} />
             </FormControl>
 
             <FormControl variant="outlined" >
               <Box component='label' fontWeight='bold' mb={1}>Número</Box>
-              <TextField value={''} helperText='' />
+              <TextField name='number' value={state.number} helperText='' onChange={handleStateChange} />
             </FormControl>
 
             <FormControl variant="outlined" >
               <Box component='label' fontWeight='bold' mb={1}>Complemento</Box>
-              <TextField value={''} helperText='' />
+              <TextField name='complement' value={state.complement} helperText='' onChange={handleStateChange} />
             </FormControl>
           </Box>
 
-          <Box
-            sx={{
-              display: 'grid',
-              gridTemplateColumns: { xs: '1fr', md: '1fr 1fr', lg: '1fr 1fr 1fr' },
-              gap: '1rem'
-            }}
-          >
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr', lg: '1fr 1fr 1fr' }, gap: '1rem' }}>
             <FormControl>
               <Box component='label' fontWeight='bold' mb={1}>Mostrar logradouro no site?</Box>
               <ToggleButtonGroup

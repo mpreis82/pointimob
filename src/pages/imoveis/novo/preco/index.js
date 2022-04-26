@@ -1,10 +1,16 @@
 import { useState } from 'react'
+import { useRouter } from 'next/router'
+import { doc, updateDoc } from 'firebase/firestore'
+
 import { Box } from "@mui/system"
 import { FormControl, TextField, InputAdornment, Select, MenuItem, ToggleButtonGroup, ToggleButton } from "@mui/material"
+
 import AsideNav from "../../../../components/AsideNav"
 import ImoveisAsideNav from '../../../../components/imoveis/aside/AsideNav'
 import Main from "../../../../components/imoveis/main/Main"
 import Form from "../../../../components/imoveis/Form"
+
+import { Firestore } from '../../../../Firebase'
 
 export default function Preco() {
   const [state, setState] = useState({
@@ -20,6 +26,10 @@ export default function Preco() {
   const [has_finance, setHasFinance] = useState()
   const [is_financeable, setIsFinanceable] = useState()
   const [is_exchangeable, setIsExchangeable] = useState()
+
+  const router = useRouter()
+
+  router.prefetch('/imoveis/novo/caracteristicas')
 
   const handlePriceShow = (event, newValue) => {
     if (newValue == 'sim') {
@@ -55,7 +65,25 @@ export default function Preco() {
 
   function handleSubmit(event) {
     event.preventDefault();
-    alert('preco')
+
+    const ref = doc(Firestore, 'initial_informations', localStorage.getItem('new_property_id'))
+
+    updateDoc(ref, {
+      financial: {
+        transaction: state.transaction,
+        price: state.price,
+        price_alternative_text: state.price_alternative_text,
+        territorial_tax_price: state.territorial_tax_price,
+        condominium_price: state.condominium_price,
+        price_show: price_show,
+        territorial_tax_type: territorial_tax_type,
+        has_finance: has_finance,
+        is_financeable: is_financeable,
+        is_exchangeable: is_exchangeable,
+      }
+    })
+
+    router.push('/imoveis/novo/caracteristicas')
   }
 
   return (

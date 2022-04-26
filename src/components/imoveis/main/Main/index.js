@@ -2,6 +2,7 @@ import { Box } from "@mui/system"
 import { grey, pink } from '@mui/material/colors'
 
 export default function Main({ children, title }) {
+
   return (
     <Box
       component='main'

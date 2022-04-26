@@ -1,10 +1,16 @@
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/router'
+import { doc, updateDoc } from 'firebase/firestore'
+
 import { Box } from "@mui/system"
 import { FormControl, FormGroup, FormControlLabel, ToggleButtonGroup, ToggleButton, TextField, Checkbox } from '@mui/material'
+
 import AsideNav from "../../../../components/AsideNav"
 import ImoveisAsideNav from '../../../../components/imoveis/aside/AsideNav'
 import Main from "../../../../components/imoveis/main/Main"
 import Form from "../../../../components/imoveis/Form"
+
+import { Firestore } from '../../../../Firebase'
 
 export default function Condominio() {
   const [condoCharact, setCondoCharact] = useState({
@@ -38,18 +44,17 @@ export default function Condominio() {
     'Salão de festas infantil': false,
     'Sauna': false,
   })
-
   const [condoCharactChecked, setCondoCharactChecked] = useState()
+  const [condominiumName, setCondominiumName] = useState('')
+  const [isCondo, setIsCondo] = useState('')
 
-  const [condominiumName, setCondominiumName] = useState()
+  const router = useRouter()
 
-  const [isCondo, setIsCondo] = useState()
+  router.prefetch('/imoveis/novo/localizacao')
 
   const handleIsCondo = (event, newValue) => {
     setIsCondo(newValue);
   };
-
-  useEffect(() => { console.log(condoCharactChecked) }, [condoCharactChecked])
 
   function handleCondoCharactChange(event) {
     const checked = { ...condoCharactChecked, [event.target.name]: event.currentTarget.checked }
@@ -57,11 +62,23 @@ export default function Condominio() {
       (checked[key] == false && delete checked[key])
     })
     setCondoCharactChecked(checked)
+    setCondoCharact({ ...condoCharact, [event.currentTarget.name]: event.currentTarget.checked })
   }
 
   function handleSubmit(event) {
     event.preventDefault();
-    console.log('condominio')
+
+    const ref = doc(Firestore, 'initial_informations', localStorage.getItem('new_property_id'))
+
+    updateDoc(ref, {
+      condominium: {
+        condominiumCharact: condoCharact,
+        condominiumName: condominiumName,
+        inCondominium: isCondo
+      }
+    })
+
+    router.push('/imoveis/novo/localizacao')
   }
 
   return (

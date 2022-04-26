@@ -1,10 +1,16 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
+import { useRouter } from 'next/router'
+import { doc, updateDoc } from 'firebase/firestore'
+
 import { Box } from "@mui/system"
-import { FormControlLabel, Checkbox, FormGroup, Button } from "@mui/material"
+import { FormControlLabel, Checkbox, FormGroup } from "@mui/material"
+
 import AsideNav from "../../../../components/AsideNav"
 import ImoveisAsideNav from '../../../../components/imoveis/aside/AsideNav'
 import Main from "../../../../components/imoveis/main/Main"
 import Form from "../../../../components/imoveis/Form"
+
+import { Firestore } from '../../../../Firebase'
 
 export default function Caracteristicas() {
   const [characteristChecked, setCharacteristChecked] = useState({})
@@ -47,10 +53,9 @@ export default function Caracteristicas() {
     'Vigia': false,
   })
 
-  useEffect(() => {
-    console.log(characteristChecked)
-  },
-    [characteristChecked])
+  const router = useRouter()
+
+  router.prefetch('/imoveis/novo/condominio')
 
   function handleChange(event) {
     const checkeds = { ...characteristcs, [event.currentTarget.name]: event.currentTarget.checked }
@@ -64,7 +69,16 @@ export default function Caracteristicas() {
 
   function handleSubmit(event) {
     event.preventDefault();
-    alert('caracteristicas')
+
+    const ref = doc(Firestore, 'initial_informations', localStorage.getItem('new_property_id'))
+
+    updateDoc(ref, {
+      characteristics: {
+        characteristcs
+      }
+    })
+
+    router.push('/imoveis/novo/condominio')
   }
 
   return (
@@ -74,19 +88,17 @@ export default function Caracteristicas() {
       </AsideNav>
 
       <Main title='Características do imóvel'>
-        <Form gridTemplateColumnsCustom={'1fr'}>
+        <Form gridTemplateColumnsCustom={'1fr'} handleSubmit={handleSubmit}>
           <FormGroup position='relative' display='block' width='100%'>
             <Box position='relative' display='block' width='100%' sx={{ columnCount: 3 }}>
               {Object.keys(characteristcs).map(key => (
-                <Box>
+                <Box key={key}>
                   <FormControlLabel
-                    key={key}
                     name={key}
                     control={<Checkbox />}
                     label={key}
                     display='block'
                     width='100%'
-                    // checked={characteristic.value}
                     onChange={handleChange}
                   />
                 </Box>

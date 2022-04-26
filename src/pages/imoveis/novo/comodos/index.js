@@ -1,4 +1,7 @@
 import { useState } from "react"
+import { useRouter } from 'next/router'
+import { doc, updateDoc } from 'firebase/firestore'
+
 import { Box } from "@mui/system"
 import { FormControl, TextField, ToggleButtonGroup, ToggleButton } from "@mui/material"
 
@@ -6,6 +9,8 @@ import AsideNav from "../../../../components/AsideNav"
 import ImoveisAsideNav from '../../../../components/imoveis/aside/AsideNav'
 import Main from "../../../../components/imoveis/main/Main"
 import Form from "../../../../components/imoveis/Form"
+
+import { Firestore } from "../../../../Firebase"
 
 export default function Comodos() {
   const [state, setState] = useState({
@@ -28,6 +33,10 @@ export default function Comodos() {
 
   const [coveredGarage, setCoveredGarage] = useState()
 
+  const router = useRouter();
+
+  router.prefetch('/imoveis/novo/preco')
+
   function handleChange(event) {
     setState({
       ...state,
@@ -39,9 +48,32 @@ export default function Comodos() {
     setCoveredGarage(newValue);
   };
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
-    alert('comodos')
+
+    const ref = doc(Firestore, 'initial_informations', localStorage.getItem('new_property_id'))
+
+    await updateDoc(ref, {
+      rooms: {
+        bedroom: state.bedroom,
+        suite: state.suite,
+        bathroom: state.bathroom,
+        garage: state.garage,
+        covered_garage: state.covered_garage,
+        tvroom: state.tvroom,
+        diningroom: state.diningroom,
+        livingroom: state.livingroom,
+        washbasin: state.washbasin,
+        service_area: state.service_area,
+        kitchen: state.kitchen,
+        closet: state.closet,
+        office: state.office,
+        employeeDependency: state.employeeDependency,
+        pantry: state.pantry
+      }
+    })
+
+    router.push('/imoveis/novo/medidas')
   }
 
   return (

@@ -1,23 +1,34 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useRouter } from 'next/router'
+import { doc, updateDoc } from "firebase/firestore"
 import dynamic from 'next/dynamic'
 const ReactQuill = dynamic(() => import('react-quill'), { ssr: false })
-import 'react-quill/dist/quill.snow.css'
+
 import { Box } from "@mui/system"
 import { FormControl, TextField } from '@mui/material'
+import 'react-quill/dist/quill.snow.css'
+import styles from './styles.module.css'
+
 import AsideNav from "../../../../components/AsideNav"
 import ImoveisAsideNav from '../../../../components/imoveis/aside/AsideNav'
 import Main from "../../../../components/imoveis/main/Main"
 import Form from "../../../../components/imoveis/Form"
 
-import styles from './styles.module.css'
+import { Firestore } from "../../../../Firebase"
 
 export default function Descricao() {
   const [pageTitle, setPageTitle] = useState('')
   const [description, setDescription] = useState('')
 
+  const router = useRouter()
+
   function handleSubmit(event) {
     event.preventDefault()
-    console.log('descrição')
+
+    const ref = doc(Firestore, 'initial_informations', localStorage.getItem('new_property_id'))
+    updateDoc(ref, { description: { page_title: pageTitle, description: description } })
+
+    router.push('/imoveis/novo/imagens')
   }
 
   return (

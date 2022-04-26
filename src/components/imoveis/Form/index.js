@@ -1,9 +1,18 @@
+import { useRouter } from 'next/router'
 import { Box } from "@mui/system"
 import { Button } from "@mui/material"
 import { pink } from '@mui/material/colors'
 
 export default function Form({ children, handleSubmit, gridTemplateColumnsCustom }) {
   const gridTemplateColumns = (gridTemplateColumnsCustom ?? { xs: '1fr', md: '1fr 1fr', lg: '1fr 1fr 1fr' })
+
+  const router = useRouter()
+
+  function handleCancelClick(event) {
+    event.preventDefault()
+    localStorage.removeItem('new_property_id')
+    router.push('/')
+  }
 
   return (
     <Box
@@ -46,6 +55,7 @@ export default function Form({ children, handleSubmit, gridTemplateColumnsCustom
               backgroundColor: pink[50]
             }
           }}
+          onClick={handleCancelClick}
         >
           Cancelar
         </Button>
@@ -64,7 +74,7 @@ export default function Form({ children, handleSubmit, gridTemplateColumnsCustom
           }}
           type='submit'
         >
-          Próximo
+          {(router.asPath == '/imoveis/novo/publicacao' ? 'Finalizar' : 'Próximo')}
         </Button>
       </Box>
     </Box>

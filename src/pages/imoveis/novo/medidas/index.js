@@ -1,10 +1,16 @@
 import { useState } from 'react'
+import { useRouter } from 'next/router'
+import { doc, updateDoc } from 'firebase/firestore'
+
 import { Box } from "@mui/system"
 import { FormControl, TextField, InputAdornment } from "@mui/material"
+
 import AsideNav from "../../../../components/AsideNav"
 import ImoveisAsideNav from '../../../../components/imoveis/aside/AsideNav'
 import Main from "../../../../components/imoveis/main/Main"
 import Form from "../../../../components/imoveis/Form"
+
+import { Firestore } from '../../../../Firebase'
 
 export default function Medidas() {
   const [state, setState] = useState({
@@ -17,6 +23,10 @@ export default function Medidas() {
     back_ground: '',
   })
 
+  const router = useRouter()
+
+  router.prefetch('/imoveis/novo/preco')
+
   function handleChange(event) {
     setState({
       ...state,
@@ -26,7 +36,22 @@ export default function Medidas() {
 
   function handleSubmit(event) {
     event.preventDefault();
-    alert('medidas')
+
+    const ref = doc(Firestore, 'initial_informations', localStorage.getItem('new_property_id'))
+
+    updateDoc(ref, {
+      measures: {
+        built_area: state.built_area,
+        private_area: state.private_area,
+        total_area: state.total_area,
+        front_ground: state.front_ground,
+        right_ground: state.right_ground,
+        left_ground: state.left_ground,
+        back_ground: state.back_ground,
+      }
+    })
+
+    router.push('/imoveis/novo/preco')
   }
 
   return (
