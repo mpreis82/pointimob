@@ -24,8 +24,6 @@ export default function Publicacao() {
   function handleSubmit(event) {
     event.preventDefault()
 
-    console.log('publish')
-
     const ref = doc(Firestore, 'initial_informations', localStorage.getItem('new_property_id'))
 
     updateDoc(ref, {

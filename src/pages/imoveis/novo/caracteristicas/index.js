@@ -55,7 +55,7 @@ export default function Caracteristicas() {
 
   const router = useRouter()
 
-  router.prefetch('/imoveis/novo/condominio')
+  // router.prefetch('/imoveis/novo/condominio')
 
   function handleChange(event) {
     const checkeds = { ...characteristcs, [event.currentTarget.name]: event.currentTarget.checked }

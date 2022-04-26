@@ -4,7 +4,7 @@ import { Box } from "@mui/system"
 import { grey, pink } from '@mui/material/colors'
 import MaterialLink from '@mui/material/Link'
 
-export default function AsideNavItem({ label, href, currentStep, index, informationValid }) {
+export default function AsideNavItem({ label, href, currentStep, index, informationValid, disabled = false }) {
   const router = useRouter()
 
   return (
@@ -23,7 +23,7 @@ export default function AsideNavItem({ label, href, currentStep, index, informat
           backgroundColor: (index <= currentStep ? pink[600] : grey[300]),
           top: '50%',
           left: 13,
-          zIndex: 1
+          zIndex: 1,
         },
         ':last-of-type': {
           '::after': {
@@ -32,13 +32,13 @@ export default function AsideNavItem({ label, href, currentStep, index, informat
         }
       }}
     >
-      <Link href={href} passHref={true}>
+      <Link href={(disabled == true ? '' : href)} passHref={true} >
         <MaterialLink
           display='flex'
           alignItems='center'
           py={1}
           underline='none'
-          sx={{ pointerEvents: ((informationValid || index == 0) ? 'auto' : 'none') }}
+          sx={{ pointerEvents: ((informationValid || index == 0) ? 'auto' : 'none'), cursor: (disabled == true ? 'not-allowed' : 'pointer') }}
         >
           <Box
             component='span'
@@ -52,7 +52,7 @@ export default function AsideNavItem({ label, href, currentStep, index, informat
           >
           </Box>
 
-          <Box>{label}</Box>
+          <Box color={(disabled == true ? grey[400] : 'primary')}>{label}</Box>
 
         </MaterialLink>
       </Link>
