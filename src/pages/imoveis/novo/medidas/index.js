@@ -1,9 +1,9 @@
-import { useState } from 'react'
+import { useState, useEffect, useLayoutEffect } from 'react'
 import { useRouter } from 'next/router'
-import { doc, updateDoc } from 'firebase/firestore'
+import { doc, getDoc, updateDoc } from 'firebase/firestore'
 
 import { Box } from "@mui/system"
-import { FormControl, TextField, InputAdornment } from "@mui/material"
+import { FormControl, TextField, InputAdornment, Stack, Snackbar, Alert, Backdrop, CircularProgress } from "@mui/material"
 
 import AsideNav from "../../../../components/AsideNav"
 import ImoveisAsideNav from '../../../../components/imoveis/aside/AsideNav'
@@ -17,15 +17,44 @@ export default function Medidas() {
     built_area: '',
     private_area: '',
     total_area: '',
-    front_ground: '',
-    right_ground: '',
-    left_ground: '',
-    back_ground: '',
   })
+
+  const [alert, setAlert] = useState({
+    severity: 'success',
+    message: '',
+    open: false
+  })
+
+  const [loaded, setLoaded] = useState(false)
+
+  useEffect(async () => {
+    const propertyId = localStorage.getItem('new_property_id')
+    if (propertyId) {
+      const docRef = doc(Firestore, 'properties', propertyId)
+      const docSnap = await getDoc(docRef)
+
+      if (docSnap.exists() && docSnap.data().measures) {
+        const data = docSnap.data().measures
+        setState({
+          built_area: data.built_area,
+          private_area: data.private_area,
+          total_area: data.total_area,
+        })
+      }
+    }
+  }, [])
 
   const router = useRouter()
 
-  router.prefetch('/imoveis/novo/preco')
+  useLayoutEffect(() => {
+    const newPropertyId = localStorage.getItem('new_property_id')
+
+    if (router.asPath != '/imoveis/novo/informacoes' && !newPropertyId) {
+      router.push('/imoveis/novo/informacoes')
+    } else {
+      setLoaded(true)
+    }
+  }, [])
 
   function handleChange(event) {
     setState({
@@ -34,78 +63,88 @@ export default function Medidas() {
     })
   }
 
-  function handleSubmit(event) {
-    event.preventDefault();
-
-    const ref = doc(Firestore, 'initial_informations', localStorage.getItem('new_property_id'))
-
-    updateDoc(ref, {
-      measures: {
-        built_area: state.built_area,
-        private_area: state.private_area,
-        total_area: state.total_area,
-        front_ground: state.front_ground,
-        right_ground: state.right_ground,
-        left_ground: state.left_ground,
-        back_ground: state.back_ground,
-      }
-    })
-
-    router.push('/imoveis/novo/preco')
+  function handleSnackbarClose(event, reason) {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setAlert({ ...alert, open: false });
   }
 
-  return (
-    <Box display='flex' height='calc(100% - 45px)' bgcolor='silver' overflow='hidden'>
-      <AsideNav>
-        <ImoveisAsideNav />
-      </AsideNav>
+  async function handleSubmit(event) {
+    event.preventDefault();
 
-      <Main title='Medidas'>
-        <Form handleSubmit={handleSubmit}>
-          <FormControl variant="outlined">
-            <Box component='label' fontWeight='bold' mb={1}>Área construída</Box>
-            <TextField
-              type='number'
-              name="built_area"
-              value={state.built_area}
-              onChange={handleChange}
-              helperText=''
-              InputProps={{ endAdornment: <InputAdornment position="end">m²</InputAdornment> }}
-            />
-          </FormControl>
+    try {
+      const ref = doc(Firestore, 'properties', localStorage.getItem('new_property_id'))
 
-          <FormControl variant="outlined">
-            <Box component='label' fontWeight='bold' mb={1}>Área privada</Box>
-            <TextField type='number' name="private_area" value={state.private_area} onChange={handleChange} helperText='' InputProps={{ endAdornment: <InputAdornment position="end">m²</InputAdornment> }} />
-          </FormControl>
+      await updateDoc(ref, {
+        measures: {
+          built_area: state.built_area,
+          private_area: state.private_area,
+          total_area: state.total_area,
+        },
+        'steps_progress.measures': 'done'
+      })
 
-          <FormControl variant="outlined">
-            <Box component='label' fontWeight='bold' mb={1}>Terreno área total</Box>
-            <TextField type='number' name="total_area" value={state.total_area} onChange={handleChange} helperText='' InputProps={{ endAdornment: <InputAdornment position="end">m²</InputAdornment> }} />
-          </FormControl>
+      setAlert({
+        severity: 'success',
+        message: 'Salvo.',
+        open: true
+      })
 
-          <FormControl variant="outlined">
-            <Box component='label' fontWeight='bold' mb={1}>Terreno frente</Box>
-            <TextField type='number' name="front_ground" value={state.front_ground} onChange={handleChange} helperText='' InputProps={{ endAdornment: <InputAdornment position="end">m²</InputAdornment> }} />
-          </FormControl>
+      setTimeout(() => {
+        router.push('/imoveis/novo/preco')
+      }, 2300);
 
-          <FormControl variant="outlined">
-            <Box component='label' fontWeight='bold' mb={1}>Terreno direita</Box>
-            <TextField type='number' name="right_ground" value={state.right_ground} onChange={handleChange} helperText='' InputProps={{ endAdornment: <InputAdornment position="end">m²</InputAdornment> }} />
-          </FormControl>
+    } catch (err) {
+      setAlert({
+        severity: 'error',
+        message: 'Desculpe! Algo deu errado e estamos corrigindo.',
+        open: true
+      })
+    }
+  }
 
-          <FormControl variant="outlined">
-            <Box component='label' fontWeight='bold' mb={1}>Terreno esquerda</Box>
-            <TextField type='number' name="left_ground" value={state.left_ground} onChange={handleChange} helperText='' InputProps={{ endAdornment: <InputAdornment position="end">m²</InputAdornment> }} />
-          </FormControl>
+  if (loaded) {
+    return (
+      <Box display='flex' height='calc(100% - 45px)' bgcolor='silver' overflow='hidden'>
+        <AsideNav>
+          <ImoveisAsideNav />
+        </AsideNav>
 
-          <FormControl variant="outlined">
-            <Box component='label' fontWeight='bold' mb={1}>Terreno fundo</Box>
-            <TextField type='number' name="back_ground" value={state.back_ground} onChange={handleChange} helperText='' InputProps={{ endAdornment: <InputAdornment position="end">m²</InputAdornment> }} />
-          </FormControl>
-        </Form>
-      </Main>
+        <Main title='Medidas'>
+          <Form handleSubmit={handleSubmit}>
+            <FormControl variant="outlined">
+              <Box component='label' fontWeight='bold' mb={1}>Área construída</Box>
+              <TextField type='number' name="built_area" value={state.built_area} onChange={handleChange} InputProps={{ endAdornment: <InputAdornment position="end">m²</InputAdornment> }} />
+            </FormControl>
 
-    </Box >
-  )
+            <FormControl variant="outlined">
+              <Box component='label' fontWeight='bold' mb={1}>Área privada</Box>
+              <TextField type='number' name="private_area" value={state.private_area} onChange={handleChange} InputProps={{ endAdornment: <InputAdornment position="end">m²</InputAdornment> }} />
+            </FormControl>
+
+            <FormControl variant="outlined">
+              <Box component='label' fontWeight='bold' mb={1}>Terreno área total</Box>
+              <TextField type='number' name="total_area" value={state.total_area} onChange={handleChange} InputProps={{ endAdornment: <InputAdornment position="end">m²</InputAdornment> }} />
+            </FormControl>
+          </Form>
+
+          <Stack spacing={2} sx={{ width: '100%' }}>
+            <Snackbar open={alert.open} autoHideDuration={(alert.severity == 'success' ? 2000 : 6000)} onClose={handleSnackbarClose}>
+              <Alert severity={alert.severity} sx={{ boxShadow: 5 }}>{alert.message}</Alert>
+            </Snackbar>
+          </Stack>
+        </Main>
+      </Box >
+    )
+  } else {
+    return (
+      <Backdrop
+        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={true}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
+    )
+  }
 }

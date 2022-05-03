@@ -7,7 +7,6 @@ export default function BasicMenu() {
   const open = Boolean(anchorEl);
 
   const handleClick = (event) => {
-    console.log(event.currentTarget);
     setAnchorEl(event.currentTarget);
   };
 

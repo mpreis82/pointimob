@@ -32,7 +32,7 @@ export default function AsideNavItem({ label, href, currentStep, index, informat
         }
       }}
     >
-      <Link href={(disabled == true ? '' : href)} passHref={true} >
+      <Link href={(disabled == true ? '#' : href)} passHref={true} >
         <MaterialLink
           display='flex'
           alignItems='center'

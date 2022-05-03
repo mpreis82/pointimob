@@ -11,7 +11,7 @@ import AsideNav from "../../../../components/AsideNav"
 import ImoveisAsideNav from '../../../../components/imoveis/aside/AsideNav'
 import Main from "../../../../components/imoveis/main/Main"
 import Form from "../../../../components/imoveis/Form"
-import ImagesList from '../../../../components/imoveis/images/ImagesList'
+import ImagesListSample from '../../../../components/imoveis/images/ImagesListSample'
 
 import { Firestore, Storage } from '../../../../Firebase'
 
@@ -28,12 +28,15 @@ export default function Imagens() {
 
   const [loaded, setLoaded] = useState(false)
 
-  // useEffect(async () => {
-  // const propertyId = localStorage.getItem('new_property_id')
-  // const imageReference = ref(Storage, `imoveis/images/${propertyId}/img5.jpg`)
-  // getDownloadURL(imageReference)
-  //   .then((url) => console.log(url))
-  // }, [])
+  useEffect(async () => {
+    // const propertyId = localStorage.getItem('new_property_id')
+    // const imageReference = ref(Storage, `imoveis/images/${propertyId}/img5.jpg`)
+    // getDownloadURL(imageReference)
+    //   .then((url) => console.log(url))
+
+    const propertyImages = localStorage.getItem('new_property_images')
+    setImages(JSON.parse(propertyImages))
+  }, [])
 
   const router = useRouter()
 
@@ -123,6 +126,10 @@ export default function Imagens() {
             })
           })
         })
+
+        const images = list.map(image => URL.createObjectURL(image))
+
+        localStorage.setItem('new_property_images', JSON.stringify(images))
       }
 
       await updateDoc(refDoc, {
@@ -135,12 +142,13 @@ export default function Imagens() {
         open: true
       })
 
-      setTimeout(() => {
-        router.push('/imoveis/novo/publicacao')
-      }, 2300);
+      // setTimeout(() => {
+      //   router.push('/imoveis/novo/publicacao')
+      // }, 2300);
 
 
     } catch (err) {
+      console.log(err)
       setAlert({
         severity: 'error',
         message: 'Desculpe! Algo deu errado e estamos corrigindo.',
@@ -167,7 +175,7 @@ export default function Imagens() {
               </Box>
 
               <TabPanel value={value} index={0} width='100%' position='relative'>
-                <ImagesList list={list} setList={setList} images={images} />
+                <ImagesListSample list={list} setList={setList} images={images} />
               </TabPanel>
 
               <TabPanel value={value} index={1}>

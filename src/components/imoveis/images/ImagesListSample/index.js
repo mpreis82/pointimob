@@ -74,7 +74,7 @@ function renderImage({ image, handleRemoveImage, index, handleDragStart }) {
   )
 }
 
-export default function ImagesListSample({ setShowAddImages, showAddImages, list, setList }) {
+export default function ImagesList({ setShowAddImages, showAddImages, list, setList }) {
   const [dragableIndex, setDragableIndex] = useState(null);
 
   useEffect(() => {

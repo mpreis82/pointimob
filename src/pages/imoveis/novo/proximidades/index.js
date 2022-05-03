@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react'
+import { useLayoutEffect, useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
-import { doc, updateDoc } from 'firebase/firestore'
+import { doc, getDoc, updateDoc } from 'firebase/firestore'
 
 import { Box } from "@mui/system"
-import { FormGroup, FormControlLabel, Checkbox } from '@mui/material'
+import { FormGroup, FormControlLabel, Checkbox, Stack, Snackbar, Alert, Backdrop, CircularProgress } from '@mui/material'
 
 import AsideNav from "../../../../components/AsideNav"
 import ImoveisAsideNav from '../../../../components/imoveis/aside/AsideNav'
@@ -13,71 +13,144 @@ import Form from "../../../../components/imoveis/Form"
 import { Firestore } from '../../../../Firebase'
 
 export default function Proximidades() {
-  const [nearby, setNearby] = useState({
-    'Banco': false,
-    'Escola': false,
-    'Escola de idioma': false,
-    'Faculdade': false,
-    'Farmácia': false,
-    'Hospital': false,
-    'Igreja': false,
-    'Padaria': false,
-    'Praça': false,
-    'Rodovia': false,
-    'Shopping': false,
-    'Supermercado': false,
+  const [nearbys, setNearbys] = useState([
+    { name: 'Banco', checked: false },
+    { name: 'Escola', checked: false },
+    { name: 'Escola de idioma', checked: false },
+    { name: 'Faculdade', checked: false },
+    { name: 'Farmácia', checked: false },
+    { name: 'Hospital', checked: false },
+    { name: 'Igreja', checked: false },
+    { name: 'Padaria', checked: false },
+    { name: 'Praça', checked: false },
+    { name: 'Rodovia', checked: false },
+    { name: 'Shopping', checked: false },
+    { name: 'Supermercado', checked: false },
+  ])
+
+  const [alert, setAlert] = useState({
+    severity: 'success',
+    message: '',
+    open: false
   })
 
-  const [nearbyChecked, setNearbyChecked] = useState()
+  const [loaded, setLoaded] = useState(false)
+
+  useEffect(async () => {
+    setLoaded(false)
+    const propertyId = localStorage.getItem('new_property_id')
+    if (propertyId) {
+      const docRef = doc(Firestore, 'properties', propertyId)
+      const docSnap = await getDoc(docRef)
+
+      if (docSnap.exists() && docSnap.data().nearbys) {
+        const data = docSnap.data().nearbys
+        setNearbys(data)
+      }
+    }
+    setLoaded(true)
+  }, [])
 
   const router = useRouter()
 
+  useLayoutEffect(() => {
+    const newPropertyId = localStorage.getItem('new_property_id')
+
+    if (router.asPath != '/imoveis/novo/informacoes' && !newPropertyId) {
+      router.push('/imoveis/novo/informacoes')
+    } else {
+      setLoaded(true)
+    }
+  }, [])
+
   function handleChange(event) {
-    const list = { ...nearbyChecked, [event.target.name]: event.target.checked }
-    Object.keys(list).map(key => {
-      list[key] == false && delete list[key]
-    })
-    setNearbyChecked(list)
+    let newNearbys = [...nearbys]
+    const index = newNearbys.findIndex(nearby => nearby.name == event.target.name)
+    newNearbys[index]['checked'] = event.target.checked
+    setNearbys(newNearbys)
   }
 
-  function handleSubmit(event) {
+  function handleSnackbarClose(event, reason) {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setAlert({ ...alert, open: false });
+  }
+
+  async function handleSubmit(event) {
     event.preventDefault()
 
-    const ref = doc(Firestore, 'initial_informations', localStorage.getItem('new_property_id'))
+    try {
+      const ref = doc(Firestore, 'properties', localStorage.getItem('new_property_id'))
 
-    updateDoc(ref, {
-      nearby: nearbyChecked
-    })
+      await updateDoc(ref, {
+        nearbys,
+        'steps_progress.nearbys': 'done'
+      })
 
-    router.push('/imoveis/novo/descricao')
+      setAlert({
+        severity: 'success',
+        message: 'Salvo.',
+        open: true
+      })
+
+      setTimeout(() => {
+        router.push('/imoveis/novo/descricao')
+      }, 2300);
+
+    } catch (err) {
+      setAlert({
+        severity: 'error',
+        message: 'Desculpe! Algo deu errado e estamos corrigindo.',
+        open: true
+      })
+    }
   }
 
-  return (
-    <Box display='flex' height='calc(100% - 45px)' bgcolor='silver' overflow='hidden'>
-      <AsideNav>
-        <ImoveisAsideNav />
-      </AsideNav>
+  if (loaded) {
+    return (
+      <Box display='flex' height='calc(100% - 45px)' bgcolor='silver' overflow='hidden'>
+        <AsideNav>
+          <ImoveisAsideNav />
+        </AsideNav>
 
-      <Main title='Proximidades'>
-        <Form handleSubmit={handleSubmit} gridTemplateColumnsCustom='1fr'>
-          <FormGroup position='relative' display='block' width='100%'>
-            <Box position='relative' display='block' width='100%' sx={{ columnCount: 4 }}>
-              {Object.keys(nearby).map((key, index) => (
-                <Box key={index}>
-                  <FormControlLabel
-                    name={key}
-                    control={<Checkbox />}
-                    label={key}
-                    display='block'
-                    width='100%'
-                    onChange={handleChange}
-                  />
-                </Box>
-              ))}
-            </Box>
-          </FormGroup>
-        </Form>
-      </Main>
-    </Box >
-  )
+        <Main title='Proximidades'>
+          <Form handleSubmit={handleSubmit} gridTemplateColumnsCustom='1fr'>
+            <FormGroup position='relative' display='block' width='100%'>
+              <Box position='relative' display='block' width='100%' sx={{ columnCount: { xs: 1, sm: 2, md: 3, lg: 4 } }}>
+                {nearbys.map((nearby, index) => (
+                  <Box key={index}>
+                    <FormControlLabel
+                      name={nearby.name}
+                      control={<Checkbox />}
+                      label={nearby.name}
+                      display='block'
+                      width='100%'
+                      checked={nearby.checked}
+                      onChange={handleChange}
+                    />
+                  </Box>
+                ))}
+              </Box>
+            </FormGroup>
+          </Form>
+
+          <Stack spacing={2} sx={{ width: '100%' }}>
+            <Snackbar open={alert.open} autoHideDuration={(alert.severity == 'success' ? 2000 : 6000)} onClose={handleSnackbarClose}>
+              <Alert severity={alert.severity} sx={{ boxShadow: 5 }}>{alert.message}</Alert>
+            </Snackbar>
+          </Stack>
+        </Main>
+      </Box >
+    )
+  } else {
+    return (
+      <Backdrop
+        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={true}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
+    )
+  }
 }

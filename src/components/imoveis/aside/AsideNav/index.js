@@ -11,7 +11,6 @@ export default function AsideNav() {
   const router = useRouter()
 
   useEffect(() => {
-    console.log(localStorage.getItem('new_property_id'))
     if (localStorage.getItem('new_property_id')) {
       setDisabled(false)
     }

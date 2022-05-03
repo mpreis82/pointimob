@@ -1,17 +1,34 @@
+import { useState } from 'react'
 import { useRouter } from 'next/router'
+import { doc, deleteDoc } from 'firebase/firestore'
+
 import { Box } from "@mui/system"
-import { Button } from "@mui/material"
+import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from "@mui/material"
 import { pink } from '@mui/material/colors'
 
+import { Firestore } from '../../../Firebase'
+
 export default function Form({ children, handleSubmit, gridTemplateColumnsCustom }) {
+  const [openDialog, setOpenDialog] = useState(false)
+
   const gridTemplateColumns = (gridTemplateColumnsCustom ?? { xs: '1fr', md: '1fr 1fr', lg: '1fr 1fr 1fr' })
 
   const router = useRouter()
 
-  function handleCancelClick(event) {
+  async function handleCancelClick(event) {
     event.preventDefault()
-    localStorage.removeItem('new_property_id')
-    router.push('/')
+    setOpenDialog(true)
+  }
+
+  async function handleDialogCancelClick() {
+    const propertyId = localStorage.getItem('new_property_id')
+
+    if (propertyId) {
+      const ref = doc(Firestore, 'properties', propertyId)
+      deleteDoc(ref)
+      localStorage.removeItem('new_property_id')
+    }
+    router.push('/imoveis')
   }
 
   return (
@@ -27,6 +44,7 @@ export default function Form({ children, handleSubmit, gridTemplateColumnsCustom
       }}
       onSubmit={handleSubmit}
     >
+
       {children}
 
       <Box
@@ -77,6 +95,20 @@ export default function Form({ children, handleSubmit, gridTemplateColumnsCustom
           {(router.asPath == '/imoveis/novo/publicacao' ? 'Finalizar' : 'Próximo')}
         </Button>
       </Box>
+
+      <Dialog open={openDialog}>
+        <DialogTitle>Deseja cancelar?</DialogTitle>
+
+        <DialogContent>
+          <DialogContentText>Todas as informações serão excluídas.</DialogContentText>
+        </DialogContent>
+
+        <DialogActions>
+          <Button color='info' onClick={() => setOpenDialog(false)}>Não</Button>
+          <Button variant='contained' color='error' onClick={handleDialogCancelClick}>Sim</Button>
+        </DialogActions>
+
+      </Dialog>
     </Box>
   )
 }

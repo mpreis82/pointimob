@@ -2,10 +2,10 @@ import React from 'react'
 import { useState, useEffect } from 'react'
 import { collection, query, getDocs, orderBy } from 'firebase/firestore'
 import { Box } from "@mui/system"
-import { Select, FormControl } from '@mui/material'
+import { Select, FormControl, FormHelperText } from '@mui/material'
 import { Firestore } from '../../Firebase'
 
-export default function SelectPropertyTypes({ value, setValue }) {
+export default function SelectPropertyTypes({ value, setValue, error, message, validateBlur }) {
   const [propertyTypes, setPropertyTypes] = useState([]);
 
   useEffect(async () => {
@@ -36,10 +36,11 @@ export default function SelectPropertyTypes({ value, setValue }) {
   return (
     <FormControl>
       <Box component='label' htmlFor="" fontWeight='bold' mb={1}>Tipo/Subtipo</Box>
-      <Select native name="subtype" value={value} onChange={setValue}>
+      <Select native name="subtype" value={value} onChange={setValue} error={error} onBlur={validateBlur}>
         <option aria-label="None" value={'0'} />
         {propertyTypes.map(t => t)}
       </Select>
+      <FormHelperText error={error}>{error ? message : ''}</FormHelperText>
     </FormControl >
   )
 }

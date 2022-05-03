@@ -1,9 +1,9 @@
-import { useState } from 'react'
+import { useState, useEffect, useLayoutEffect } from 'react'
 import { useRouter } from 'next/router'
-import { doc, updateDoc } from 'firebase/firestore'
+import { doc, getDoc, updateDoc, query, orderBy } from 'firebase/firestore'
 
 import { Box } from "@mui/system"
-import { FormControlLabel, Checkbox, FormGroup } from "@mui/material"
+import { FormControlLabel, Checkbox, FormGroup, Stack, Snackbar, Alert, Backdrop, CircularProgress } from "@mui/material"
 
 import AsideNav from "../../../../components/AsideNav"
 import ImoveisAsideNav from '../../../../components/imoveis/aside/AsideNav'
@@ -13,101 +13,165 @@ import Form from "../../../../components/imoveis/Form"
 import { Firestore } from '../../../../Firebase'
 
 export default function Caracteristicas() {
-  const [characteristChecked, setCharacteristChecked] = useState({})
-  const [characteristcs, setCharacteristcs] = useState({
-    'Academia': false,
-    'Aquecimento a gás': false,
-    'Aquecimento central': false,
-    'Aquecimento solar': false,
-    'Ar condicionado central': false,
-    'Área de lazer': false,
-    'Área esportiva': false,
-    'Calefação': false,
-    'Churrasqueira': false,
-    'Circuito de segurança': false,
-    'Deck Molhado': false,
-    'Depósito': false,
-    'Elevador': false,
-    'Espaço Gourmet': false,
-    'Espaço verde': false,
-    'Estacionamento': false,
-    'Forro de gesso': false,
-    'Forro de madeira': false,
-    'Forro de PVC': false,
-    'Gás central': false,
-    'Gás individual': false,
-    'Hidromassagem': false,
-    'Hidrômetro individual': false,
-    'Interfone': false,
-    'Internet': false,
-    'Lareira': false,
-    'Lavanderia': false,
-    'Piscina': false,
-    'Playground': false,
-    'Portaria': false,
-    'Sacada': false,
-    'Salão de festas': false,
-    'Sauna': false,
-    'Sistema de alarme': false,
-    'SPA': false,
-    'Vigia': false,
+  const [characteristics, setCharacteristics] = useState([
+    { name: 'Academia', checked: false },
+    { name: 'Aquecimento a gás', checked: false },
+    { name: 'Aquecimento central', checked: false },
+    { name: 'Aquecimento solar', checked: false },
+    { name: 'Ar condicionado central', checked: false },
+    { name: 'Área de lazer', checked: false },
+    { name: 'Área esportiva', checked: false },
+    { name: 'Calefação', checked: false },
+    { name: 'Churrasqueira', checked: false },
+    { name: 'Circuito de segurança', checked: false },
+    { name: 'Deck Molhado', checked: false },
+    { name: 'Depósito', checked: false },
+    { name: 'Elevador', checked: false },
+    { name: 'Espaço Gourmet', checked: false },
+    { name: 'Espaço verde', checked: false },
+    { name: 'Estacionamento', checked: false },
+    { name: 'Forro de gesso', checked: false },
+    { name: 'Forro de madeira', checked: false },
+    { name: 'Forro de PVC', checked: false },
+    { name: 'Gás central', checked: false },
+    { name: 'Gás individual', checked: false },
+    { name: 'Hidromassagem', checked: false },
+    { name: 'Hidrômetro individual', checked: false },
+    { name: 'Interfone', checked: false },
+    { name: 'Internet', checked: false },
+    { name: 'Lareira', checked: false },
+    { name: 'Lavanderia', checked: false },
+    { name: 'Piscina', checked: false },
+    { name: 'Playground', checked: false },
+    { name: 'Portaria', checked: false },
+    { name: 'Sacada', checked: false },
+    { name: 'Salão de festas', checked: false },
+    { name: 'Sauna', checked: false },
+    { name: 'Sistema de alarme', checked: false },
+    { name: 'SPA', checked: false },
+    { name: 'Vigia', checked: false },
+  ])
+
+  const [alert, setAlert] = useState({
+    severity: 'success',
+    message: '',
+    open: false,
   })
+
+  const [loaded, setLoaded] = useState(false)
+
+  useEffect(async () => {
+    setLoaded(false)
+    const propertyId = localStorage.getItem('new_property_id')
+    if (propertyId) {
+      const docRef = doc(Firestore, 'properties', propertyId)
+      const docSnap = await getDoc(docRef)
+
+      if (docSnap.exists() && docSnap.data().characteristics) {
+        const data = docSnap.data().characteristics
+        setCharacteristics(data)
+      }
+    }
+    setLoaded(true)
+  }, [])
 
   const router = useRouter()
 
-  // router.prefetch('/imoveis/novo/condominio')
+  useLayoutEffect(() => {
+    const newPropertyId = localStorage.getItem('new_property_id')
+
+    if (router.asPath != '/imoveis/novo/informacoes' && !newPropertyId) {
+      router.push('/imoveis/novo/informacoes')
+    } else {
+      setLoaded(true)
+    }
+  }, [])
 
   function handleChange(event) {
-    const checkeds = { ...characteristcs, [event.currentTarget.name]: event.currentTarget.checked }
-    Object.keys(checkeds).map(key => {
-      (checkeds[key] == false && delete checkeds[key])
-      return
-    })
-    setCharacteristChecked(checkeds)
-    setCharacteristcs({ ...characteristcs, [event.currentTarget.name]: event.currentTarget.checked })
+    let newCharacteristics = [...characteristics]
+    const index = newCharacteristics.findIndex((c) => c.name == event.target.name)
+    newCharacteristics[index]['checked'] = true
+    setCharacteristics(newCharacteristics)
   }
 
-  function handleSubmit(event) {
+  function handleSnackbarClose() {
+    setAlert({ ...alert, open: false })
+  }
+
+  async function handleSubmit(event) {
     event.preventDefault();
 
-    const ref = doc(Firestore, 'initial_informations', localStorage.getItem('new_property_id'))
+    try {
+      const ref = doc(Firestore, 'properties', localStorage.getItem('new_property_id'))
 
-    updateDoc(ref, {
-      characteristics: {
-        characteristcs
-      }
-    })
+      await updateDoc(ref, {
+        characteristics,
+        'steps_progress.characteristics': 'done'
+      })
 
-    router.push('/imoveis/novo/condominio')
+      setAlert({
+        severity: 'success',
+        message: 'Salvo.',
+        open: true
+      })
+
+      setTimeout(() => {
+        router.push('/imoveis/novo/condominio')
+      }, 2300);
+
+    } catch (err) {
+      setAlert({
+        severity: 'error',
+        message: 'Desculpe! Algo deu errado e estamos corrigindo.',
+        open: true
+      })
+    }
   }
 
-  return (
-    <Box display='flex' height='calc(100% - 45px)' bgcolor='silver' overflow='hidden'>
-      <AsideNav>
-        <ImoveisAsideNav />
-      </AsideNav>
+  if (loaded) {
+    return (
+      <Box display='flex' height='calc(100% - 45px)' bgcolor='silver' overflow='hidden'>
+        <AsideNav>
+          <ImoveisAsideNav />
+        </AsideNav>
 
-      <Main title='Características do imóvel'>
-        <Form gridTemplateColumnsCustom={'1fr'} handleSubmit={handleSubmit}>
-          <FormGroup position='relative' display='block' width='100%'>
-            <Box position='relative' display='block' width='100%' sx={{ columnCount: 3 }}>
-              {Object.keys(characteristcs).map(key => (
-                <Box key={key}>
-                  <FormControlLabel
-                    name={key}
-                    control={<Checkbox />}
-                    label={key}
-                    display='block'
-                    width='100%'
-                    onChange={handleChange}
-                  />
-                </Box>
-              ))}
-            </Box>
-          </FormGroup>
-        </Form>
+        <Main title='Características do imóvel'>
+          <Form gridTemplateColumnsCustom={'1fr'} handleSubmit={handleSubmit}>
+            <FormGroup position='relative' display='block' width='100%'>
+              <Box position='relative' display='block' width='100%' sx={{ columnCount: { xs: 1, sm: 2, md: 3, lg: 4 } }}>
+                {characteristics.map((characteristic, index) => (
+                  <Box key={index}>
+                    <FormControlLabel
+                      name={characteristic.name}
+                      control={<Checkbox />}
+                      label={characteristic.name}
+                      display='block'
+                      width='100%'
+                      onChange={handleChange}
+                      checked={characteristic.checked}
+                    />
+                  </Box>
+                ))}
+              </Box>
+            </FormGroup>
+          </Form>
 
-      </Main>
-    </Box >
-  )
+          <Stack spacing={2} sx={{ width: '100%' }}>
+            <Snackbar open={alert.open} autoHideDuration={(alert.severity == 'success' ? 2000 : 6000)} onClose={handleSnackbarClose}>
+              <Alert severity={alert.severity} sx={{ boxShadow: 5 }}>{alert.message}</Alert>
+            </Snackbar>
+          </Stack>
+        </Main>
+      </Box >
+    )
+  } else {
+    return (
+      <Backdrop
+        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={true}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
+    )
+  }
 }
