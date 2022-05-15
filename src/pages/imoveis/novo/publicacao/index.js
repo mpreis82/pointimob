@@ -69,6 +69,7 @@ export default function Publicacao() {
     event.preventDefault()
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     try {
       const ref = doc(Firestore, 'properties', localStorage.getItem('new_property_id'))
 
@@ -101,6 +102,8 @@ export default function Publicacao() {
         open: true
       })
 =======
+=======
+>>>>>>> 9d88386 (add plans to new property)
     const propertyId = localStorage.getItem('new_property_id')
 
     if (propertyId) {
@@ -137,6 +140,9 @@ export default function Publicacao() {
           open: true
         })
       }
+<<<<<<< HEAD
+>>>>>>> 9d88386 (add plans to new property)
+=======
 >>>>>>> 9d88386 (add plans to new property)
     }
   }
