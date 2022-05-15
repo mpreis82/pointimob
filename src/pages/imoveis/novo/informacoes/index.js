@@ -190,7 +190,7 @@ export default function ImoveisNovoInformacoes() {
 
           <FormControl>
             <Box component='label' htmlFor="" fontWeight='bold' mb={1}>Perfil do imóvel</Box>
-            <Select name="profile" value={state.profile} onChange={handleChange} error={formValidate.profile.error} onBlur={handleFormValidate} >
+            <Select name="profile" value={state.profile} onChange={handleChange} error={formValidate.profile.error} onBlur={handleFormValidateBlur} >
               <MenuItem value={'Residencial'}>Residencial</MenuItem>
               <MenuItem value={'Comercial'}>Comercial</MenuItem>
               <MenuItem value={'Residencial/Comercial'}>Residencial/Comercial</MenuItem>
@@ -203,7 +203,7 @@ export default function ImoveisNovoInformacoes() {
 
           <FormControl>
             <Box component='label' htmlFor="" fontWeight='bold' mb={1}>Situação</Box>
-            <Select name="situation" value={state.situation} onChange={handleChange} error={formValidate.situation.error} onBlur={handleFormValidate} >
+            <Select name="situation" value={state.situation} onChange={handleChange} error={formValidate.situation.error} onBlur={handleFormValidateBlur} >
               <MenuItem value={'Breve lançamento'}>Breve lançamento</MenuItem>
               <MenuItem value={'Na plata'}>Na plata</MenuItem>
               <MenuItem value={'Em construção'}>Em construção</MenuItem>
