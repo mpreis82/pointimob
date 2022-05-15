@@ -89,9 +89,9 @@ export default function Publicacao() {
         open: true
       })
 
-      // setTimeout(() => {
-      //   router.push('/imoveis')
-      // }, 6500);
+      setTimeout(() => {
+        router.push('/imoveis')
+      }, 2000);
 
     } catch (err) {
       setAlert({
