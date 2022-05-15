@@ -251,7 +251,6 @@ export default function ImoveisNovoInformacoes() {
               height='100%'
               position='relative'
               onChange={handleMobiliado}
-
             >
               <ToggleButton sx={{ width: 100 }} value='sim'>Sim</ToggleButton>
               <ToggleButton sx={{ width: 100 }} value='não'>Não</ToggleButton>
