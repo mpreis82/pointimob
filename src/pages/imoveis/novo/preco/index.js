@@ -144,8 +144,6 @@ export default function Preco() {
   async function handleSubmit(event) {
     event.preventDefault();
 
-    console.log(state)
-
     if (!handleFormValidate()) return
 
     try {
@@ -179,7 +177,6 @@ export default function Preco() {
 
 
     } catch (err) {
-      console.log(err)
       setAlert({
         severity: 'error',
         message: 'Desculpe! Algo deu errado e estamos corrigindo.',

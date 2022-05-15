@@ -267,7 +267,6 @@ export default function Localizacao() {
                   onChange={(event, newValue) => handleUfChange(event, newValue)}
                   options={ufList}
                   renderInput={(params) => <TextField {...params} error={formValidate.uf.error} />}
-
                 />
                 <FormHelperText error={formValidate.uf.error}>{formValidate.uf.error ? formValidate.uf.message : ''}</FormHelperText>
               </FormControl>

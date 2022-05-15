@@ -2,6 +2,7 @@ import { Box } from "@mui/system"
 import { grey, pink } from '@mui/material/colors'
 
 export default function AsideNav({ children }) {
+
   return (
     <Box
       component='aside'
@@ -11,6 +12,7 @@ export default function AsideNav({ children }) {
       padding={2}
       overflow='auto'
       zIndex='88'
+      position='relative'
       sx={{
         '::-webkit-scrollbar': {
           width: '8px',

@@ -5,7 +5,7 @@ import { Box } from "@mui/system"
 import { Select, FormControl, FormHelperText } from '@mui/material'
 import { Firestore } from '../../Firebase'
 
-export default function SelectPropertyTypes({ value, setValue, error, message, validateBlur }) {
+export default function SelectPropertyTypes({ value, setValue, error, message, validateBlur, size }) {
   const [propertyTypes, setPropertyTypes] = useState([]);
 
   useEffect(async () => {
@@ -36,7 +36,7 @@ export default function SelectPropertyTypes({ value, setValue, error, message, v
   return (
     <FormControl>
       <Box component='label' htmlFor="" fontWeight='bold' mb={1}>Tipo/Subtipo</Box>
-      <Select native name="subtype" value={value} onChange={setValue} error={error} onBlur={validateBlur}>
+      <Select native name="subtype" value={value} onChange={setValue} error={error} onBlur={validateBlur} size={size ?? 'medium'}>
         <option aria-label="None" value={'0'} />
         {propertyTypes.map(t => t)}
       </Select>
