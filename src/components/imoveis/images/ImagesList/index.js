@@ -1,11 +1,16 @@
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
+import { deleteObject, getDownloadURL, ref, uploadBytes, listAll } from 'firebase/storage'
+import { doc, getDoc, updateDoc } from 'firebase/firestore'
 
 import { Box } from "@mui/system"
 import { Button, Input, IconButton } from '@mui/material'
 import { FcAddImage } from 'react-icons/fc'
-
 import { MdClose, MdStarRate, MdDelete, MdCameraEnhance } from 'react-icons/md'
+
+import { Firestore, Storage } from '../../../../Firebase'
+
+import style from './style.module.css'
 
 function renderImage({ image, handleRemoveImage, index, handleDragStart }) {
   return (
@@ -13,23 +18,27 @@ function renderImage({ image, handleRemoveImage, index, handleDragStart }) {
       key={index}
       lineHeight='0'
       width='100%'
+      height='auto'
       position='relative'
       dragabble='true'
       onDragStart={handleDragStart}
-      sx={{
-        cursor: 'move',
-        ':hover div': {
-          display: 'block'
-        },
-      }}
+      sx={{ cursor: 'move', ':hover div': { display: 'block' } }}
     >
-      <Image
-        order={index}
-        src={URL.createObjectURL(image)}
-        width='100%'
-        height='100%'
-        layout='responsive'
-      />
+      <Box
+        lineHeight='0'
+        borderRadius={2}
+        overflow='hidden'
+      >
+        <Image
+          order={index}
+          src={image.src}
+          layout='responsive'
+          priority={true}
+          width='100%'
+          height='100%'
+          className={style.image}
+        />
+      </Box>
       <Box
         position='absolute'
         top='-15px'
@@ -74,7 +83,13 @@ function renderImage({ image, handleRemoveImage, index, handleDragStart }) {
   )
 }
 
-export default function ImagesListSample({ setShowAddImages, showAddImages, list, setList }) {
+export default function ImagesList({
+  setShowAddImages,
+  showAddImages,
+  list,
+  setList
+}) {
+
   const [dragableIndex, setDragableIndex] = useState(null);
 
   useEffect(() => {
@@ -87,24 +102,95 @@ export default function ImagesListSample({ setShowAddImages, showAddImages, list
     }
   }, [list])
 
+  async function addImages(files) {
+    const propertyId = localStorage.getItem('new_property_id')
+    if (propertyId) {
+      const refDoc = doc(Firestore, 'properties', propertyId)
+
+      const docSnap = await getDoc(refDoc)
+
+      if (!docSnap.exists()) return
+
+      const images = Promise.all(Array.from(files).map(async (file, index) => {
+        const storageRef = ref(Storage, `imoveis/images/${propertyId}/${file.name}`)
+        const uploadResult = await uploadBytes(storageRef, file)
+        return {
+          isThumb: index == 0,
+          name: uploadResult.ref.name,
+          fullPath: uploadResult.ref.fullPath,
+          bucket: uploadResult.ref.bucket,
+          src: await getDownloadURL(ref(Storage, uploadResult.ref.fullPath))
+        }
+      }))
+
+      await updateDoc(refDoc, { images: [...list, ... await images] })
+
+      setList([...list, ... await images])
+
+      document.getElementsByTagName('form')[0].reset()
+    }
+  }
+
+  async function deleteImage(image) {
+    const propertyId = localStorage.getItem('new_property_id')
+
+    if (propertyId) {
+      const newList = list.filter(imageList => imageList != image)
+
+      const refDoc = doc(Firestore, 'properties', propertyId)
+
+      const docSnap = await getDoc(refDoc)
+
+      if (!docSnap.exists()) return
+
+      const storageRef = ref(Storage, `imoveis/images/${propertyId}/${image.name}`)
+      await deleteObject(storageRef)
+
+      await updateDoc(refDoc, { images: newList })
+
+      setList(newList)
+    }
+  }
+
+  async function deleteAllImages() {
+    const propertyId = localStorage.getItem('new_property_id')
+
+    if (propertyId) {
+      const listRef = ref(Storage, `imoveis/images/${propertyId}`)
+      const listResult = await listAll(listRef)
+      listResult.items.forEach(async (item) => deleteObject(item))
+
+      const refDoc = doc(Firestore, 'properties', propertyId)
+
+      const docSnap = await getDoc(refDoc)
+
+      if (docSnap.exists() && docSnap.data().images) {
+        await updateDoc(refDoc, { images: [] })
+        setList([])
+      }
+    }
+  }
+
+  async function orderImages(image) {
+
+  }
+
   function handleImobImagesChange(event) {
     const files = event.target.files
-    setList([...files])
-    event.target.form.reset()
+    addImages(files)
   }
 
   function handleImageAddMoreChange(event) {
     const files = event.target.files
-    setList([...list, ...files])
-    event.target.form.reset()
+    addImages(files)
   }
 
-  function handleRemoveImage(image) {
-    setList((prev) => [...prev.filter(i => i != image)])
+  async function handleRemoveImage(image) {
+    deleteImage(image)
   }
 
   function handleImageRemoveAll() {
-    setList([])
+    deleteAllImages()
   }
 
   function handleDragStart(event) {
@@ -132,7 +218,7 @@ export default function ImagesListSample({ setShowAddImages, showAddImages, list
     <>
       <Box display='flex' alignItems='center' flexDirection='column' p={3}>
 
-        <Box display={list.length ? 'none' : 'flex'} flexDirection='column' alignItems='center' >
+        <Box display={list?.length ? 'none' : 'flex'} flexDirection='column' alignItems='center' >
           <Box mb={1}><FcAddImage fontSize={(8 * 8)} opacity='0.5' /></Box>
           <Box component='div' mb={3} fontWeight='bold' >Você ainda não enviou nenhuma foto.</Box>
 
@@ -145,9 +231,9 @@ export default function ImagesListSample({ setShowAddImages, showAddImages, list
           </label>
         </Box>
 
-        <Box width='100%' display={list.length ? 'flex' : 'none'} alignItems='center' justifyContent='space-between'>
+        <Box width='100%' display={list?.length ? 'flex' : 'none'} alignItems='center' justifyContent='space-between'>
           <Box>
-            <Box component='span' fontWeight='bold'>Imagens:</Box> {list.length}
+            <Box component='span' fontWeight='bold'>Imagens:</Box> {list?.length}
           </Box>
           <Box>
             <label htmlFor='imagesRemoveAll'>
@@ -174,20 +260,14 @@ export default function ImagesListSample({ setShowAddImages, showAddImages, list
           display='grid'
           gap='1rem'
           sx={{
-            gridTemplateColumns: {
-              xs: '1fr',
-              sm: '1fr 1fr',
-              md: '1fr 1fr 1fr',
-              lg: '1fr 1fr 1fr 1fr',
-              xl: '1fr 1fr 1fr 1fr 1fr'
-            },
+            gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: '1fr 1fr 1fr', lg: '1fr 1fr 1fr 1fr', xl: '1fr 1fr 1fr 1fr 1fr' },
             objectFit: 'cover'
           }}
           onDrop={handleDrop}
           onDragOver={handleDragOver}
           onDragEnd={handleDragEnd}
         >
-          {list.map((image, index) => (
+          {list?.map((image, index) => (
             renderImage({ image, handleRemoveImage, index, handleDragStart })
           ))}
         </Box>
