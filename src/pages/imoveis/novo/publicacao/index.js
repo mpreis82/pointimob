@@ -68,44 +68,6 @@ export default function Publicacao() {
   async function handleSubmit(event) {
     event.preventDefault()
 
-<<<<<<< HEAD
-    const propertyId = localStorage.getItem('new_property_id')
-
-    if (propertyId) {
-      try {
-        const ref = doc(Firestore, 'properties', localStorage.getItem('new_property_id'))
-
-        await updateDoc(ref, {
-          publish: {
-            show_property: state.show_property,
-            is_highlighted: state.is_highlighted,
-          },
-          'steps_progress.publish': 'done',
-          'register_status.status': 'done',
-          'register_status.update_date': Timestamp.fromDate(new Date())
-        })
-
-        localStorage.removeItem('new_property_id')
-
-        setAlert({
-          severity: 'success',
-          message: 'Mais um imóvel cadastrado! 🎊🎉',
-          open: true
-        })
-
-        // setTimeout(() => {
-        //   router.push('/imoveis')
-        // }, 6500);
-
-      } catch (err) {
-        console.log(err)
-        setAlert({
-          severity: 'error',
-          message: 'Desculpe! Algo deu errado e estamos corrigindo.',
-          open: true
-        })
-      }
-=======
     try {
       const ref = doc(Firestore, 'properties', localStorage.getItem('new_property_id'))
 
@@ -137,7 +99,6 @@ export default function Publicacao() {
         message: 'Desculpe! Algo deu errado e estamos corrigindo.',
         open: true
       })
->>>>>>> add-properties-list-page
     }
   }
 

@@ -26,7 +26,7 @@ export default function Imoveis() {
       <AsideNav>
         <ImoveisListAside />
 
-        <Box width='100%' position='absolute' bottom='0' left='0' display='grid' gridTemplateColumns='1fr 1fr' gap={1} px={1} pb={1}>
+        <Box width='100%' position='sticky' bottom='0' bgcolor='#fff' zIndex='99' display='grid' gridTemplateColumns='1fr 1fr' gap={1} pb={1}>
           <Button variant='outlined' color='primary' fullWidth>Limpar</Button>
           <Button variant='contained' color='primary' fullWidth>Filtrar</Button>
         </Box>
