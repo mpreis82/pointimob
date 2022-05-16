@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useState, useEffect } from 'react'
 
 import { Box } from "@mui/system"
 import { Button } from '@mui/material'
@@ -6,19 +6,22 @@ import { Button } from '@mui/material'
 import AsideNav from "../../components/AsideNav"
 import Main from '../../components/imoveis/main/Main'
 import ImoveisListAside from '../../components/imoveis/list/ImoveisListAside'
+import PropertiesList from '../../components/imoveis/list/PropertiesList'
 
 import { Firestore } from "../../Firebase"
 import { collection, getDocs, query } from 'firebase/firestore'
 
 export default function Imoveis() {
+  const [propertiesList, setPropertiesList] = useState([])
 
   useEffect(async () => {
     const q = query(collection(Firestore, 'properties'))
     const querySnap = await getDocs(q)
+    const list = []
     querySnap.forEach((doc) => {
-      console.log('entrou')
-      console.log(doc.data())
+      list.push(doc.data())
     })
+    setPropertiesList(list)
   }, [])
 
   return (
@@ -32,9 +35,15 @@ export default function Imoveis() {
         </Box>
       </AsideNav>
 
-      <Main title='Informações iniciais'>
+      <Main title='Sua lista de imóveis'>
+        <Box>{propertiesList.length} resultados encontrados</Box>
+
+        <Box display='grid' gridTemplateColumns='1fr 1fr' gap={2}>
+          <PropertiesList list={propertiesList} />
+        </Box>
+
 
       </Main>
-    </Box>
+    </Box >
   )
 }
