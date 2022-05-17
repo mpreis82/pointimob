@@ -1,15 +1,41 @@
 import * as React from 'react';
-import { useTheme } from '@mui/material/styles';
-import { Box, Card, CardContent, CardMedia, Typography } from '@mui/material';
+import { Box, Card, CardContent, CardMedia, IconButton, Menu, MenuItem, Typography } from '@mui/material';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 
-import { MdDirectionsCar, MdCropFree } from 'react-icons/md'
+import { MdDirectionsCar, MdCropFree, MdModeEdit, MdDelete } from 'react-icons/md'
 import { FaBed } from 'react-icons/fa'
-import { grey } from '@mui/material/colors';
+import { blue, grey, pink, purple } from '@mui/material/colors';
+
+const options = [
+  'None',
+  'Atria',
+  'Callisto',
+  'Dione',
+  'Ganymede',
+  'Hangouts Call',
+  'Luna',
+  'Oberon',
+  'Phobos',
+  'Pyxis',
+  'Sedna',
+  'Titania',
+  'Triton',
+  'Umbriel',
+]
+
+const ITEM_HEIGHT = 48;
 
 export default function PropertiesList({ list }) {
-  const theme = useTheme();
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const open = Boolean(anchorEl);
 
-  console.log(list)
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
 
   return (
     list.map((property, index) => (
@@ -22,30 +48,73 @@ export default function PropertiesList({ list }) {
 
         <Box sx={{ display: 'flex', flexDirection: 'column' }}>
           <CardContent sx={{ flex: '1 0 auto' }}>
-            <Typography component="div" variant="h6" color='primary'>
+            <Typography component="div" variant="h6" color='secondary' mb={1}>
               {property.initial_informations.subtype}
             </Typography>
-            <Typography variant="subtitle1" color="text.secondary" component="div">
+
+            <Typography color="text.secondary" fontWeight='bold' component="div">
               {new Intl.NumberFormat('pt-BR', { currency: 'BRL', style: 'currency', maximumFractionDigits: 0 }).format(property.financial.price)} - {property.financial.transaction}
             </Typography>
-            <Typography variant="subtitle1" color="text.secondary" component="div">
+
+            <Typography variant="subtitle1" color="text.secondary" component="div" mb={1}>
               {property.location.uf} / {property.location.city}
             </Typography>
+
             <Box display='flex' alignItems='center'>
-              <Typography variant="subtitle1" color="text.secondary" component="div" display='flex' alignItems='center'>
-                <Typography component='span' color='secondary' fontSize={18}><FaBed /></Typography> {property.rooms.bedroom} {(property.rooms.suite > 0 ? `(${property.rooms.suite} suite)` : '')}
+              <Typography variant="subtitle1" color="text.secondary" component="div" display='flex' alignItems='center' mr={2}>
+                <Typography component='span' color={blue[600]} fontSize={18} mr={1} display='flex' alignItems='center'><FaBed /></Typography>
+                <Typography component='span' lineHeight={1}>{property.rooms.bedroom} {(property.rooms.suite > 0 ? `(${property.rooms.suite} suite)` : '')}</Typography>
               </Typography>
-              <Typography variant="subtitle1" color="text.secondary" component="div" display='flex' alignItems='center'>
-                <Typography component='span' color='secondary' fontSize={18}><MdDirectionsCar /></Typography> {property.rooms.garage}
+
+              <Typography variant="subtitle1" color="text.secondary" component="div" display='flex' alignItems='center' mr={2}>
+                <Typography component='span' lineHeight={1} color={blue[600]} fontSize={18} mr={1} display='flex' alignItems='start'><MdDirectionsCar /></Typography>
+                <Typography component='span' lineHeight={1}>{property.rooms.garage}</Typography>
               </Typography>
-              <Typography variant="subtitle1" color="text.secondary" component="div" display='flex' alignItems='center'>
-                <Typography component='span' color='secondary' fontSize={18}><MdCropFree /></Typography>{property.measures.total_area} m²
+
+              <Typography variant="subtitle1" color="text.secondary" component="div" display='flex' alignItems='center' mr={2}>
+                <Typography component='span' lineHeight={1} color={blue[600]} fontSize={18} mr={1} display='flex' alignItems='center'><MdCropFree /></Typography>
+                <Typography component='span' lineHeight={1}>{property.measures.total_area} m²</Typography>
               </Typography>
             </Box>
           </CardContent>
         </Box>
 
-      </Card>
+        <Box ml='auto' width='45px' paddingTop={1.5}>
+          <IconButton
+            aria-label="more"
+            id="long-button"
+            aria-controls={open ? 'long-menu' : undefined}
+            aria-expanded={open ? 'true' : undefined}
+            aria-haspopup="true"
+            onClick={handleClick}
+          >
+            <MoreVertIcon />
+          </IconButton>
+
+          <Menu
+            id="long-menu"
+            MenuListProps={{ 'aria-labelledby': 'long-button', }}
+            anchorEl={anchorEl}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'right', }}
+            transformOrigin={{ vertical: 'top', horizontal: 'right', }}
+            open={open}
+            onClose={handleClose}
+            PaperProps={{ style: { maxHeight: ITEM_HEIGHT * 4.5, width: '20ch', backgroundColor: grey[900] }, }}
+          >
+            <MenuItem key='0' onClick={handleClose} sx={{ ":hover": { backgroundColor: grey[800], } }}>
+              <Typography color={'#fff'} fontSize={16} display='flex' alignItems='center'>
+                <MdModeEdit fontSize={18} /> <Typography component={'span'} ml={1} fontSize={16}>Editar</Typography>
+              </Typography>
+            </MenuItem>
+            <MenuItem key='1' onClick={handleClose} sx={{ ":hover": { backgroundColor: grey[800] } }} >
+              <Typography color={'#fff'} fontSize={16} display='flex' alignItems='center'>
+                <MdDelete fontSize={18} /> <Typography component={'span'} ml={1} fontSize={16}>Excluir</Typography>
+              </Typography>
+            </MenuItem>
+          </Menu>
+        </Box>
+
+      </Card >
     ))
   )
 }

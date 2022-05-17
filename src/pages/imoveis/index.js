@@ -36,13 +36,11 @@ export default function Imoveis() {
       </AsideNav>
 
       <Main title='Sua lista de imóveis'>
-        <Box>{propertiesList.length} resultados encontrados</Box>
+        <Box mb={3}>{propertiesList.length} resultados encontrados</Box>
 
         <Box display='grid' gridTemplateColumns='1fr 1fr' gap={2}>
           <PropertiesList list={propertiesList} />
         </Box>
-
-
       </Main>
     </Box >
   )

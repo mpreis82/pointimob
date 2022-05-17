@@ -201,6 +201,13 @@ export default function ImagesList({
     if (event.target.attributes.order !== undefined) {
       const droppedIndex = event.target.attributes.order.value
       const item = list[dragableIndex];
+      list.forEach(image => {
+        if (image.name == item.name) {
+          image.isThumb = true
+        } else {
+          image.isThumb = false
+        }
+      })
       list.splice(dragableIndex, 1)
       list.splice(droppedIndex, 0, item)
     }
