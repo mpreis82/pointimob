@@ -19,7 +19,7 @@ export default function Imoveis() {
     const querySnap = await getDocs(q)
     const list = []
     querySnap.forEach((doc) => {
-      list.push(doc.data())
+      list.push({ docId: doc.id, ...doc.data() })
     })
     setPropertiesList(list)
   }, [])

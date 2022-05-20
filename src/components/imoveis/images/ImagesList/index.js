@@ -171,10 +171,6 @@ export default function ImagesList({
     }
   }
 
-  async function orderImages(image) {
-
-  }
-
   function handleImobImagesChange(event) {
     const files = event.target.files
     addImages(files)

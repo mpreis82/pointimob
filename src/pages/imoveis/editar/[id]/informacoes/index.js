@@ -5,13 +5,13 @@ import { collection, doc, getDoc, addDoc, Timestamp, updateDoc } from 'firebase/
 import { Box } from "@mui/system"
 import { Select, ToggleButtonGroup, ToggleButton, MenuItem, FormControl, TextField, Stack, Snackbar, Alert, FormHelperText } from '@mui/material';
 
-import AsideNav from "../../../../components/AsideNav"
-import ImoveisAsideNav from '../../../../components/imoveis/aside/AsideNav'
-import Main from "../../../../components/imoveis/main/Main"
-import Form from "../../../../components/imoveis/Form"
-import SelectPropertyTypes from "../../../../components/SelectPropertyTypes";
+import AsideNav from '../../../../../components/AsideNav'
+import ImoveisAsideNav from '../../../../../components/imoveis/aside/AsideNav'
+import Main from "../../../../../components/imoveis/main/Main"
+import Form from "../../../../../components/imoveis/Form"
+import SelectPropertyTypes from "../../../../../components/SelectPropertyTypes";
 
-import { Firestore } from "../../../../Firebase";
+import { Firestore } from "../../../../../Firebase";
 
 export default function ImoveisNovoInformacoes() {
   const [state, setState] = useState({
@@ -42,8 +42,13 @@ export default function ImoveisNovoInformacoes() {
     open: false
   })
 
+  const router = useRouter()
+
   useEffect(async () => {
-    const propertyId = localStorage.getItem('new_property_id')
+    if (!router.isReady) return
+
+    const propertyId = router.query.id
+
     if (propertyId) {
       const docRef = doc(Firestore, 'properties', propertyId)
       const docSnap = await getDoc(docRef)
@@ -63,9 +68,7 @@ export default function ImoveisNovoInformacoes() {
         })
       }
     }
-  }, [])
-
-  const router = useRouter()
+  }, [router.isReady])
 
   function handleChange(event) {
     setState({

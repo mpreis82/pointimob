@@ -107,7 +107,6 @@ export default function Form({ children, handleSubmit, gridTemplateColumnsCustom
           <Button color='info' onClick={() => setOpenDialog(false)}>Não</Button>
           <Button variant='contained' color='error' onClick={handleDialogCancelClick}>Sim</Button>
         </DialogActions>
-
       </Dialog>
     </Box>
   )

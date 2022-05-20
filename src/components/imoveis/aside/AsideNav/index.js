@@ -32,10 +32,6 @@ export default function AsideNav() {
     { label: 'Localização', href: '/imoveis/novo/localizacao', disabled },
     { label: 'Proximidades', href: '/imoveis/novo/proximidades', disabled },
     { label: 'Descrição', href: '/imoveis/novo/descricao', disabled },
-    // { label: 'Vídeo', href: '/imoveis/novo/video', disabled },
-    // { label: '360º', href: '/imoveis/novo/visao-360', disabled },
-    // { label: 'SEO', href: '/imoveis/novo/seo', disabled },
-    // { label: 'Dados privativos', href: '/imoveis/novo/dados-privativos', disabled },
     { label: 'Imagens', href: '/imoveis/novo/imagens', disabled },
     { label: 'Publicação', href: '/imoveis/novo/publicacao', disabled },
   ]
