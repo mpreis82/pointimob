@@ -5,12 +5,12 @@ import { doc, getDoc, updateDoc } from 'firebase/firestore'
 import { Box } from "@mui/system"
 import { FormControl, TextField, ToggleButtonGroup, ToggleButton, Stack, Snackbar, Alert, Backdrop, CircularProgress } from "@mui/material"
 
-import AsideNav from "../../../../components/AsideNav"
-import ImoveisAsideNav from '../../../../components/imoveis/aside/AsideNav'
-import Main from "../../../../components/imoveis/main/Main"
-import Form from "../../../../components/imoveis/Form"
+import AsideNav from "../../../../../components/AsideNav"
+import ImoveisAsideNav from '../../../../../components/imoveis/aside/AsideNav'
+import Main from "../../../../../components/imoveis/main/Main"
+import Form from "../../../../../components/imoveis/Form"
 
-import { Firestore } from "../../../../Firebase"
+import { Firestore } from "../../../../../Firebase"
 
 export default function Comodos() {
   const [state, setState] = useState({
@@ -41,10 +41,19 @@ export default function Comodos() {
 
   const [loaded, setLoaded] = useState(false)
 
+  const [propertyId, setPropertyId] = useState('')
+
+  const router = useRouter();
+
   useEffect(async () => {
-    const propertyId = localStorage.getItem('new_property_id')
-    if (propertyId) {
-      const docRef = doc(Firestore, 'properties', propertyId)
+    setLoaded(false)
+
+    if (!router.isReady) return
+
+    setPropertyId(router.query.id)
+
+    if (router.query.id) {
+      const docRef = doc(Firestore, 'properties', router.query.id)
       const docSnap = await getDoc(docRef)
 
       if (docSnap.exists() && docSnap.data().rooms) {
@@ -70,19 +79,8 @@ export default function Comodos() {
         setCoveredGarage(data.covered_garage)
       }
     }
-  }, [])
-
-  const router = useRouter();
-
-  useLayoutEffect(() => {
-    const newPropertyId = localStorage.getItem('new_property_id')
-
-    if (router.asPath != '/imoveis/novo/informacoes' && !newPropertyId) {
-      router.push('/imoveis/novo/informacoes')
-    } else {
-      setLoaded(true)
-    }
-  }, [])
+    setLoaded(true)
+  }, [router.isReady])
 
   function handleChange(event) {
     setState({
@@ -107,7 +105,7 @@ export default function Comodos() {
     event.preventDefault();
 
     try {
-      const ref = doc(Firestore, 'properties', localStorage.getItem('new_property_id'))
+      const ref = doc(Firestore, 'properties', propertyId)
 
       await updateDoc(ref, {
         rooms: {
@@ -137,8 +135,8 @@ export default function Comodos() {
       })
 
       setTimeout(() => {
-        router.push('/imoveis/novo/medidas')
-      }, 2300);
+        router.push(`/imoveis/novo/${propertyId}/medidas`)
+      }, 2000);
 
     } catch (err) {
       setAlert({
