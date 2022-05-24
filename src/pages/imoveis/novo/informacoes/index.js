@@ -42,10 +42,17 @@ export default function ImoveisNovoInformacoes() {
     open: false
   })
 
+  const [propertyId, setPropertyId] = useState('')
+
+  const router = useRouter()
+
   useEffect(async () => {
-    const propertyId = localStorage.getItem('new_property_id')
-    if (propertyId) {
-      const docRef = doc(Firestore, 'properties', propertyId)
+    if (!router.isReady) return
+
+    setPropertyId(router.query.id)
+
+    if (router.query.id) {
+      const docRef = doc(Firestore, 'properties', router.query.id)
       const docSnap = await getDoc(docRef)
 
       if (docSnap.exists()) {
@@ -63,9 +70,7 @@ export default function ImoveisNovoInformacoes() {
         })
       }
     }
-  }, [])
-
-  const router = useRouter()
+  }, [router.isReady])
 
   function handleChange(event) {
     setState({
@@ -113,7 +118,7 @@ export default function ImoveisNovoInformacoes() {
       const typeDoc = doc(Firestore, 'propery_types', state.subtype)
       const typeSnap = await getDoc(typeDoc)
 
-      if (!localStorage.getItem('new_property_id')) {
+      if (!propertyId) {
         const doc = await addDoc(collection(Firestore, 'properties'), {
           initial_informations: {
             people: state.people,
@@ -145,9 +150,20 @@ export default function ImoveisNovoInformacoes() {
             publish: 'pending',
           }
         })
-        localStorage.setItem('new_property_id', doc.id)
+
+        setAlert({
+          severity: 'success',
+          message: 'Salvo.',
+          open: true
+        })
+
+        setTimeout(() => {
+          router.push(`/imoveis/novo/${doc.id}/comodos`)
+        }, 2000);
+
       } else {
-        const docRef = doc(Firestore, 'properties', localStorage.getItem('new_property_id'))
+        const docRef = doc(Firestore, 'properties', propertyId)
+
         await updateDoc(docRef, {
           initial_informations: {
             people: state.people,
@@ -161,17 +177,19 @@ export default function ImoveisNovoInformacoes() {
             floor: state.floor,
           }
         })
+
+        setAlert({
+          severity: 'success',
+          message: 'Salvo.',
+          open: true
+        })
+
+        setTimeout(() => {
+          router.push(`/imoveis/novo/${propertyId}/comodos`)
+        }, 2000);
       }
 
-      setAlert({
-        severity: 'success',
-        message: 'Salvo.',
-        open: true
-      })
 
-      setTimeout(() => {
-        router.push('/imoveis/novo/comodos')
-      }, 2300);
 
     } catch (err) {
       console.error(err)
