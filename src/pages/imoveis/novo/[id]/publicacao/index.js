@@ -1,16 +1,13 @@
 import { useState, useEffect, useLayoutEffect } from 'react'
 import { useRouter } from 'next/router'
 import { doc, updateDoc, Timestamp, getDoc } from 'firebase/firestore'
-
-import { Box } from "@mui/system"
+import { Box } from '@mui/system'
 import { FormControl, ToggleButtonGroup, ToggleButton, Stack, Snackbar, Alert, Backdrop, CircularProgress } from '@mui/material'
-
-import AsideNav from "../../../../components/AsideNav"
-import ImoveisAsideNav from '../../../../components/imoveis/aside/AsideNav'
-import Main from "../../../../components/imoveis/main/Main"
-import Form from "../../../../components/imoveis/Form"
-
-import { Firestore } from '../../../../Firebase'
+import AsideNav from '../../../../../components/AsideNav'
+import ImoveisAsideNav from '../../../../../components/imoveis/aside/AsideNav'
+import Main from '../../../../../components/imoveis/main/Main'
+import Form from '../../../../../components/imoveis/Form'
+import { Firestore } from '../../../../../Firebase'
 
 export default function Publicacao() {
   const [state, setState] = useState({
@@ -22,15 +19,19 @@ export default function Publicacao() {
 
   const [loaded, setLoaded] = useState(false)
 
+  const [propertyId, setPropertyId] = useState('')
+
   const router = useRouter()
 
   useEffect(async () => {
     setLoaded(false)
 
-    const propertyId = localStorage.getItem('new_property_id')
+    if (!router.isReady) return
 
-    if (propertyId) {
-      const docRef = doc(Firestore, 'properties', propertyId)
+    setPropertyId(router.query.id)
+
+    if (router.query.id) {
+      const docRef = doc(Firestore, 'properties', router.query.id)
       const docSnap = await getDoc(docRef)
 
       if (docSnap.exists() && docSnap.data().publish) {
@@ -42,17 +43,7 @@ export default function Publicacao() {
       }
     }
     setLoaded(true)
-  }, [])
-
-  useLayoutEffect(() => {
-    const newPropertyId = localStorage.getItem('new_property_id')
-
-    if (router.asPath != '/imoveis/novo/informacoes' && !newPropertyId) {
-      router.push('/imoveis/novo/informacoes')
-    } else {
-      setLoaded(true)
-    }
-  }, [])
+  }, [router.isReady])
 
   const handleToggleChange = (event, newValue) => {
     setState({ ...state, [event.target.name]: newValue })
@@ -69,7 +60,7 @@ export default function Publicacao() {
     event.preventDefault()
 
     try {
-      const ref = doc(Firestore, 'properties', localStorage.getItem('new_property_id'))
+      const ref = doc(Firestore, 'properties', propertyId)
 
       await updateDoc(ref, {
         publish: {
@@ -80,8 +71,6 @@ export default function Publicacao() {
         'register_status.status': 'done',
         'register_status.update_date': Timestamp.fromDate(new Date())
       })
-
-      localStorage.removeItem('new_property_id')
 
       setAlert({
         severity: 'success',
@@ -111,7 +100,7 @@ export default function Publicacao() {
 
         <Main title='Publicação'>
           <Form handleSubmit={handleSubmit} gridTemplateColumnsCustom='1fr'>
-            <FormControl variant="outlined" sx={{ display: 'flex', flexDirection: { sm: 'column', md: 'row' }, alignItems: { sm: 'flex-start', md: 'center' }, justifyContent: 'space-between' }}>
+            <FormControl variant='outlined' sx={{ display: 'flex', flexDirection: { sm: 'column', md: 'row' }, alignItems: { sm: 'flex-start', md: 'center' }, justifyContent: 'space-between' }}>
               <Box sx={{ mb: { sm: 1, md: 0 } }}>
                 <Box component='p' fontWeight='bold' display='block'>Mostrar imovél no site?</Box>
                 <Box component='p' display='block'>Determine se o imóvel será publicado em seu site.</Box>
@@ -131,7 +120,7 @@ export default function Publicacao() {
 
             <hr />
 
-            <FormControl variant="outlined" sx={{ display: 'flex', flexDirection: { sm: 'column', md: 'row' }, alignItems: { sm: 'flex-start', md: 'center' }, justifyContent: 'space-between' }}>
+            <FormControl variant='outlined' sx={{ display: 'flex', flexDirection: { sm: 'column', md: 'row' }, alignItems: { sm: 'flex-start', md: 'center' }, justifyContent: 'space-between' }}>
               <Box sx={{ mb: { sm: 1, md: 0 } }}>
                 <Box component='p' fontWeight='bold' display='block'>Destaque</Box>
                 <Box component='p' display='block'>Defina se esse imóvel aparecerá na sessão de “imóveis em destaque” na página inicial do seu site.</Box>
@@ -165,7 +154,7 @@ export default function Publicacao() {
         sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
         open={true}
       >
-        <CircularProgress color="inherit" />
+        <CircularProgress color='inherit' />
       </Backdrop>
     )
   }

@@ -2,15 +2,15 @@ import { useState, useEffect, useLayoutEffect } from 'react'
 import { useRouter } from 'next/router'
 import { doc, getDoc, updateDoc } from 'firebase/firestore'
 
-import { Box } from "@mui/system"
-import { FormControl, TextField, InputAdornment, Stack, Snackbar, Alert, Backdrop, CircularProgress } from "@mui/material"
+import { Box } from '@mui/system'
+import { FormControl, TextField, InputAdornment, Stack, Snackbar, Alert, Backdrop, CircularProgress } from '@mui/material'
 
-import AsideNav from "../../../../components/AsideNav"
-import ImoveisAsideNav from '../../../../components/imoveis/aside/AsideNav'
-import Main from "../../../../components/imoveis/main/Main"
-import Form from "../../../../components/imoveis/Form"
+import AsideNav from '../../../../../components/AsideNav'
+import ImoveisAsideNav from '../../../../../components/imoveis/aside/AsideNav'
+import Main from '../../../../../components/imoveis/main/Main'
+import Form from '../../../../../components/imoveis/Form'
 
-import { Firestore } from '../../../../Firebase'
+import { Firestore } from '../../../../../Firebase'
 
 export default function Medidas() {
   const [state, setState] = useState({
@@ -27,10 +27,17 @@ export default function Medidas() {
 
   const [loaded, setLoaded] = useState(false)
 
+  const [propertyId, setPropertyId] = useState('')
+
+  const router = useRouter()
+
   useEffect(async () => {
-    const propertyId = localStorage.getItem('new_property_id')
-    if (propertyId) {
-      const docRef = doc(Firestore, 'properties', propertyId)
+    if (!router.isReady) return
+
+    setPropertyId(router.query.id)
+
+    if (router.query.id) {
+      const docRef = doc(Firestore, 'properties', router.query.id)
       const docSnap = await getDoc(docRef)
 
       if (docSnap.exists() && docSnap.data().measures) {
@@ -42,19 +49,9 @@ export default function Medidas() {
         })
       }
     }
-  }, [])
 
-  const router = useRouter()
-
-  useLayoutEffect(() => {
-    const newPropertyId = localStorage.getItem('new_property_id')
-
-    if (router.asPath != '/imoveis/novo/informacoes' && !newPropertyId) {
-      router.push('/imoveis/novo/informacoes')
-    } else {
-      setLoaded(true)
-    }
-  }, [])
+    setLoaded(true)
+  }, [router.isReady])
 
   function handleChange(event) {
     setState({
@@ -74,7 +71,7 @@ export default function Medidas() {
     event.preventDefault();
 
     try {
-      const ref = doc(Firestore, 'properties', localStorage.getItem('new_property_id'))
+      const ref = doc(Firestore, 'properties', propertyId)
 
       await updateDoc(ref, {
         measures: {
@@ -92,8 +89,8 @@ export default function Medidas() {
       })
 
       setTimeout(() => {
-        router.push('/imoveis/novo/preco')
-      }, 2300);
+        router.push(`/imoveis/novo/${propertyId}/preco`)
+      }, 2000);
 
     } catch (err) {
       setAlert({
@@ -113,19 +110,19 @@ export default function Medidas() {
 
         <Main title='Medidas'>
           <Form handleSubmit={handleSubmit}>
-            <FormControl variant="outlined">
+            <FormControl variant='outlined'>
               <Box component='label' fontWeight='bold' mb={1}>Área construída</Box>
-              <TextField type='number' name="built_area" value={state.built_area} onChange={handleChange} InputProps={{ endAdornment: <InputAdornment position="end">m²</InputAdornment> }} />
+              <TextField type='number' name='built_area' value={state.built_area} onChange={handleChange} InputProps={{ endAdornment: <InputAdornment position='end'>m²</InputAdornment> }} />
             </FormControl>
 
-            <FormControl variant="outlined">
+            <FormControl variant='outlined'>
               <Box component='label' fontWeight='bold' mb={1}>Área privada</Box>
-              <TextField type='number' name="private_area" value={state.private_area} onChange={handleChange} InputProps={{ endAdornment: <InputAdornment position="end">m²</InputAdornment> }} />
+              <TextField type='number' name='private_area' value={state.private_area} onChange={handleChange} InputProps={{ endAdornment: <InputAdornment position='end'>m²</InputAdornment> }} />
             </FormControl>
 
-            <FormControl variant="outlined">
+            <FormControl variant='outlined'>
               <Box component='label' fontWeight='bold' mb={1}>Terreno área total</Box>
-              <TextField type='number' name="total_area" value={state.total_area} onChange={handleChange} InputProps={{ endAdornment: <InputAdornment position="end">m²</InputAdornment> }} />
+              <TextField type='number' name='total_area' value={state.total_area} onChange={handleChange} InputProps={{ endAdornment: <InputAdornment position='end'>m²</InputAdornment> }} />
             </FormControl>
           </Form>
 
@@ -143,7 +140,7 @@ export default function Medidas() {
         sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
         open={true}
       >
-        <CircularProgress color="inherit" />
+        <CircularProgress color='inherit' />
       </Backdrop>
     )
   }

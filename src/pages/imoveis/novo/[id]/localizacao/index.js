@@ -1,16 +1,16 @@
-import { useState, useEffect, useLayoutEffect } from "react"
+import { useState, useEffect, useLayoutEffect } from 'react'
 import { useRouter } from 'next/router'
 import { doc, getDoc, updateDoc } from 'firebase/firestore'
 
-import { Box } from "@mui/system"
+import { Box } from '@mui/system'
 import { FormControl, ToggleButtonGroup, ToggleButton, TextField, Autocomplete, Stack, Snackbar, Alert, Backdrop, CircularProgress, FormHelperText } from '@mui/material'
 
-import AsideNav from "../../../../components/AsideNav"
-import ImoveisAsideNav from '../../../../components/imoveis/aside/AsideNav'
-import Main from "../../../../components/imoveis/main/Main"
-import Form from "../../../../components/imoveis/Form"
+import AsideNav from '../../../../../components/AsideNav'
+import ImoveisAsideNav from '../../../../../components/imoveis/aside/AsideNav'
+import Main from '../../../../../components/imoveis/main/Main'
+import Form from '../../../../../components/imoveis/Form'
 
-import { Firestore } from '../../../../Firebase'
+import { Firestore } from '../../../../../Firebase'
 
 const ufList = ['Escolha um estado', 'AC', 'AL', 'AM', 'AP', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MG', 'MS', 'MT', 'PA', 'PB', 'PE', 'PI', 'PR', 'RJ', 'RN', 'RO', 'RR', 'RS', 'SC', 'SE', 'SP', 'TO',]
 
@@ -58,11 +58,17 @@ export default function Localizacao() {
     zipcode: { error: false, message: 'Campo obrigatório' },
   })
 
+  const [propertyId, setPropertyId] = useState('')
+
+  const router = useRouter()
+
   useEffect(async () => {
-    setLoaded(false)
-    const propertyId = localStorage.getItem('new_property_id')
-    if (propertyId) {
-      const docRef = doc(Firestore, 'properties', propertyId)
+    if (!router.isReady) return
+
+    setPropertyId(router.query.id)
+
+    if (router.query.id) {
+      const docRef = doc(Firestore, 'properties', router.query.id)
       const docSnap = await getDoc(docRef)
 
       if (docSnap.exists() && docSnap.data().location) {
@@ -92,23 +98,11 @@ export default function Localizacao() {
       }
     }
     setLoaded(true)
-  }, [])
+  }, [router.isReady])
 
   const handleToggleChange = (event, newValue) => {
     setToggle({ ...toggle, [event.target.name]: newValue })
   }
-
-  const router = useRouter()
-
-  useLayoutEffect(() => {
-    const newPropertyId = localStorage.getItem('new_property_id')
-
-    if (router.asPath != '/imoveis/novo/informacoes' && !newPropertyId) {
-      router.push('/imoveis/novo/informacoes')
-    } else {
-      setLoaded(true)
-    }
-  }, [])
 
   async function handleZipcodeChange(event) {
     setZipcode(event.target.value)
@@ -200,7 +194,7 @@ export default function Localizacao() {
     if (!handleFormValidate()) return
 
     try {
-      const ref = doc(Firestore, 'properties', localStorage.getItem('new_property_id'))
+      const ref = doc(Firestore, 'properties', propertyId)
 
       await updateDoc(ref, {
         location: {
@@ -230,8 +224,8 @@ export default function Localizacao() {
       })
 
       setTimeout(() => {
-        router.push('/imoveis/novo/proximidades')
-      }, 2300);
+        router.push(`/imoveis/novo/${propertyId}/proximidades`)
+      }, 2000);
 
     } catch (err) {
       setAlert({
@@ -252,14 +246,14 @@ export default function Localizacao() {
         <Main title='Localização'>
           <Form handleSubmit={handleSubmit} gridTemplateColumnsCustom='1fr'>
             <Box>
-              <FormControl variant="outlined" >
+              <FormControl variant='outlined' >
                 <Box component='label' fontWeight='bold' mb={1}>CEP</Box>
                 <TextField value={zipcode} onChange={handleZipcodeChange} error={formValidate.zipcode.error} helperText={formValidate.zipcode.error ? formValidate.zipcode.message : ''} />
               </FormControl>
             </Box>
 
             <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr', lg: '1fr 1fr 1fr' }, gap: '1rem' }}>
-              <FormControl variant="outlined" error={formValidate.uf.error}>
+              <FormControl variant='outlined' error={formValidate.uf.error}>
                 <Box component='label' fontWeight='bold' mb={1}>Estado</Box>
                 <Autocomplete
                   value={state.uf}
@@ -272,7 +266,7 @@ export default function Localizacao() {
               </FormControl>
               {formValidate.uf.error}
 
-              <FormControl variant="outlined" >
+              <FormControl variant='outlined' >
                 <Box component='label' fontWeight='bold' mb={1}>Cidade</Box>
                 <Autocomplete
                   value={state.city}
@@ -285,22 +279,22 @@ export default function Localizacao() {
                 <FormHelperText error={formValidate.city.error}>{formValidate.city.error ? formValidate.city.message : ''}</FormHelperText>
               </FormControl>
 
-              <FormControl variant="outlined" >
+              <FormControl variant='outlined' >
                 <Box component='label' fontWeight='bold' mb={1}>Bairro</Box>
                 <TextField name='district' value={state.district} onChange={handleStateChange} error={formValidate.district.error} helperText={formValidate.district.error ? formValidate.district.message : ''} />
               </FormControl>
 
-              <FormControl variant="outlined" >
+              <FormControl variant='outlined' >
                 <Box component='label' fontWeight='bold' mb={1}>Logradouro</Box>
                 <TextField name='street' value={state.street} error={formValidate.street.error} helperText={formValidate.street.error ? formValidate.street.message : ''} onChange={handleStateChange} />
               </FormControl>
 
-              <FormControl variant="outlined" >
+              <FormControl variant='outlined' >
                 <Box component='label' fontWeight='bold' mb={1}>Número</Box>
                 <TextField name='number' value={state.number} error={formValidate.number.error} helperText={formValidate.number.error ? formValidate.number.message : ''} onChange={handleStateChange} />
               </FormControl>
 
-              <FormControl variant="outlined" >
+              <FormControl variant='outlined' >
                 <Box component='label' fontWeight='bold' mb={1}>Complemento</Box>
                 <TextField name='complement' value={state.complement} error={formValidate.complement.error} helperText={formValidate.complement.error ? formValidate.complement.message : ''} onChange={handleStateChange} />
               </FormControl>
@@ -452,7 +446,7 @@ export default function Localizacao() {
         sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
         open={true}
       >
-        <CircularProgress color="inherit" />
+        <CircularProgress color='inherit' />
       </Backdrop>
     )
   }

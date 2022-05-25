@@ -1,16 +1,14 @@
-import { useState, useEffect, useLayoutEffect } from "react"
+import { useState, useEffect, useLayoutEffect } from 'react'
 import { useRouter } from 'next/router'
 import { doc, getDoc, updateDoc } from 'firebase/firestore'
-
-import { Box } from "@mui/system"
-import { FormControl, TextField, ToggleButtonGroup, ToggleButton, Stack, Snackbar, Alert, Backdrop, CircularProgress } from "@mui/material"
-
-import AsideNav from "../../../../../components/AsideNav"
+import { Box } from '@mui/system'
+import { FormControl, TextField, ToggleButtonGroup, ToggleButton, Stack, Snackbar, Alert, Backdrop, CircularProgress } from '@mui/material'
+import AsideNav from '../../../../../components/AsideNav'
 import ImoveisAsideNav from '../../../../../components/imoveis/aside/AsideNav'
-import Main from "../../../../../components/imoveis/main/Main"
-import Form from "../../../../../components/imoveis/Form"
+import Main from '../../../../../components/imoveis/main/Main'
+import Form from '../../../../../components/imoveis/Form'
 
-import { Firestore } from "../../../../../Firebase"
+import { Firestore } from '../../../../../Firebase'
 
 export default function Comodos() {
   const [state, setState] = useState({
@@ -156,28 +154,28 @@ export default function Comodos() {
 
         <Main title='Comodos'>
           <Form handleSubmit={handleSubmit}>
-            <FormControl variant="outlined">
+            <FormControl variant='outlined'>
               <Box component='label' fontWeight='bold' mb={1}>Dormitórios</Box>
-              <TextField type='number' name="bedroom" value={state.bedroom} onChange={handleChange} />
+              <TextField type='number' name='bedroom' value={state.bedroom} onChange={handleChange} />
             </FormControl>
 
-            <FormControl variant="outlined">
+            <FormControl variant='outlined'>
               <Box component='label' fontWeight='bold' mb={1}>Sendo suíte</Box>
-              <TextField type='number' name="suite" value={state.suite} onChange={handleChange} />
+              <TextField type='number' name='suite' value={state.suite} onChange={handleChange} />
             </FormControl>
 
-            <FormControl variant="outlined">
+            <FormControl variant='outlined'>
               <Box component='label' fontWeight='bold' mb={1}>Banheiro</Box>
-              <TextField type='number' name="bathroom" value={state.bathroom} onChange={handleChange} />
+              <TextField type='number' name='bathroom' value={state.bathroom} onChange={handleChange} />
             </FormControl>
 
-            <FormControl variant="outlined">
+            <FormControl variant='outlined'>
               <Box component='label' fontWeight='bold' mb={1}>Garagem</Box>
-              <TextField type='number' name="garage" value={state.garage} onChange={handleChange} />
+              <TextField type='number' name='garage' value={state.garage} onChange={handleChange} />
             </FormControl>
 
             <FormControl>
-              <Box component='label' htmlFor="" fontWeight='bold' mb={1}>Garagem coberta?</Box>
+              <Box component='label' htmlFor='' fontWeight='bold' mb={1}>Garagem coberta?</Box>
               <ToggleButtonGroup
                 name='covered_garage'
                 value={coveredGarage}
@@ -193,54 +191,54 @@ export default function Comodos() {
               </ToggleButtonGroup>
             </FormControl>
 
-            <FormControl variant="outlined">
+            <FormControl variant='outlined'>
               <Box component='label' fontWeight='bold' mb={1}>Sala de TV</Box>
-              <TextField type='number' name="tvroom" value={state.tvroom} onChange={handleChange} />
+              <TextField type='number' name='tvroom' value={state.tvroom} onChange={handleChange} />
             </FormControl>
 
-            <FormControl variant="outlined">
+            <FormControl variant='outlined'>
               <Box component='label' fontWeight='bold' mb={1}>Sala de jantar</Box>
-              <TextField type='number' name="diningroom" value={state.diningroom} onChange={handleChange} />
+              <TextField type='number' name='diningroom' value={state.diningroom} onChange={handleChange} />
             </FormControl>
 
-            <FormControl variant="outlined">
+            <FormControl variant='outlined'>
               <Box component='label' fontWeight='bold' mb={1}>Sala de estar</Box>
-              <TextField type='number' name="livingroom" value={state.livingroom} onChange={handleChange} />
+              <TextField type='number' name='livingroom' value={state.livingroom} onChange={handleChange} />
             </FormControl>
 
-            <FormControl variant="outlined">
+            <FormControl variant='outlined'>
               <Box component='label' fontWeight='bold' mb={1}>Lavabo</Box>
-              <TextField type='number' name="washbasin" value={state.washbasin} onChange={handleChange} />
+              <TextField type='number' name='washbasin' value={state.washbasin} onChange={handleChange} />
             </FormControl>
 
-            <FormControl variant="outlined">
+            <FormControl variant='outlined'>
               <Box component='label' fontWeight='bold' mb={1}>Área de serviço</Box>
-              <TextField type='number' name="service_area" value={state.service_area} onChange={handleChange} />
+              <TextField type='number' name='service_area' value={state.service_area} onChange={handleChange} />
             </FormControl>
 
-            <FormControl variant="outlined">
+            <FormControl variant='outlined'>
               <Box component='label' fontWeight='bold' mb={1}>Cozinha</Box>
-              <TextField type='number' name="kitchen" value={state.kitchen} onChange={handleChange} />
+              <TextField type='number' name='kitchen' value={state.kitchen} onChange={handleChange} />
             </FormControl>
 
-            <FormControl variant="outlined">
+            <FormControl variant='outlined'>
               <Box component='label' fontWeight='bold' mb={1}>Closet</Box>
-              <TextField type='number' name="closet" value={state.closet} onChange={handleChange} />
+              <TextField type='number' name='closet' value={state.closet} onChange={handleChange} />
             </FormControl>
 
-            <FormControl variant="outlined">
+            <FormControl variant='outlined'>
               <Box component='label' fontWeight='bold' mb={1}>Escritório</Box>
-              <TextField type='number' name="office" value={state.office} onChange={handleChange} />
+              <TextField type='number' name='office' value={state.office} onChange={handleChange} />
             </FormControl>
 
-            <FormControl variant="outlined">
+            <FormControl variant='outlined'>
               <Box component='label' fontWeight='bold' mb={1}>Dependência para empregada</Box>
-              <TextField type='number' name="employeeDependency" value={state.employeeDependency} onChange={handleChange} />
+              <TextField type='number' name='employeeDependency' value={state.employeeDependency} onChange={handleChange} />
             </FormControl>
 
-            <FormControl variant="outlined">
+            <FormControl variant='outlined'>
               <Box component='label' fontWeight='bold' mb={1}>Copa</Box>
-              <TextField type='number' name="pantry" value={state.pantry} onChange={handleChange} />
+              <TextField type='number' name='pantry' value={state.pantry} onChange={handleChange} />
             </FormControl>
           </Form>
 
@@ -258,7 +256,7 @@ export default function Comodos() {
         sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
         open={true}
       >
-        <CircularProgress color="inherit" />
+        <CircularProgress color='inherit' />
       </Backdrop>
     )
   }

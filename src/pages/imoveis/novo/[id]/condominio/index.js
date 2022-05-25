@@ -2,15 +2,15 @@ import { useState, useEffect, useLayoutEffect } from 'react'
 import { useRouter } from 'next/router'
 import { doc, getDoc, updateDoc } from 'firebase/firestore'
 
-import { Box } from "@mui/system"
+import { Box } from '@mui/system'
 import { FormControl, FormGroup, FormControlLabel, ToggleButtonGroup, ToggleButton, TextField, Checkbox, Stack, Snackbar, Alert, Backdrop, CircularProgress } from '@mui/material'
 
-import AsideNav from "../../../../components/AsideNav"
-import ImoveisAsideNav from '../../../../components/imoveis/aside/AsideNav'
-import Main from "../../../../components/imoveis/main/Main"
-import Form from "../../../../components/imoveis/Form"
+import AsideNav from '../../../../../components/AsideNav'
+import ImoveisAsideNav from '../../../../../components/imoveis/aside/AsideNav'
+import Main from '../../../../../components/imoveis/main/Main'
+import Form from '../../../../../components/imoveis/Form'
 
-import { Firestore } from '../../../../Firebase'
+import { Firestore } from '../../../../../Firebase'
 
 export default function Condominio() {
   const [condoCharacteristics, setCondoCharacteristics] = useState([
@@ -55,11 +55,17 @@ export default function Condominio() {
     open: false
   })
 
+  const [propertyId, setPropertyId] = useState('')
+
+  const router = useRouter()
+
   useEffect(async () => {
-    setLoaded(false)
-    const propertyId = localStorage.getItem('new_property_id')
-    if (propertyId) {
-      const docRef = doc(Firestore, 'properties', propertyId)
+    if (!router.isReady) return
+
+    setPropertyId(router.query.id)
+
+    if (router.query.id) {
+      const docRef = doc(Firestore, 'properties', router.query.id)
       const docSnap = await getDoc(docRef)
 
       if (docSnap.exists() && docSnap.data().condominium) {
@@ -70,19 +76,7 @@ export default function Condominio() {
       }
     }
     setLoaded(true)
-  }, [])
-
-  useLayoutEffect(() => {
-    const newPropertyId = localStorage.getItem('new_property_id')
-
-    if (router.asPath != '/imoveis/novo/informacoes' && !newPropertyId) {
-      router.push('/imoveis/novo/informacoes')
-    } else {
-      setLoaded(true)
-    }
-  }, [])
-
-  const router = useRouter()
+  }, [router.isReady])
 
   const handleIsCondo = (event, newValue) => {
     setIsCondo(newValue);
@@ -106,7 +100,7 @@ export default function Condominio() {
     event.preventDefault();
 
     try {
-      const ref = doc(Firestore, 'properties', localStorage.getItem('new_property_id'))
+      const ref = doc(Firestore, 'properties', propertyId)
 
       await updateDoc(ref, {
         condominium: {
@@ -124,8 +118,8 @@ export default function Condominio() {
       })
 
       setTimeout(() => {
-        router.push('/imoveis/novo/localizacao')
-      }, 2300);
+        router.push(`/imoveis/novo/${propertyId}/localizacao`)
+      }, 2000);
 
     } catch (err) {
       setAlert({
@@ -162,7 +156,7 @@ export default function Condominio() {
                 </ToggleButtonGroup>
               </FormControl>
 
-              <FormControl variant="outlined" sx={{ opacity: (isCondo == 'sim' ? '100' : '0') }}>
+              <FormControl variant='outlined' sx={{ opacity: (isCondo == 'sim' ? '100' : '0') }}>
                 <Box component='label' fontWeight='bold' mb={1}>Nome do condomínio:</Box>
                 <TextField value={condominiumName} onChange={event => setCondominiumName(event.target.value)} helperText='' />
               </FormControl>
@@ -203,7 +197,7 @@ export default function Condominio() {
         sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
         open={true}
       >
-        <CircularProgress color="inherit" />
+        <CircularProgress color='inherit' />
       </Backdrop>
     )
   }

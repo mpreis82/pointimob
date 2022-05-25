@@ -1,20 +1,20 @@
-import { useState, useEffect, useLayoutEffect } from "react"
+import { useState, useEffect, useLayoutEffect } from 'react'
 import { useRouter } from 'next/router'
-import { doc, getDoc, updateDoc } from "firebase/firestore"
+import { doc, getDoc, updateDoc } from 'firebase/firestore'
 import dynamic from 'next/dynamic'
 const ReactQuill = dynamic(() => import('react-quill'), { ssr: false })
 
-import { Box } from "@mui/system"
+import { Box } from '@mui/system'
 import { FormControl, TextField, Stack, Snackbar, Alert, Backdrop, CircularProgress } from '@mui/material'
 import 'react-quill/dist/quill.snow.css'
 import styles from './styles.module.css'
 
-import AsideNav from "../../../../components/AsideNav"
-import ImoveisAsideNav from '../../../../components/imoveis/aside/AsideNav'
-import Main from "../../../../components/imoveis/main/Main"
-import Form from "../../../../components/imoveis/Form"
+import AsideNav from '../../../../../components/AsideNav'
+import ImoveisAsideNav from '../../../../../components/imoveis/aside/AsideNav'
+import Main from '../../../../../components/imoveis/main/Main'
+import Form from '../../../../../components/imoveis/Form'
 
-import { Firestore } from "../../../../Firebase"
+import { Firestore } from '../../../../../Firebase'
 
 export default function Descricao() {
   const [pageTitle, setPageTitle] = useState('')
@@ -26,11 +26,19 @@ export default function Descricao() {
     open: false
   })
 
+  const [loaded, setLoaded] = useState(false)
+
+  const [propertyId, setPropertyId] = useState('')
+
+  const router = useRouter()
+
   useEffect(async () => {
-    setLoaded(false)
-    const propertyId = localStorage.getItem('new_property_id')
-    if (propertyId) {
-      const docRef = doc(Firestore, 'properties', propertyId)
+    if (!router.isReady) return
+
+    setPropertyId(router.query.id)
+
+    if (router.query.id) {
+      const docRef = doc(Firestore, 'properties', router.query.id)
       const docSnap = await getDoc(docRef)
 
       if (docSnap.exists() && docSnap.data().description) {
@@ -40,22 +48,7 @@ export default function Descricao() {
       }
     }
     setLoaded(true)
-  }, [])
-
-
-  const [loaded, setLoaded] = useState(false)
-
-  const router = useRouter()
-
-  useLayoutEffect(() => {
-    const newPropertyId = localStorage.getItem('new_property_id')
-
-    if (router.asPath != '/imoveis/novo/informacoes' && !newPropertyId) {
-      router.push('/imoveis/novo/informacoes')
-    } else {
-      setLoaded(true)
-    }
-  }, [])
+  }, [router.isReady])
 
   function handleSnackbarClose(event, reason) {
     if (reason === 'clickaway') {
@@ -68,7 +61,7 @@ export default function Descricao() {
     event.preventDefault()
 
     try {
-      const ref = doc(Firestore, 'properties', localStorage.getItem('new_property_id'))
+      const ref = doc(Firestore, 'properties', propertyId)
       await updateDoc(ref, {
         description: { page_title: pageTitle, description: description },
         'steps_progress.description': 'done'
@@ -80,15 +73,9 @@ export default function Descricao() {
         open: true
       })
 
-      setAlert({
-        severity: 'success',
-        message: 'Salvo.',
-        open: true
-      })
-
       setTimeout(() => {
-        router.push('/imoveis/novo/imagens')
-      }, 2300);
+        router.push(`/imoveis/novo/${propertyId}/imagens`)
+      }, 2000);
 
     } catch (err) {
       setAlert({
@@ -99,7 +86,6 @@ export default function Descricao() {
     }
   }
 
-
   if (loaded) {
     return (
       <Box display='flex' height='calc(100% - 45px)' bgcolor='silver' overflow='hidden'>
@@ -109,13 +95,13 @@ export default function Descricao() {
 
         <Main title='Descrição'>
           <Form handleSubmit={handleSubmit} gridTemplateColumnsCustom='1fr'>
-            <FormControl variant="outlined">
+            <FormControl variant='outlined'>
               <Box component='label' fontWeight='bold' mb={1}>Título da página de detalhamento do imóvel</Box>
               <TextField value={pageTitle} onChange={event => setPageTitle(event.target.value)} helperText='' />
             </FormControl>
 
             <Box position='relative' mb={6}>
-              <ReactQuill theme="snow" value={description} onChange={setDescription} className={styles.quillBox}>
+              <ReactQuill theme='snow' value={description} onChange={setDescription} className={styles.quillBox}>
               </ReactQuill>
             </Box>
           </Form>
@@ -134,7 +120,7 @@ export default function Descricao() {
         sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
         open={true}
       >
-        <CircularProgress color="inherit" />
+        <CircularProgress color='inherit' />
       </Backdrop>
     )
   }
