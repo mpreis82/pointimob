@@ -5,39 +5,43 @@ import AsideNavItem from '../AsideNavItem'
 
 export default function AsideNav() {
   const [currentStep, setCurrentStep] = useState()
-
-  const [disabled, setDisabled] = useState(true)
+  const [propertyId, setPropertyId] = useState('')
+  const [steps, setSteps] = useState([])
 
   const router = useRouter()
 
   useEffect(() => {
-    if (localStorage.getItem('new_property_id')) {
-      setDisabled(false)
-    }
-  }, [])
+    if (!router.isReady) return
 
-  const [informationValid, setInformationValid] = useState(true)
+    const localPropertyId = router.query.id
+
+    if (localPropertyId) {
+      setPropertyId(localPropertyId)
+    }
+  }, [router.isReady])
 
   useEffect(() => {
-    handleCurrentStep()
-  });
+    handleStep()
+  }, [propertyId])
 
-  const steps = [
-    { label: 'Informações', href: '/imoveis/novo/informacoes', disabled: false },
-    { label: 'Cômodos', href: '/imoveis/novo/comodos', disabled },
-    { label: 'Medidas', href: '/imoveis/novo/medidas', disabled },
-    { label: 'Preço', href: '/imoveis/novo/preco', disabled },
-    { label: 'Características', href: '/imoveis/novo/caracteristicas', disabled },
-    { label: 'Condomínio', href: '/imoveis/novo/condominio', disabled },
-    { label: 'Localização', href: '/imoveis/novo/localizacao', disabled },
-    { label: 'Proximidades', href: '/imoveis/novo/proximidades', disabled },
-    { label: 'Descrição', href: '/imoveis/novo/descricao', disabled },
-    { label: 'Imagens', href: '/imoveis/novo/imagens', disabled },
-    { label: 'Publicação', href: '/imoveis/novo/publicacao', disabled },
-  ]
+  function handleStep() {
+    const listSteps = [
+      { label: 'Informações', href: (propertyId.length > 0 ? `/imoveis/novo/${propertyId}/informacoes` : '/imoveis/novo/informacoes'), disabled: false },
+      { label: 'Cômodos', href: (propertyId.length > 0 ? `/imoveis/novo/${propertyId}/comodos` : '#'), disabled: (propertyId.length > 0 ? false : true) },
+      { label: 'Medidas', href: (propertyId.length > 0 ? `/imoveis/novo/${propertyId}/medidas` : '#'), disabled: (propertyId.length > 0 ? false : true) },
+      { label: 'Preço', href: (propertyId.length > 0 ? `/imoveis/novo/${propertyId}/preco` : '#'), disabled: (propertyId.length > 0 ? false : true) },
+      { label: 'Características', href: (propertyId.length > 0 ? `/imoveis/novo/${propertyId}/caracteristicas` : '#'), disabled: (propertyId.length > 0 ? false : true) },
+      { label: 'Condomínio', href: (propertyId.length > 0 ? `/imoveis/novo/${propertyId}/condominio` : '#'), disabled: (propertyId.length > 0 ? false : true) },
+      { label: 'Localização', href: (propertyId.length > 0 ? `/imoveis/novo/${propertyId}/localizacao` : '#'), disabled: (propertyId.length > 0 ? false : true) },
+      { label: 'Proximidades', href: (propertyId.length > 0 ? `/imoveis/novo/${propertyId}/proximidades` : '#'), disabled: (propertyId.length > 0 ? false : true) },
+      { label: 'Descrição', href: (propertyId.length > 0 ? `/imoveis/novo/${propertyId}/descricao` : '#'), disabled: (propertyId.length > 0 ? false : true) },
+      { label: 'Imagens', href: (propertyId.length > 0 ? `/imoveis/novo/${propertyId}/imagens` : '#'), disabled: (propertyId.length > 0 ? false : true) },
+      { label: 'Publicação', href: (propertyId.length > 0 ? `/imoveis/novo/${propertyId}/publicacao` : '#'), disabled: (propertyId.length > 0 ? false : true) },
+    ]
 
-  function handleCurrentStep() {
-    steps.map((step, index) => {
+    setSteps(listSteps)
+
+    listSteps.map((step, index) => {
       if (router.asPath == step.href) {
         setCurrentStep(index)
       }
@@ -55,7 +59,6 @@ export default function AsideNav() {
               label={step.label}
               href={step.href}
               currentStep={currentStep}
-              informationValid={informationValid}
               index={index}
               disabled={step.disabled}
             />

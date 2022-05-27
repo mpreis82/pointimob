@@ -3,12 +3,12 @@ import { useRouter } from 'next/router'
 import { collection, doc, getDoc, addDoc, Timestamp, updateDoc } from 'firebase/firestore'
 import { Box } from '@mui/system'
 import { Select, ToggleButtonGroup, ToggleButton, MenuItem, FormControl, TextField, Stack, Snackbar, Alert, FormHelperText } from '@mui/material';
-import AsideNav from '../../../../components/AsideNav'
-import ImoveisAsideNav from '../../../../components/imoveis/aside/AsideNav'
-import Main from '../../../../components/imoveis/main/Main'
-import Form from '../../../../components/imoveis/Form'
-import SelectPropertyTypes from '../../../../components/SelectPropertyTypes';
-import { Firestore } from '../../../../Firebase';
+import AsideNav from '../../../../../components/AsideNav'
+import ImoveisAsideNav from '../../../../../components/imoveis/aside/AsideNav'
+import Main from '../../../../../components/imoveis/main/Main'
+import Form from '../../../../../components/imoveis/Form'
+import SelectPropertyTypes from '../../../../../components/SelectPropertyTypes';
+import { Firestore } from '../../../../../Firebase';
 
 export default function ImoveisNovoInformacoes() {
   const [state, setState] = useState({
@@ -39,12 +39,34 @@ export default function ImoveisNovoInformacoes() {
     open: false
   })
 
+  const [propertyId, setPropertyId] = useState('')
+
   const router = useRouter()
 
   useEffect(async () => {
     if (!router.isReady) return
 
-    if (router.query.id) router.push(`/imoveis/novo/${doc.id}/informacoes`)
+    if (!router.query.id) router.push('/imoveis/novo/informacoes')
+
+    setPropertyId(router.query.id)
+
+    const docRef = doc(Firestore, 'properties', router.query.id)
+    const docSnap = await getDoc(docRef)
+
+    if (docSnap.exists()) {
+      const data = docSnap.data().initial_informations
+      setState({
+        people: data.people,
+        user: data.user,
+        subtype: data.subtype.docId,
+        profile: data.profile,
+        situation: data.situation,
+        lifetime: data.lifetime,
+        incorporation: data.incorporation,
+        near_sea: data.near_sea,
+        floor: data.floor,
+      })
+    }
   }, [router.isReady])
 
   function handleChange(event) {
@@ -84,10 +106,6 @@ export default function ImoveisNovoInformacoes() {
     return isValidated
   }
 
-  const handleMobiliado = (event, newValue) => {
-    setMobiliado(newValue);
-  };
-
   async function handleSubmit(event) {
     event.preventDefault()
 
@@ -97,7 +115,9 @@ export default function ImoveisNovoInformacoes() {
       const typeDoc = doc(Firestore, 'propery_types', state.subtype)
       const typeSnap = await getDoc(typeDoc)
 
-      const doc = await addDoc(collection(Firestore, 'properties'), {
+      const docRef = doc(Firestore, 'properties', propertyId)
+
+      await updateDoc(docRef, {
         initial_informations: {
           people: state.people,
           user: state.user,
@@ -108,24 +128,6 @@ export default function ImoveisNovoInformacoes() {
           incorporation: state.incorporation,
           near_sea: state.near_sea,
           floor: state.floor,
-        },
-        register_status: {
-          status: 'pending',
-          created_date: Timestamp.fromDate(new Date()),
-          update_date: ''
-        },
-        steps_progress: {
-          initial_informations: 'done',
-          rooms: 'pending',
-          measures: 'pending',
-          financial: 'pending',
-          characteristics: 'pending',
-          condominium: 'pending',
-          location: 'pending',
-          nearby: 'pending',
-          description: 'pending',
-          images: 'pending',
-          publish: 'pending',
         }
       })
 
@@ -136,7 +138,7 @@ export default function ImoveisNovoInformacoes() {
       })
 
       setTimeout(() => {
-        router.push(`/imoveis/novo/${doc.id}/comodos`)
+        router.push(`/imoveis/novo/${propertyId}/comodos`)
       }, 2000);
 
     } catch (err) {
@@ -148,6 +150,10 @@ export default function ImoveisNovoInformacoes() {
       })
     }
   }
+
+  const handleMobiliado = (event, newValue) => {
+    setMobiliado(newValue);
+  };
 
   return (
     <Box display='flex' height='calc(100% - 45px)' bgcolor='silver' overflow='hidden'>

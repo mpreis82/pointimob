@@ -29,17 +29,12 @@ export default function Imoveis() {
       <Box display='flex' height='calc(100% - 45px)' bgcolor='silver' overflow='hidden'>
         <AsideNav>
           <ImoveisListAside />
-
-          <Box width='100%' position='sticky' bottom='0' bgcolor='#fff' zIndex='99' display='grid' gridTemplateColumns='1fr 1fr' gap={1} pb={1}>
-            <Button variant='outlined' color='primary' fullWidth>Limpar</Button>
-            <Button variant='contained' color='primary' fullWidth>Filtrar</Button>
-          </Box>
         </AsideNav>
 
         <Main title='Sua lista de imóveis'>
           <Box mb={3}>{propertiesList.length} resultados encontrados</Box>
 
-          <Box display='grid' gridTemplateColumns='1fr 1fr' gap={2}>
+          <Box display='grid' sx={{ gridTemplateColumns: { md: '1fr', lg: '1fr 1fr' } }} gap={2}>
             <PropertiesList list={propertiesList} setList={setPropertiesList} setIsBackdrop={setIsBackdrop} />
           </Box>
         </Main>

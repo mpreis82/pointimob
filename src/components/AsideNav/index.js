@@ -9,7 +9,7 @@ export default function AsideNav({ children }) {
       maxWidth='240px'
       width='100%'
       bgcolor='#fff'
-      padding={2}
+      // padding={2}
       overflow='auto'
       zIndex='88'
       position='relative'

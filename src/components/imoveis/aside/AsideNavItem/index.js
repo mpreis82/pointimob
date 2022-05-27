@@ -4,7 +4,8 @@ import { Box } from "@mui/system"
 import { grey, pink } from '@mui/material/colors'
 import MaterialLink from '@mui/material/Link'
 
-export default function AsideNavItem({ label, href, currentStep, index, informationValid, disabled = false }) {
+export default function AsideNavItem({ label, href, currentStep, index, disabled = false }) {
+
   const router = useRouter()
 
   return (
@@ -38,7 +39,7 @@ export default function AsideNavItem({ label, href, currentStep, index, informat
           alignItems='center'
           py={1}
           underline='none'
-          sx={{ pointerEvents: ((informationValid || index == 0) ? 'auto' : 'none'), cursor: (disabled == true ? 'not-allowed' : 'pointer') }}
+          sx={{ pointerEvents: ((index == 0) ? 'auto' : 'none'), cursor: (disabled == true ? 'not-allowed' : 'pointer') }}
         >
           <Box
             component='span'
