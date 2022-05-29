@@ -17,10 +17,17 @@ export default function ImoveisListAside() {
   }, [])
 
   useEffect(() => {
+    const asideEl = asideFilterBoxRef.current.parentNode
+
+    if (asideEl.scrollHeight <= asideEl.offsetHeight) {
+      setPositionButtons('absolute')
+    } else {
+      setPositionButtons('sticky')
+    }
+
     if (asideFilterBoxRef.current != null) {
       function asideButtonsPosition() {
         if (asideFilterBoxRef.current) {
-          const asideEl = asideFilterBoxRef.current.parentNode
           if (asideEl.scrollHeight <= asideEl.offsetHeight) {
             setPositionButtons('absolute')
           } else {
