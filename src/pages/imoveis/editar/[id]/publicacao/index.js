@@ -1,15 +1,12 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import { doc, updateDoc, Timestamp, getDoc } from 'firebase/firestore'
-
 import { Box } from '@mui/system'
 import { FormControl, ToggleButtonGroup, ToggleButton, Stack, Snackbar, Alert, Backdrop, CircularProgress } from '@mui/material'
-
 import AsideNav from '../../../../../components/AsideNav'
 import ImoveisAsideNav from '../../../../../components/imoveis/aside/AsideNav'
 import Main from '../../../../../components/imoveis/main/Main'
 import Form from '../../../../../components/imoveis/Form'
-
 import { Firestore } from '../../../../../Firebase'
 
 export default function Publicacao() {
@@ -22,15 +19,17 @@ export default function Publicacao() {
 
   const [loaded, setLoaded] = useState(false)
 
+  const [propertyId, setPropertyId] = useState('')
+
   const router = useRouter()
 
   useEffect(async () => {
     if (!router.isReady) return
 
-    const propertyId = router.query.id
+    setPropertyId(router.query.id)
 
-    if (propertyId) {
-      const docRef = doc(Firestore, 'properties', propertyId)
+    if (router.query.id) {
+      const docRef = doc(Firestore, 'properties', router.query.id)
       const docSnap = await getDoc(docRef)
 
       if (docSnap.exists() && docSnap.data().publish) {
@@ -59,7 +58,7 @@ export default function Publicacao() {
     event.preventDefault()
 
     try {
-      const ref = doc(Firestore, 'properties', localStorage.getItem('new_property_id'))
+      const ref = doc(Firestore, 'properties', propertyId)
 
       await updateDoc(ref, {
         publish: {

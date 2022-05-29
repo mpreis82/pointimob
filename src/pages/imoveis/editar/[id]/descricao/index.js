@@ -3,17 +3,14 @@ import { useRouter } from 'next/router'
 import { doc, getDoc, updateDoc } from 'firebase/firestore'
 import dynamic from 'next/dynamic'
 const ReactQuill = dynamic(() => import('react-quill'), { ssr: false })
-
 import { Box } from '@mui/system'
 import { FormControl, TextField, Stack, Snackbar, Alert, Backdrop, CircularProgress } from '@mui/material'
 import 'react-quill/dist/quill.snow.css'
 import styles from './styles.module.css'
-
 import AsideNav from '../../../../../components/AsideNav'
 import ImoveisAsideNav from '../../../../../components/imoveis/aside/AsideNav'
 import Main from '../../../../../components/imoveis/main/Main'
 import Form from '../../../../../components/imoveis/Form'
-
 import { Firestore } from '../../../../../Firebase'
 
 export default function Descricao() {
@@ -28,10 +25,14 @@ export default function Descricao() {
 
   const [loaded, setLoaded] = useState(false)
 
+  const [propertyId, setPropertyId] = useState('')
+
   const router = useRouter()
 
   useEffect(async () => {
     if (!router.isReady) return
+
+    setPropertyId(router.query.id)
 
     if (router.query.id) {
       const docRef = doc(Firestore, 'properties', router.query.id)
@@ -57,7 +58,7 @@ export default function Descricao() {
     event.preventDefault()
 
     try {
-      const ref = doc(Firestore, 'properties', localStorage.getItem('new_property_id'))
+      const ref = doc(Firestore, 'properties', propertyId)
       await updateDoc(ref, {
         description: { page_title: pageTitle, description: description },
         'steps_progress.description': 'done'
@@ -76,8 +77,8 @@ export default function Descricao() {
       })
 
       setTimeout(() => {
-        router.push('/imoveis/novo/imagens')
-      }, 2300);
+        router.push(`/imoveis/editar/${propertyId}/imagens`)
+      }, 2000);
 
     } catch (err) {
       setAlert({
@@ -87,7 +88,6 @@ export default function Descricao() {
       })
     }
   }
-
 
   if (loaded) {
     return (

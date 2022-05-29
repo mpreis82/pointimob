@@ -20,6 +20,7 @@ export default function ImageTabs({ setAlert }) {
   useEffect(async () => {
     setIsBackdrop(true)
     if (!router.isReady) return
+
     const localPropertyId = router.query.id
     if (localPropertyId) {
       const docRef = doc(Firestore, 'properties', localPropertyId)

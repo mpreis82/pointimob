@@ -1,15 +1,12 @@
 import { useLayoutEffect, useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import { doc, getDoc, updateDoc } from 'firebase/firestore'
-
 import { Box } from '@mui/system'
 import { FormGroup, FormControlLabel, Checkbox, Stack, Snackbar, Alert, Backdrop, CircularProgress } from '@mui/material'
-
 import AsideNav from '../../../../../components/AsideNav'
 import ImoveisAsideNav from '../../../../../components/imoveis/aside/AsideNav'
 import Main from '../../../../../components/imoveis/main/Main'
 import Form from '../../../../../components/imoveis/Form'
-
 import { Firestore } from '../../../../../Firebase'
 
 export default function Proximidades() {
@@ -36,10 +33,14 @@ export default function Proximidades() {
 
   const [loaded, setLoaded] = useState(false)
 
+  const [propertyId, setPropertyId] = useState('')
+
   const router = useRouter()
 
   useEffect(async () => {
     if (!router.isReady) return
+
+    setPropertyId(router.query.id)
 
     if (router.query.id) {
       const docRef = doc(Firestore, 'properties', router.query.id)
@@ -71,7 +72,7 @@ export default function Proximidades() {
     event.preventDefault()
 
     try {
-      const ref = doc(Firestore, 'properties', localStorage.getItem('new_property_id'))
+      const ref = doc(Firestore, 'properties', propertyId)
 
       await updateDoc(ref, {
         nearbys,
@@ -85,8 +86,8 @@ export default function Proximidades() {
       })
 
       setTimeout(() => {
-        router.push('/imoveis/novo/descricao')
-      }, 2300);
+        router.push(`/imoveis/editar/${propertyId}/descricao`)
+      }, 2000);
 
     } catch (err) {
       setAlert({

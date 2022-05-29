@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
-import { Box } from "@mui/system"
+import { Box } from '@mui/system'
 import AsideNavItem from '../AsideNavItem'
 
 export default function AsideNav() {

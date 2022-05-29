@@ -57,10 +57,14 @@ export default function Localizacao() {
     zipcode: { error: false, message: 'Campo obrigatório' },
   })
 
+  const [propertyId, setPropertyId] = useState('')
+
   const router = useRouter()
 
   useEffect(async () => {
     if (!router.isReady) return
+
+    setPropertyId(router.query.id)
 
     if (router.query.id) {
       const docRef = doc(Firestore, 'properties', router.query.id)
@@ -189,7 +193,7 @@ export default function Localizacao() {
     if (!handleFormValidate()) return
 
     try {
-      const ref = doc(Firestore, 'properties', localStorage.getItem('new_property_id'))
+      const ref = doc(Firestore, 'properties', propertyId)
 
       await updateDoc(ref, {
         location: {
@@ -219,8 +223,8 @@ export default function Localizacao() {
       })
 
       setTimeout(() => {
-        router.push('/imoveis/novo/proximidades')
-      }, 2300);
+        router.push(`/imoveis/editar/${propertyId}/proximidades`)
+      }, 2000);
 
     } catch (err) {
       setAlert({

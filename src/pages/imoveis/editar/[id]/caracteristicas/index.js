@@ -1,15 +1,12 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import { doc, getDoc, updateDoc } from 'firebase/firestore'
-
 import { Box } from '@mui/system'
 import { FormControlLabel, Checkbox, FormGroup, Stack, Snackbar, Alert, Backdrop, CircularProgress } from '@mui/material'
-
 import AsideNav from '../../../../../components/AsideNav'
 import ImoveisAsideNav from '../../../../../components/imoveis/aside/AsideNav'
 import Main from '../../../../../components/imoveis/main/Main'
 import Form from '../../../../../components/imoveis/Form'
-
 import { Firestore } from '../../../../../Firebase'
 
 export default function Caracteristicas() {
@@ -60,10 +57,14 @@ export default function Caracteristicas() {
 
   const [loaded, setLoaded] = useState(false)
 
+  const [propertyId, setPropertyId] = useState('')
+
   const router = useRouter()
 
   useEffect(async () => {
     if (!router.isReady) return
+
+    setPropertyId(router.query.id)
 
     if (router.query.id) {
       const docRef = doc(Firestore, 'properties', router.query.id)
@@ -92,7 +93,7 @@ export default function Caracteristicas() {
     event.preventDefault();
 
     try {
-      const ref = doc(Firestore, 'properties', localStorage.getItem('new_property_id'))
+      const ref = doc(Firestore, 'properties', propertyId)
 
       await updateDoc(ref, {
         characteristics,
@@ -106,8 +107,8 @@ export default function Caracteristicas() {
       })
 
       setTimeout(() => {
-        router.push('/imoveis/novo/condominio')
-      }, 2300);
+        router.push(`/imoveis/editar/${propertyId}/condominio`)
+      }, 2000);
 
     } catch (err) {
       setAlert({

@@ -1,15 +1,12 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import { doc, getDoc, updateDoc } from 'firebase/firestore'
-
-import { Box } from "@mui/system"
-import { FormControl, TextField, InputAdornment, Select, MenuItem, ToggleButtonGroup, ToggleButton, Stack, Snackbar, Alert, Backdrop, CircularProgress, FormHelperText } from "@mui/material"
-
-import AsideNav from "../../../../../components/AsideNav"
+import { Box } from '@mui/system'
+import { FormControl, TextField, InputAdornment, Select, MenuItem, ToggleButtonGroup, ToggleButton, Stack, Snackbar, Alert, Backdrop, CircularProgress, FormHelperText } from '@mui/material'
+import AsideNav from '../../../../../components/AsideNav'
 import ImoveisAsideNav from '../../../../../components/imoveis/aside/AsideNav'
-import Main from "../../../../../components/imoveis/main/Main"
-import Form from "../../../../../components/imoveis/Form"
-
+import Main from '../../../../../components/imoveis/main/Main'
+import Form from '../../../../../components/imoveis/Form'
 import { Firestore } from '../../../../../Firebase'
 
 export default function Preco() {
@@ -40,10 +37,14 @@ export default function Preco() {
 
   const [loaded, setLoaded] = useState(false)
 
+  const [propertyId, setPropertyId] = useState('')
+
   const router = useRouter()
 
   useEffect(async () => {
     if (!router.isReady) return
+
+    setPropertyId(router.query.id)
 
     if (router.query.id) {
       const docRef = doc(Firestore, 'properties', router.query.id)
@@ -138,7 +139,7 @@ export default function Preco() {
     if (!handleFormValidate()) return
 
     try {
-      const ref = doc(Firestore, 'properties', localStorage.getItem('new_property_id'))
+      const ref = doc(Firestore, 'properties', propertyId)
 
       await updateDoc(ref, {
         financial: {
@@ -163,8 +164,8 @@ export default function Preco() {
       })
 
       setTimeout(() => {
-        router.push('/imoveis/novo/caracteristicas')
-      }, 2300);
+        router.push(`/imoveis/editar/${propertyId}/caracteristicas`)
+      }, 2000);
 
 
     } catch (err) {
@@ -187,20 +188,20 @@ export default function Preco() {
           <Form handleSubmit={handleSubmit}>
             <FormControl>
               <Box component='label' fontWeight='bold' mb={1}>Perfil do imóvel</Box>
-              <Select name="transaction" value={state.transaction} onChange={handleChange} onBlur={handleFormValidateBlur} error={formValidate.transaction.error} placeholder='Venda ou aluguel'>
+              <Select name='transaction' value={state.transaction} onChange={handleChange} onBlur={handleFormValidateBlur} error={formValidate.transaction.error} placeholder='Venda ou aluguel'>
                 <MenuItem value={'Venda'}>Venda</MenuItem>
                 <MenuItem value={'Aluguel'}>Aluguel</MenuItem>
               </Select>
               <FormHelperText error={formValidate.transaction.error}>{formValidate.transaction.error ? formValidate.transaction.message : ''}</FormHelperText>
             </FormControl>
 
-            <FormControl variant="outlined">
+            <FormControl variant='outlined'>
               <Box component='label' fontWeight='bold' mb={1}>Valor do Imóvel</Box>
-              <TextField type='number' name="price" value={state.price} onChange={handleChange} onBlur={handleFormValidateBlur} error={formValidate.price.error} helperText={formValidate.price.error ? formValidate.price.message : ''} InputProps={{ startAdornment: <InputAdornment position="start">R$</InputAdornment> }} />
+              <TextField type='number' name='price' value={state.price} onChange={handleChange} onBlur={handleFormValidateBlur} error={formValidate.price.error} helperText={formValidate.price.error ? formValidate.price.message : ''} InputProps={{ startAdornment: <InputAdornment position='start'>R$</InputAdornment> }} />
             </FormControl>
 
             <FormControl>
-              <Box component='label' htmlFor="" fontWeight='bold' mb={1}>Mostrar valor no site?</Box>
+              <Box component='label' htmlFor='' fontWeight='bold' mb={1}>Mostrar valor no site?</Box>
               <ToggleButtonGroup
                 name='price_show'
                 value={price_show}
@@ -215,18 +216,18 @@ export default function Preco() {
               </ToggleButtonGroup>
             </FormControl>
 
-            <FormControl variant="outlined" sx={{ display: (price_show == 'não' ? 'flex' : 'none') }}>
+            <FormControl variant='outlined' sx={{ display: (price_show == 'não' ? 'flex' : 'none') }}>
               <Box component='label' fontWeight='bold' mb={1}>Mostrar no lugar do preço:</Box>
-              <TextField name="price_alternative_text" value={state.price_alternative_text} onChange={handleChange} disabled={price_show == 'sim'} />
+              <TextField name='price_alternative_text' value={state.price_alternative_text} onChange={handleChange} disabled={price_show == 'sim'} />
             </FormControl>
 
-            <FormControl variant="outlined">
+            <FormControl variant='outlined'>
               <Box component='label' fontWeight='bold' mb={1}>Valor do IPTU</Box>
-              <TextField type='number' name="territorial_tax_price" value={state.territorial_tax_price} onChange={handleChange} InputProps={{ startAdornment: <InputAdornment position="start">R$</InputAdornment> }} placeholder='100,00' />
+              <TextField type='number' name='territorial_tax_price' value={state.territorial_tax_price} onChange={handleChange} InputProps={{ startAdornment: <InputAdornment position='start'>R$</InputAdornment> }} placeholder='100,00' />
             </FormControl>
 
             <FormControl>
-              <Box component='label' htmlFor="" fontWeight='bold' mb={1}>Período da tarifa do IPTU</Box>
+              <Box component='label' htmlFor='' fontWeight='bold' mb={1}>Período da tarifa do IPTU</Box>
               <ToggleButtonGroup
                 name='territorial_tax_type'
                 value={territorial_tax_type}
@@ -242,13 +243,13 @@ export default function Preco() {
               </ToggleButtonGroup>
             </FormControl>
 
-            <FormControl variant="outlined">
+            <FormControl variant='outlined'>
               <Box component='label' fontWeight='bold' mb={1}>Valor Condomínio</Box>
-              <TextField type='number' name="condominium_price" value={state.condominium_price} onChange={handleChange} InputProps={{ startAdornment: <InputAdornment position="start">R$</InputAdornment> }} />
+              <TextField type='number' name='condominium_price' value={state.condominium_price} onChange={handleChange} InputProps={{ startAdornment: <InputAdornment position='start'>R$</InputAdornment> }} />
             </FormControl>
 
             <FormControl>
-              <Box component='label' htmlFor="" fontWeight='bold' mb={1}>Está financiado?</Box>
+              <Box component='label' htmlFor='' fontWeight='bold' mb={1}>Está financiado?</Box>
               <ToggleButtonGroup
                 name='has_finance'
                 value={has_finance}
@@ -265,7 +266,7 @@ export default function Preco() {
             </FormControl>
 
             <FormControl>
-              <Box component='label' htmlFor="" fontWeight='bold' mb={1}>Aceita financiamento?</Box>
+              <Box component='label' htmlFor='' fontWeight='bold' mb={1}>Aceita financiamento?</Box>
               <ToggleButtonGroup
                 name='is_financeable'
                 value={is_financeable}
@@ -282,7 +283,7 @@ export default function Preco() {
             </FormControl>
 
             <FormControl>
-              <Box component='label' htmlFor="" fontWeight='bold' mb={1}>Aceita permuta?</Box>
+              <Box component='label' htmlFor='' fontWeight='bold' mb={1}>Aceita permuta?</Box>
               <ToggleButtonGroup
                 name='is_exchangeable'
                 value={is_exchangeable}
@@ -313,7 +314,7 @@ export default function Preco() {
         sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
         open={true}
       >
-        <CircularProgress color="inherit" />
+        <CircularProgress color='inherit' />
       </Backdrop>
     )
   }

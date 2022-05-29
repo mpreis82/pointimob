@@ -140,8 +140,8 @@ export default function ImoveisNovoInformacoes() {
       })
 
       setTimeout(() => {
-        router.push('/imoveis/novo/comodos')
-      }, 2300);
+        router.push(`/imoveis/editar/${propertyId}/comodos`)
+      }, 2000);
 
     } catch (err) {
       console.error(err)
