@@ -72,6 +72,8 @@ export default function Comodos() {
           pantry: data.pantry,
         })
         setCoveredGarage(data.covered_garage)
+      } else {
+        router.push('/imoveis')
       }
       setLoaded(true)
     }

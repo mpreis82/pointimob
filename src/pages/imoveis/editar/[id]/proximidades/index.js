@@ -49,9 +49,11 @@ export default function Proximidades() {
       if (docSnap.exists() && docSnap.data().nearbys) {
         const data = docSnap.data().nearbys
         setNearbys(data)
+        setLoaded(true)
+      } else {
+        router.push('/imoveis')
       }
     }
-    setLoaded(true)
   }, [router.isReady])
 
   function handleChange(event) {

@@ -94,9 +94,12 @@ export default function Localizacao() {
         })
 
         setZipcode(data.zipcode)
+
+        setLoaded(true)
+      } else {
+        router.push('/imoveis')
       }
     }
-    setLoaded(true)
   }, [router.isReady])
 
   const handleToggleChange = (event, newValue) => {

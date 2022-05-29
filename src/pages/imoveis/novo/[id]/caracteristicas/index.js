@@ -76,9 +76,11 @@ export default function Caracteristicas() {
       if (docSnap.exists() && docSnap.data().characteristics) {
         const data = docSnap.data().characteristics
         setCharacteristics(data)
+        setLoaded(true)
+      } else {
+        router.push('/imoveis')
       }
     }
-    setLoaded(true)
   }, [router.isReady])
 
   function handleChange(event) {

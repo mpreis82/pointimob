@@ -66,6 +66,8 @@ export default function ImoveisNovoInformacoes() {
         near_sea: data.near_sea,
         floor: data.floor,
       })
+    } else {
+      router.push('/imoveis')
     }
   }, [router.isReady])
 

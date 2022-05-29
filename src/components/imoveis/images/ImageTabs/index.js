@@ -30,6 +30,8 @@ export default function ImageTabs({ setAlert }) {
       const docSnap = await getDoc(docRef)
       if (docSnap.exists() && docSnap.data().images) {
         setPropertyListImages(docSnap.data().images)
+      } else {
+        router.push('/imoveis')
       }
     }
     setIsBackdrop(false)

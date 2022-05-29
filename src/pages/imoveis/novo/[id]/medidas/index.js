@@ -47,6 +47,8 @@ export default function Medidas() {
           private_area: data.private_area,
           total_area: data.total_area,
         })
+      } else {
+        router.push('/imoveis')
       }
     }
 

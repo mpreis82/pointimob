@@ -45,9 +45,11 @@ export default function Descricao() {
         const data = docSnap.data().description
         setPageTitle(data.page_title)
         setDescription(data.description)
+        setLoaded(true)
+      } else {
+        router.push('/imoveis')
       }
     }
-    setLoaded(true)
   }, [router.isReady])
 
   function handleSnackbarClose(event, reason) {

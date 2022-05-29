@@ -68,9 +68,11 @@ export default function Preco() {
         setHasFinance(data.has_finance)
         setIsFinanceable(data.is_financeable)
         setIsExchangeable(data.is_exchangeable)
+        setLoaded(true)
+      } else {
+        router.push('/imoveis')
       }
     }
-    setLoaded(true)
   }, [router.isReady])
 
   const handlePriceShow = (event, newValue) => {

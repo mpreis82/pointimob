@@ -73,9 +73,11 @@ export default function Condominio() {
         setCondominiumName(data.condominiumName)
         setIsCondo(data.inCondominium)
         setCondoCharacteristics(data.condominiumCharact)
+        setLoaded(true)
+      } else {
+        router.push('/imoveis')
       }
     }
-    setLoaded(true)
   }, [router.isReady])
 
   const handleIsCondo = (event, newValue) => {
