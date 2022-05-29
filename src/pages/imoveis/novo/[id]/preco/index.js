@@ -47,32 +47,33 @@ export default function Preco() {
   useEffect(async () => {
     if (!router.isReady) return
 
+    if (!router.query.id) router.push('/imoveis')
+
     setPropertyId(router.query.id)
 
-    if (router.query.id) {
-      const docRef = doc(Firestore, 'properties', router.query.id)
-      const docSnap = await getDoc(docRef)
+    const docRef = doc(Firestore, 'properties', router.query.id)
+    const docSnap = await getDoc(docRef)
 
-      if (docSnap.exists() && docSnap.data().financial) {
-        const data = docSnap.data().financial
-        setState({
-          transaction: data.transaction,
-          price: data.price,
-          price_alternative_text: data.price_alternative_text,
-          territorial_tax_price: data.territorial_tax_price,
-          condominium_price: data.condominium_price,
-        })
+    if (!docSnap.exists()) router.push('/imoveis')
 
-        setPriceShow(data.price_show)
-        setTerritorialTaxType(data.territorial_tax_type)
-        setHasFinance(data.has_finance)
-        setIsFinanceable(data.is_financeable)
-        setIsExchangeable(data.is_exchangeable)
-        setLoaded(true)
-      } else {
-        router.push('/imoveis')
-      }
+    if (docSnap.data().financial) {
+      const data = docSnap.data().financial
+      setState({
+        transaction: data.transaction,
+        price: data.price,
+        price_alternative_text: data.price_alternative_text,
+        territorial_tax_price: data.territorial_tax_price,
+        condominium_price: data.condominium_price,
+      })
+      setPriceShow(data.price_show)
+      setTerritorialTaxType(data.territorial_tax_type)
+      setHasFinance(data.has_finance)
+      setIsFinanceable(data.is_financeable)
+      setIsExchangeable(data.is_exchangeable)
     }
+
+    setLoaded(true)
+
   }, [router.isReady])
 
   const handlePriceShow = (event, newValue) => {

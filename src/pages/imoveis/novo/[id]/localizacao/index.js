@@ -64,41 +64,41 @@ export default function Localizacao() {
   useEffect(async () => {
     if (!router.isReady) return
 
+    if (!router.query.id) router.push('/imoveis')
+
     setPropertyId(router.query.id)
 
-    if (router.query.id) {
-      const docRef = doc(Firestore, 'properties', router.query.id)
-      const docSnap = await getDoc(docRef)
+    const docRef = doc(Firestore, 'properties', router.query.id)
+    const docSnap = await getDoc(docRef)
 
-      if (docSnap.exists() && docSnap.data().location) {
-        const data = docSnap.data().location
-        setState({
-          uf: data.uf,
-          city: data.city,
-          street: data.street,
-          district: data.district,
-          number: data.number,
-          complement: data.complement,
-          zipcode: data.zipcode,
-        })
+    if (!docSnap.exists()) router.push('/imoveis')
 
-        setToggle({
-          showStreet: data.showStreet,
-          showDistrict: data.showDistrict,
-          showNumberComplement: data.showNumberComplement,
-          showCondoName: data.showCondoName,
-          showMap: data.showMap,
-          showExactLocation: data.showExactLocation,
-          showApartamentFloor: data.showApartamentFloor,
-          showApartamentNumber: data.showApartamentNumber,
-        })
-
-        setZipcode(data.zipcode)
-        setLoaded(true)
-      } else {
-        router.push('/imoveis')
-      }
+    if (docSnap.data().location) {
+      const data = docSnap.data().location
+      setState({
+        uf: data.uf,
+        city: data.city,
+        street: data.street,
+        district: data.district,
+        number: data.number,
+        complement: data.complement,
+        zipcode: data.zipcode,
+      })
+      setToggle({
+        showStreet: data.showStreet,
+        showDistrict: data.showDistrict,
+        showNumberComplement: data.showNumberComplement,
+        showCondoName: data.showCondoName,
+        showMap: data.showMap,
+        showExactLocation: data.showExactLocation,
+        showApartamentFloor: data.showApartamentFloor,
+        showApartamentNumber: data.showApartamentNumber,
+      })
+      setZipcode(data.zipcode)
     }
+
+    setLoaded(true)
+
   }, [router.isReady])
 
   const handleToggleChange = (event, newValue) => {

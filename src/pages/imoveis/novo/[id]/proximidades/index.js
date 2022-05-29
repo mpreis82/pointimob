@@ -43,20 +43,22 @@ export default function Proximidades() {
   useEffect(async () => {
     if (!router.isReady) return
 
+    if (!router.query.id) router.push('/imoveis')
+
     setPropertyId(router.query.id)
 
-    if (router.query.id) {
-      const docRef = doc(Firestore, 'properties', router.query.id)
-      const docSnap = await getDoc(docRef)
+    const docRef = doc(Firestore, 'properties', router.query.id)
+    const docSnap = await getDoc(docRef)
 
-      if (docSnap.exists() && docSnap.data().nearbys) {
-        const data = docSnap.data().nearbys
-        setNearbys(data)
-        setLoaded(true)
-      } else {
-        router.push('/imoveis')
-      }
+    if (!docSnap.exists()) router.push('/imoveis')
+
+    if (docSnap.data().nearbys) {
+      const data = docSnap.data().nearbys
+      setNearbys(data)
     }
+
+    setLoaded(true)
+
   }, [router.isReady])
 
   function handleChange(event) {

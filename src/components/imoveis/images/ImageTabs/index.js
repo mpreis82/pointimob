@@ -22,19 +22,23 @@ export default function ImageTabs({ setAlert }) {
     setIsBackdrop(true)
     if (!router.isReady) return
 
+    if (!router.query.id) router.push('/imoveis')
+
     setAction((/\/imoveis\/editar\/.+/).test(router.asPath) ? 'editar' : 'novo')
 
     const localPropertyId = router.query.id
-    if (localPropertyId) {
-      const docRef = doc(Firestore, 'properties', localPropertyId)
-      const docSnap = await getDoc(docRef)
-      if (docSnap.exists() && docSnap.data().images) {
-        setPropertyListImages(docSnap.data().images)
-      } else {
-        router.push('/imoveis')
-      }
+
+    const docRef = doc(Firestore, 'properties', localPropertyId)
+    const docSnap = await getDoc(docRef)
+
+    if (!docSnap.exists()) router.push('/imoveis')
+
+    if (docSnap.data().images) {
+      setPropertyListImages(docSnap.data().images)
     }
+
     setIsBackdrop(false)
+
   }, [router.isReady])
 
   function TabPanel(props) {

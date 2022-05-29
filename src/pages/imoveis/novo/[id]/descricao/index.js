@@ -3,7 +3,6 @@ import { useRouter } from 'next/router'
 import { doc, getDoc, updateDoc } from 'firebase/firestore'
 import dynamic from 'next/dynamic'
 const ReactQuill = dynamic(() => import('react-quill'), { ssr: false })
-
 import { Box } from '@mui/system'
 import { FormControl, TextField, Stack, Snackbar, Alert, Backdrop, CircularProgress } from '@mui/material'
 import 'react-quill/dist/quill.snow.css'
@@ -35,21 +34,23 @@ export default function Descricao() {
   useEffect(async () => {
     if (!router.isReady) return
 
+    if (!router.query.id) router.push('/imoveis')
+
     setPropertyId(router.query.id)
 
-    if (router.query.id) {
-      const docRef = doc(Firestore, 'properties', router.query.id)
-      const docSnap = await getDoc(docRef)
+    const docRef = doc(Firestore, 'properties', router.query.id)
+    const docSnap = await getDoc(docRef)
 
-      if (docSnap.exists() && docSnap.data().description) {
-        const data = docSnap.data().description
-        setPageTitle(data.page_title)
-        setDescription(data.description)
-        setLoaded(true)
-      } else {
-        router.push('/imoveis')
-      }
+    if (!docSnap.exists()) router.push('/imoveis')
+
+    if (docSnap.data().description) {
+      const data = docSnap.data().description
+      setPageTitle(data.page_title)
+      setDescription(data.description)
     }
+
+    setLoaded(true)
+
   }, [router.isReady])
 
   function handleSnackbarClose(event, reason) {

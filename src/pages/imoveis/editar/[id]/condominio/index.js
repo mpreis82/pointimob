@@ -59,22 +59,24 @@ export default function Condominio() {
   useEffect(async () => {
     if (!router.isReady) return
 
+    if (!router.query.id) router.push('/imoveis')
+
     setPropertyId(router.query.id)
 
-    if (router.query.id) {
-      const docRef = doc(Firestore, 'properties', router.query.id)
-      const docSnap = await getDoc(docRef)
+    const docRef = doc(Firestore, 'properties', router.query.id)
+    const docSnap = await getDoc(docRef)
 
-      if (docSnap.exists() && docSnap.data().condominium) {
-        const data = docSnap.data().condominium
-        setCondominiumName(data.condominiumName)
-        setIsCondo(data.inCondominium)
-        setCondoCharacteristics(data.condominiumCharact)
-        setLoaded(true)
-      } else {
-        router.push('/imoveis')
-      }
+    if (!docSnap.exists()) router.push('/imoveis')
+
+    if (docSnap.data().condominium) {
+      const data = docSnap.data().condominium
+      setCondominiumName(data.condominiumName)
+      setIsCondo(data.inCondominium)
+      setCondoCharacteristics(data.condominiumCharact)
     }
+
+    setLoaded(true)
+
   }, [router.isReady])
 
   const handleIsCondo = (event, newValue) => {

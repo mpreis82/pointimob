@@ -64,20 +64,22 @@ export default function Caracteristicas() {
   useEffect(async () => {
     if (!router.isReady) return
 
+    if (!router.query.id) router.push('/imoveis')
+
     setPropertyId(router.query.id)
 
-    if (router.query.id) {
-      const docRef = doc(Firestore, 'properties', router.query.id)
-      const docSnap = await getDoc(docRef)
+    if (!docSnap.exists()) router.push('/imoveis')
 
-      if (docSnap.exists() && docSnap.data().characteristics) {
-        const data = docSnap.data().characteristics
-        setCharacteristics(data)
-        setLoaded(true)
-      } else {
-        router.push('/imoveis')
-      }
+    const docRef = doc(Firestore, 'properties', router.query.id)
+    const docSnap = await getDoc(docRef)
+
+    if (docSnap.data().characteristics) {
+      const data = docSnap.data().characteristics
+      setCharacteristics(data)
     }
+
+    setLoaded(true)
+
   }, [router.isReady])
 
   function handleChange(event) {

@@ -24,25 +24,29 @@ export default function Publicacao() {
   const router = useRouter()
 
   useEffect(async () => {
+    setLoaded(false)
+
     if (!router.isReady) return
+
+    if (!router.query.id) router.push('/imoveis')
 
     setPropertyId(router.query.id)
 
-    if (router.query.id) {
-      const docRef = doc(Firestore, 'properties', router.query.id)
-      const docSnap = await getDoc(docRef)
+    const docRef = doc(Firestore, 'properties', router.query.id)
+    const docSnap = await getDoc(docRef)
 
-      if (docSnap.exists() && docSnap.data().publish) {
-        const data = docSnap.data().publish
-        setState({
-          show_property: data.show_property,
-          is_highlighted: data.is_highlighted,
-        })
-        setLoaded(true)
-      } else {
-        router.push('/imoveis')
-      }
+    if (!docSnap.exists()) router.push('/imoveis')
+
+    if (docSnap.data().publish) {
+      const data = docSnap.data().publish
+      setState({
+        show_property: data.show_property,
+        is_highlighted: data.is_highlighted,
+      })
     }
+
+    setLoaded(true)
+
   }, [router.isReady])
 
   const handleToggleChange = (event, newValue) => {

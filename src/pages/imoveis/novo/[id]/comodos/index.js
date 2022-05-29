@@ -48,38 +48,40 @@ export default function Comodos() {
 
     if (!router.isReady) return
 
+    if (!router.query.id) router.push('/imoveis')
+
     setPropertyId(router.query.id)
 
-    if (router.query.id) {
-      const docRef = doc(Firestore, 'properties', router.query.id)
-      const docSnap = await getDoc(docRef)
+    const docRef = doc(Firestore, 'properties', router.query.id)
+    const docSnap = await getDoc(docRef)
 
-      if (docSnap.exists() && docSnap.data().rooms) {
-        const data = docSnap.data().rooms
-        setState({
-          ...state,
-          bedroom: data.bedroom,
-          suite: data.suite,
-          bathroom: data.bathroom,
-          garage: data.garage,
-          covered_garage: data.covered_garage,
-          tvroom: data.tvroom,
-          diningroom: data.diningroom,
-          livingroom: data.livingroom,
-          washbasin: data.washbasin,
-          service_area: data.service_area,
-          kitchen: data.kitchen,
-          closet: data.closet,
-          office: data.office,
-          employeeDependency: data.employeeDependency,
-          pantry: data.pantry,
-        })
-        setCoveredGarage(data.covered_garage)
-        setLoaded(true)
-      } else {
-        router.push('/imoveis')
-      }
+    if (!docSnap.exists()) router.push('/imoveis')
+
+    if (docSnap.data().rooms) {
+      const data = docSnap.data().rooms
+      setState({
+        ...state,
+        bedroom: data.bedroom,
+        suite: data.suite,
+        bathroom: data.bathroom,
+        garage: data.garage,
+        covered_garage: data.covered_garage,
+        tvroom: data.tvroom,
+        diningroom: data.diningroom,
+        livingroom: data.livingroom,
+        washbasin: data.washbasin,
+        service_area: data.service_area,
+        kitchen: data.kitchen,
+        closet: data.closet,
+        office: data.office,
+        employeeDependency: data.employeeDependency,
+        pantry: data.pantry,
+      })
+      setCoveredGarage(data.covered_garage)
     }
+
+    setLoaded(true)
+
   }, [router.isReady])
 
   function handleChange(event) {
