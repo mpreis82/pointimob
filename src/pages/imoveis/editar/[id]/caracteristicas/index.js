@@ -68,10 +68,10 @@ export default function Caracteristicas() {
 
     setPropertyId(router.query.id)
 
-    if (!docSnap.exists()) router.push('/imoveis')
-
     const docRef = doc(Firestore, 'properties', router.query.id)
     const docSnap = await getDoc(docRef)
+
+    if (!docSnap.exists()) router.push('/imoveis')
 
     if (docSnap.data().characteristics) {
       const data = docSnap.data().characteristics

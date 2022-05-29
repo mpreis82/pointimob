@@ -41,7 +41,7 @@ export default function Medidas() {
     const docRef = doc(Firestore, 'properties', router.query.id)
     const docSnap = await getDoc(docRef)
 
-    if (docSnap.exists()) router.push('/imoveis')
+    if (!docSnap.exists()) router.push('/imoveis')
 
     if (docSnap.data().measures) {
       const data = docSnap.data().measures
