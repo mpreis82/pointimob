@@ -54,7 +54,6 @@ export default function Localizacao() {
     street: { error: false, message: 'Campo obrigatório' },
     district: { error: false, message: 'Campo obrigatório' },
     number: { error: false, message: 'Campo obrigatório' },
-    complement: { error: false, message: 'Campo obrigatório' },
     zipcode: { error: false, message: 'Campo obrigatório' },
   })
 
@@ -292,7 +291,7 @@ export default function Localizacao() {
 
               <FormControl variant='outlined' >
                 <Box component='label' fontWeight='bold' mb={1}>Complemento</Box>
-                <TextField name='complement' value={state.complement} error={formValidate.complement.error} helperText={formValidate.complement.error ? formValidate.complement.message : ''} onChange={handleStateChange} />
+                <TextField name='complement' value={state.complement} onChange={handleStateChange} />
               </FormControl>
             </Box>
 

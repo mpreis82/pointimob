@@ -1,17 +1,14 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
-import { collection, doc, getDoc, addDoc, Timestamp, updateDoc } from 'firebase/firestore'
-
-import { Box } from "@mui/system"
+import { doc, getDoc, updateDoc } from 'firebase/firestore'
+import { Box } from '@mui/system'
 import { Select, ToggleButtonGroup, ToggleButton, MenuItem, FormControl, TextField, Stack, Snackbar, Alert, FormHelperText } from '@mui/material';
-
 import AsideNav from '../../../../../components/AsideNav'
 import ImoveisAsideNav from '../../../../../components/imoveis/aside/AsideNav'
-import Main from "../../../../../components/imoveis/main/Main"
-import Form from "../../../../../components/imoveis/Form"
-import SelectPropertyTypes from "../../../../../components/SelectPropertyTypes";
-
-import { Firestore } from "../../../../../Firebase";
+import Main from '../../../../../components/imoveis/main/Main'
+import Form from '../../../../../components/imoveis/Form'
+import SelectPropertyTypes from '../../../../../components/SelectPropertyTypes';
+import { Firestore } from '../../../../../Firebase';
 
 export default function ImoveisNovoInformacoes() {
   const [state, setState] = useState({
@@ -42,15 +39,19 @@ export default function ImoveisNovoInformacoes() {
     open: false
   })
 
+  const [propertyId, setPropertyId] = useState('')
+
   const router = useRouter()
 
   useEffect(async () => {
     if (!router.isReady) return
 
-    const propertyId = router.query.id
+    const localPropertyId = router.query.id
 
-    if (propertyId) {
-      const docRef = doc(Firestore, 'properties', propertyId)
+    setPropertyId(localPropertyId)
+
+    if (localPropertyId) {
+      const docRef = doc(Firestore, 'properties', localPropertyId)
       const docSnap = await getDoc(docRef)
 
       if (docSnap.exists()) {
@@ -116,55 +117,21 @@ export default function ImoveisNovoInformacoes() {
       const typeDoc = doc(Firestore, 'propery_types', state.subtype)
       const typeSnap = await getDoc(typeDoc)
 
-      if (!localStorage.getItem('new_property_id')) {
-        const doc = await addDoc(collection(Firestore, 'properties'), {
-          initial_informations: {
-            people: state.people,
-            user: state.user,
-            subtype: { docId: typeSnap.id, ...typeSnap.data() },
-            profile: state.profile,
-            situation: state.situation,
-            lifetime: state.lifetime,
-            incorporation: state.incorporation,
-            near_sea: state.near_sea,
-            floor: state.floor,
-          },
-          register_status: {
-            status: 'pending',
-            created_date: Timestamp.fromDate(new Date()),
-            update_date: ''
-          },
-          steps_progress: {
-            initial_informations: 'done',
-            rooms: 'pending',
-            measures: 'pending',
-            financial: 'pending',
-            characteristics: 'pending',
-            condominium: 'pending',
-            location: 'pending',
-            nearby: 'pending',
-            description: 'pending',
-            images: 'pending',
-            publish: 'pending',
-          }
-        })
-        localStorage.setItem('new_property_id', doc.id)
-      } else {
-        const docRef = doc(Firestore, 'properties', localStorage.getItem('new_property_id'))
-        await updateDoc(docRef, {
-          initial_informations: {
-            people: state.people,
-            user: state.user,
-            subtype: { docId: typeSnap.id, ...typeSnap.data() },
-            profile: state.profile,
-            situation: state.situation,
-            lifetime: state.lifetime,
-            incorporation: state.incorporation,
-            near_sea: state.near_sea,
-            floor: state.floor,
-          }
-        })
-      }
+      const docRef = doc(Firestore, 'properties', propertyId)
+
+      await updateDoc(docRef, {
+        initial_informations: {
+          people: state.people,
+          user: state.user,
+          subtype: { docId: typeSnap.id, ...typeSnap.data() },
+          profile: state.profile,
+          situation: state.situation,
+          lifetime: state.lifetime,
+          incorporation: state.incorporation,
+          near_sea: state.near_sea,
+          floor: state.floor,
+        }
+      })
 
       setAlert({
         severity: 'success',
@@ -198,21 +165,21 @@ export default function ImoveisNovoInformacoes() {
 
       <Main title='Informações iniciais'>
         <Form handleSubmit={handleSubmit}>
-          <FormControl variant="outlined">
-            <Box component='label' htmlFor="" fontWeight='bold' mb={1}>Proprietario</Box>
-            <TextField name="people" value={state.people} onChange={handleChange} error={formValidate.people.error} helperText={formValidate.people.error ? formValidate.people.message : ''} onBlur={handleFormValidateBlur} />
+          <FormControl variant='outlined'>
+            <Box component='label' htmlFor='' fontWeight='bold' mb={1}>Proprietario</Box>
+            <TextField name='people' value={state.people} onChange={handleChange} error={formValidate.people.error} helperText={formValidate.people.error ? formValidate.people.message : ''} onBlur={handleFormValidateBlur} />
           </FormControl>
 
-          <FormControl variant="outlined">
-            <Box component='label' htmlFor="" fontWeight='bold' mb={1}>Corretor/Agenciador</Box>
-            <TextField name="user" value={state.user} onChange={handleChange} error={formValidate.user.error} helperText={formValidate.user.error ? formValidate.user.message : ''} onBlur={handleFormValidateBlur} />
+          <FormControl variant='outlined'>
+            <Box component='label' htmlFor='' fontWeight='bold' mb={1}>Corretor/Agenciador</Box>
+            <TextField name='user' value={state.user} onChange={handleChange} error={formValidate.user.error} helperText={formValidate.user.error ? formValidate.user.message : ''} onBlur={handleFormValidateBlur} />
           </FormControl>
 
           <SelectPropertyTypes value={state.subtype} setValue={handleChange} error={formValidate.subtype.error} message={formValidate.subtype.message} validateBlur={handleFormValidateBlur} />
 
           <FormControl>
-            <Box component='label' htmlFor="" fontWeight='bold' mb={1}>Perfil do imóvel</Box>
-            <Select name="profile" value={state.profile} onChange={handleChange} error={formValidate.profile.error} onBlur={handleFormValidateBlur} >
+            <Box component='label' htmlFor='' fontWeight='bold' mb={1}>Perfil do imóvel</Box>
+            <Select name='profile' value={state.profile} onChange={handleChange} error={formValidate.profile.error} onBlur={handleFormValidateBlur} >
               <MenuItem value={'Residencial'}>Residencial</MenuItem>
               <MenuItem value={'Comercial'}>Comercial</MenuItem>
               <MenuItem value={'Residencial/Comercial'}>Residencial/Comercial</MenuItem>
@@ -224,8 +191,8 @@ export default function ImoveisNovoInformacoes() {
           </FormControl>
 
           <FormControl>
-            <Box component='label' htmlFor="" fontWeight='bold' mb={1}>Situação</Box>
-            <Select name="situation" value={state.situation} onChange={handleChange} error={formValidate.situation.error} onBlur={handleFormValidateBlur} >
+            <Box component='label' htmlFor='' fontWeight='bold' mb={1}>Situação</Box>
+            <Select name='situation' value={state.situation} onChange={handleChange} error={formValidate.situation.error} onBlur={handleFormValidateBlur} >
               <MenuItem value={'Breve lançamento'}>Breve lançamento</MenuItem>
               <MenuItem value={'Na plata'}>Na plata</MenuItem>
               <MenuItem value={'Em construção'}>Em construção</MenuItem>
@@ -240,32 +207,32 @@ export default function ImoveisNovoInformacoes() {
             <FormHelperText error={formValidate.situation.error}>{formValidate.situation.error ? formValidate.situation.message : ''}</FormHelperText>
           </FormControl>
 
-          <FormControl variant="outlined">
-            <Box component='label' htmlFor="" fontWeight='bold' mb={1}>Ano da construção</Box>
-            <TextField type='number' name="lifetime" value={state.lifetime} onChange={handleChange} InputProps={{ inputProps: { min: 1900, max: new Date().getFullYear() } }} />
+          <FormControl variant='outlined'>
+            <Box component='label' htmlFor='' fontWeight='bold' mb={1}>Ano da construção</Box>
+            <TextField type='number' name='lifetime' value={state.lifetime} onChange={handleChange} InputProps={{ inputProps: { min: 1900, max: new Date().getFullYear() } }} />
           </FormControl>
 
-          <FormControl variant="outlined">
-            <Box component='label' htmlFor="" fontWeight='bold' mb={1}>Incorporação</Box>
-            <TextField name="incorporation" value={state.incorporation} onChange={handleChange} />
+          <FormControl variant='outlined'>
+            <Box component='label' htmlFor='' fontWeight='bold' mb={1}>Incorporação</Box>
+            <TextField name='incorporation' value={state.incorporation} onChange={handleChange} />
           </FormControl>
 
           <FormControl>
-            <Box component='label' htmlFor="" fontWeight='bold' mb={1}>Próximo ao mar?</Box>
-            <Select name="near_sea" value={state.near_sea} onChange={handleChange} >
+            <Box component='label' htmlFor='' fontWeight='bold' mb={1}>Próximo ao mar?</Box>
+            <Select name='near_sea' value={state.near_sea} onChange={handleChange} >
               <MenuItem value={'Frente pro mar'}>Frente pro mar</MenuItem>
               <MenuItem value={'Quadra do mar'}>Quadra do mar</MenuItem>
               <MenuItem value={'Próximo ao mar'}>Próximo ao mar</MenuItem>
             </Select>
           </FormControl>
 
-          <FormControl variant="outlined" sx={{ display: ((Number(state.subtype) > 0 && Number(state.subtype) < 16) ? 'flex' : 'none') }}>
-            <Box component='label' htmlFor="" fontWeight='bold' mb={1}>Andar</Box>
-            <TextField name="floor" value={state.floor} onChange={handleChange} />
+          <FormControl variant='outlined' sx={{ display: ((Number(state.subtype) > 0 && Number(state.subtype) < 16) ? 'flex' : 'none') }}>
+            <Box component='label' htmlFor='' fontWeight='bold' mb={1}>Andar</Box>
+            <TextField name='floor' value={state.floor} onChange={handleChange} />
           </FormControl>
 
           <FormControl>
-            <Box component='label' htmlFor="" fontWeight='bold' mb={1}>Tem mobília?</Box>
+            <Box component='label' htmlFor='' fontWeight='bold' mb={1}>Tem mobília?</Box>
             <ToggleButtonGroup
               value={mobiliado}
               exclusive

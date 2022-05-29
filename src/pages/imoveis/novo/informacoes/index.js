@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
-import { collection, doc, getDoc, addDoc, Timestamp, updateDoc } from 'firebase/firestore'
+import { collection, doc, getDoc, addDoc, Timestamp, updateDoc, query } from 'firebase/firestore'
 import { Box } from '@mui/system'
 import { Select, ToggleButtonGroup, ToggleButton, MenuItem, FormControl, TextField, Stack, Snackbar, Alert, FormHelperText } from '@mui/material';
 import AsideNav from '../../../../components/AsideNav'
@@ -94,10 +94,11 @@ export default function ImoveisNovoInformacoes() {
     if (!handleFormValidate()) return
 
     try {
-      const typeDoc = doc(Firestore, 'propery_types', state.subtype)
-      const typeSnap = await getDoc(typeDoc)
+      const typeDocRef = doc(Firestore, 'propery_types', state.subtype)
 
-      const doc = await addDoc(collection(Firestore, 'properties'), {
+      const typeSnap = await getDoc(typeDocRef)
+
+      const newDoc = await addDoc(collection(Firestore, 'properties'), {
         initial_informations: {
           people: state.people,
           user: state.user,
@@ -136,7 +137,7 @@ export default function ImoveisNovoInformacoes() {
       })
 
       setTimeout(() => {
-        router.push(`/imoveis/novo/${doc.id}/comodos`)
+        router.push(`/imoveis/novo/${newDoc.id}/comodos`)
       }, 2000);
 
     } catch (err) {

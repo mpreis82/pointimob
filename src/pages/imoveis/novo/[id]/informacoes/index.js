@@ -111,6 +111,10 @@ export default function ImoveisNovoInformacoes() {
 
     if (!handleFormValidate()) return
 
+    console.log(propertyId)
+
+    return
+
     try {
       const typeDoc = doc(Firestore, 'propery_types', state.subtype)
       const typeSnap = await getDoc(typeDoc)
