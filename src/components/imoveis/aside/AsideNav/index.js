@@ -7,6 +7,7 @@ export default function AsideNav() {
   const [currentStep, setCurrentStep] = useState()
   const [propertyId, setPropertyId] = useState('')
   const [steps, setSteps] = useState([])
+  const [action, setAction] = useState('')
 
   const router = useRouter()
 
@@ -14,6 +15,8 @@ export default function AsideNav() {
     if (!router.isReady) return
 
     const localPropertyId = router.query.id
+
+    setAction((/\/imoveis\/editar\/.+/).test(router.asPath) ? 'editar' : 'novo')
 
     if (localPropertyId) {
       setPropertyId(localPropertyId)
@@ -26,17 +29,17 @@ export default function AsideNav() {
 
   function handleStep() {
     const listSteps = [
-      { label: 'Informações', href: (propertyId.length > 0 ? `/imoveis/novo/${propertyId}/informacoes` : '/imoveis/novo/informacoes'), disabled: false },
-      { label: 'Cômodos', href: (propertyId.length > 0 ? `/imoveis/novo/${propertyId}/comodos` : '#'), disabled: (propertyId.length > 0 ? false : true) },
-      { label: 'Medidas', href: (propertyId.length > 0 ? `/imoveis/novo/${propertyId}/medidas` : '#'), disabled: (propertyId.length > 0 ? false : true) },
-      { label: 'Preço', href: (propertyId.length > 0 ? `/imoveis/novo/${propertyId}/preco` : '#'), disabled: (propertyId.length > 0 ? false : true) },
-      { label: 'Características', href: (propertyId.length > 0 ? `/imoveis/novo/${propertyId}/caracteristicas` : '#'), disabled: (propertyId.length > 0 ? false : true) },
-      { label: 'Condomínio', href: (propertyId.length > 0 ? `/imoveis/novo/${propertyId}/condominio` : '#'), disabled: (propertyId.length > 0 ? false : true) },
-      { label: 'Localização', href: (propertyId.length > 0 ? `/imoveis/novo/${propertyId}/localizacao` : '#'), disabled: (propertyId.length > 0 ? false : true) },
-      { label: 'Proximidades', href: (propertyId.length > 0 ? `/imoveis/novo/${propertyId}/proximidades` : '#'), disabled: (propertyId.length > 0 ? false : true) },
-      { label: 'Descrição', href: (propertyId.length > 0 ? `/imoveis/novo/${propertyId}/descricao` : '#'), disabled: (propertyId.length > 0 ? false : true) },
-      { label: 'Imagens', href: (propertyId.length > 0 ? `/imoveis/novo/${propertyId}/imagens` : '#'), disabled: (propertyId.length > 0 ? false : true) },
-      { label: 'Publicação', href: (propertyId.length > 0 ? `/imoveis/novo/${propertyId}/publicacao` : '#'), disabled: (propertyId.length > 0 ? false : true) },
+      { label: 'Informações', href: (propertyId.length > 0 ? `/imoveis/${action}/${propertyId}/informacoes` : '/imoveis/novo/informacoes'), disabled: false },
+      { label: 'Cômodos', href: (propertyId.length > 0 ? `/imoveis/${action}/${propertyId}/comodos` : '#'), disabled: (propertyId.length > 0 ? false : true) },
+      { label: 'Medidas', href: (propertyId.length > 0 ? `/imoveis/${action}/${propertyId}/medidas` : '#'), disabled: (propertyId.length > 0 ? false : true) },
+      { label: 'Preço', href: (propertyId.length > 0 ? `/imoveis/${action}/${propertyId}/preco` : '#'), disabled: (propertyId.length > 0 ? false : true) },
+      { label: 'Características', href: (propertyId.length > 0 ? `/imoveis/${action}/${propertyId}/caracteristicas` : '#'), disabled: (propertyId.length > 0 ? false : true) },
+      { label: 'Condomínio', href: (propertyId.length > 0 ? `/imoveis/${action}/${propertyId}/condominio` : '#'), disabled: (propertyId.length > 0 ? false : true) },
+      { label: 'Localização', href: (propertyId.length > 0 ? `/imoveis/${action}/${propertyId}/localizacao` : '#'), disabled: (propertyId.length > 0 ? false : true) },
+      { label: 'Proximidades', href: (propertyId.length > 0 ? `/imoveis/${action}/${propertyId}/proximidades` : '#'), disabled: (propertyId.length > 0 ? false : true) },
+      { label: 'Descrição', href: (propertyId.length > 0 ? `/imoveis/${action}/${propertyId}/descricao` : '#'), disabled: (propertyId.length > 0 ? false : true) },
+      { label: 'Imagens', href: (propertyId.length > 0 ? `/imoveis/${action}/${propertyId}/imagens` : '#'), disabled: (propertyId.length > 0 ? false : true) },
+      { label: 'Publicação', href: (propertyId.length > 0 ? `/imoveis/${action}/${propertyId}/publicacao` : '#'), disabled: (propertyId.length > 0 ? false : true) },
     ]
 
     setSteps(listSteps)

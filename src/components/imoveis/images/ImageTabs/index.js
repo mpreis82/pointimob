@@ -14,12 +14,15 @@ export default function ImageTabs({ setAlert }) {
   const [propertyListImages, setPropertyListImages] = useState([])
   const [plansList, setPlansList] = useState([])
   const [isBackdrop, setIsBackdrop] = useState(false)
+  const [action, setAction] = useState('')
 
   const router = useRouter()
 
   useEffect(async () => {
     setIsBackdrop(true)
     if (!router.isReady) return
+
+    setAction((/\/imoveis\/editar\/.+/).test(router.asPath) ? 'editar' : 'novo')
 
     const localPropertyId = router.query.id
     if (localPropertyId) {
@@ -89,7 +92,7 @@ export default function ImageTabs({ setAlert }) {
       setAlert({ severity: 'success', message: 'Salvo.', open: true })
 
       setTimeout(() => {
-        router.push(`/imoveis/novo/${propertyId}/publicacao`)
+        router.push(`/imoveis/${action}/${propertyId}/publicacao`)
       }, 2000);
     }
   }
