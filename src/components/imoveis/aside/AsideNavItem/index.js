@@ -39,7 +39,7 @@ export default function AsideNavItem({ label, href, currentStep, index, disabled
           alignItems='center'
           py={1}
           underline='none'
-          sx={{ pointerEvents: ((index == 0) ? 'auto' : 'none'), cursor: (disabled == true ? 'not-allowed' : 'pointer') }}
+          sx={{ pointerEvents: (!disabled ? 'auto' : 'none'), cursor: (disabled == true ? 'not-allowed' : 'pointer') }}
         >
           <Box
             component='span'

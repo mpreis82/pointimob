@@ -50,20 +50,22 @@ export default function AsideNav() {
 
   return (
     <>
-      <Box fontWeight='bold' mb={2}>Passo a passo:</Box>
-      <Box component='ul'>
-        {steps.map((step, index) => {
-          return (
-            <AsideNavItem
-              key={index}
-              label={step.label}
-              href={step.href}
-              currentStep={currentStep}
-              index={index}
-              disabled={step.disabled}
-            />
-          )
-        })}
+      <Box p={2}>
+        <Box fontWeight='bold' mb={2}>Passo a passo:</Box>
+        <Box component='ul'>
+          {steps.map((step, index) => {
+            return (
+              <AsideNavItem
+                key={index}
+                label={step.label}
+                href={step.href}
+                currentStep={currentStep}
+                index={index}
+                disabled={step.disabled}
+              />
+            )
+          })}
+        </Box>
       </Box>
     </>
   )
