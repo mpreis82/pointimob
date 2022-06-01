@@ -13,6 +13,8 @@ export default function Main({ children, title }) {
       p={2}
       pb={10}
       sx={{
+        overflowX: 'hidden',
+        overflowY: 'auto',
         '::-webkit-scrollbar': {
           width: '8px',
           backgroundColor: grey[300],
