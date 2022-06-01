@@ -8,10 +8,12 @@ import { blue, grey } from '@mui/material/colors';
 import { MdDirectionsCar, MdCropFree, MdModeEdit, MdDelete } from 'react-icons/md'
 import { FaBed } from 'react-icons/fa'
 import { Firestore, Storage } from '../../../../Firebase'
+import PropertyDetails from '../../show/PropertyDetails'
 
 export default function PropertyCard({ property, list, setList, setIsBackdrop }) {
   const [anchorEl, setAnchorEl] = useState(null);
   const [openDialog, setOpenDialog] = useState(false)
+  const [openPropertyDetails, setOpenPropertyDetails] = useState(false)
 
   const open = Boolean(anchorEl);
 
@@ -59,6 +61,12 @@ export default function PropertyCard({ property, list, setList, setIsBackdrop })
     } catch (err) {
 
     }
+  }
+
+  function handleDetailsClick(event) {
+    event.preventDefault()
+    setOpenPropertyDetails(true)
+    setAnchorEl(null)
   }
 
   return (
@@ -136,6 +144,12 @@ export default function PropertyCard({ property, list, setList, setIsBackdrop })
                 <MdDelete fontSize={18} /> <Typography component={'span'} ml={1} fontSize={16}>Excluir</Typography>
               </Typography>
             </MenuItem>
+
+            <MenuItem key='2' onClick={handleDetailsClick} sx={{ ":hover": { backgroundColor: grey[800] } }} >
+              <Typography color={'#fff'} fontSize={16} display='flex' alignItems='center'>
+                <Typography component={'span'} ml={1} fontSize={16}>Ver detalhes</Typography>
+              </Typography>
+            </MenuItem>
           </Menu>
         </Box>
       </Card >
@@ -152,6 +166,9 @@ export default function PropertyCard({ property, list, setList, setIsBackdrop })
           <Button variant='contained' color='error' onClick={handleDialogDeleteClick}>Sim</Button>
         </DialogActions>
       </Dialog>
+
+      {(openPropertyDetails && <PropertyDetails property={property} openPropertyDetails={openPropertyDetails} setOpenPropertyDetails={setOpenPropertyDetails} />)}
+      {/* {(openPropertyDetails && <Box>Teste</Box>)} */}
     </>
   )
 }

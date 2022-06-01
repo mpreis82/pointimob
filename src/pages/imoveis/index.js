@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react'
+import { collection, getDocs, query } from 'firebase/firestore'
 import { Box } from '@mui/system'
-import { Button, Backdrop, CircularProgress } from '@mui/material'
+import { Backdrop, CircularProgress } from '@mui/material'
 import AsideNav from '../../components/AsideNav'
 import Main from '../../components/imoveis/main/Main'
+import { Firestore } from '../../Firebase'
 import ImoveisListAside from '../../components/imoveis/list/ImoveisListAside'
 import PropertiesList from '../../components/imoveis/list/PropertiesList'
-import { Firestore } from '../../Firebase'
-import { collection, getDocs, query } from 'firebase/firestore'
 
 export default function Imoveis() {
   const [propertiesList, setPropertiesList] = useState([])

@@ -111,8 +111,8 @@ export default function ImoveisListAside() {
       </Box>
 
       <Box width='100%' position={positionButtons} bottom='0' bgcolor={grey[300]} zIndex='99' display='grid' gridTemplateColumns='1fr 1fr' gap={1} p={1}>
-        <Button variant='outlined' color='primary' fullWidth>Limpar</Button>
-        <Button variant='contained' color='primary' fullWidth>Filtrar</Button>
+        <Button variant='outlined' color='secondary' fullWidth>Limpar</Button>
+        <Button variant='contained' color='secondary' fullWidth>Filtrar</Button>
       </Box>
     </>
   )
