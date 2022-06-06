@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { collection, getDocs, query } from 'firebase/firestore'
+import { collection, getDocs, query, where } from 'firebase/firestore'
 import { Box } from '@mui/system'
 import { Backdrop, CircularProgress } from '@mui/material'
 import AsideNav from '../../components/AsideNav'
@@ -13,6 +13,7 @@ export default function Imoveis() {
   const [isBackdrop, setIsBackdrop] = useState(false)
 
   useEffect(async () => {
+    console.log('carregou lista')
     setIsBackdrop(true)
     const q = query(collection(Firestore, 'properties'))
     const querySnap = await getDocs(q)
@@ -28,7 +29,7 @@ export default function Imoveis() {
     <>
       <Box display='flex' height='calc(100% - 45px)' bgcolor='silver' overflow='hidden'>
         <AsideNav>
-          <ImoveisListAside />
+          <ImoveisListAside setPropertiesList={setPropertiesList} setIsBackdrop={setIsBackdrop} />
         </AsideNav>
 
         <Main title='Sua lista de imóveis'>

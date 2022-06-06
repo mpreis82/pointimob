@@ -5,7 +5,7 @@ import { Box } from "@mui/system"
 import { Select, FormControl, FormHelperText } from '@mui/material'
 import { Firestore } from '../../Firebase'
 
-export default function SelectPropertyTypes({ value, setValue, error, message, validateBlur, size }) {
+export default function SelectPropertyTypes({ value, setValue, error = false, message = '', validateBlur, size }) {
   const [propertyTypes, setPropertyTypes] = useState([]);
 
   useEffect(async () => {
