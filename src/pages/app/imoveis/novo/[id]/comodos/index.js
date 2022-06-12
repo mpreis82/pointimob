@@ -1,4 +1,4 @@
-import { useState, useEffect, useLayoutEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import { doc, getDoc, updateDoc } from 'firebase/firestore'
 import { Box } from '@mui/system'

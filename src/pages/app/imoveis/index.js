@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { collection, getDocs, query, where } from 'firebase/firestore'
+import { getAuth, onAuthStateChanged } from 'firebase/auth'
 import { Box } from '@mui/system'
 import { Backdrop, CircularProgress } from '@mui/material'
 import AsideNav from '../../../components/AsideNav'
@@ -13,9 +14,8 @@ export default function Imoveis() {
   const [isBackdrop, setIsBackdrop] = useState(false)
 
   useEffect(async () => {
-    console.log('carregou lista')
     setIsBackdrop(true)
-    const q = query(collection(Firestore, 'properties'))
+    const q = query(collection(Firestore, 'properties'), where('uid', '==', 'K9wttZesc4PBRUNpaG0gbSWdQSr1'))
     const querySnap = await getDocs(q)
     const list = []
     querySnap.forEach((doc) => {
@@ -23,6 +23,14 @@ export default function Imoveis() {
     })
     setPropertiesList(list)
     setIsBackdrop(false)
+  }, [])
+
+  useEffect(() => {
+    const auth = getAuth()
+    console.log('currentUser', auth.currentUser)
+    onAuthStateChanged(auth, (user) => {
+      console.log(user)
+    })
   }, [])
 
   return (

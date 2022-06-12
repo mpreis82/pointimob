@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import { collection, doc, getDoc, addDoc, Timestamp, updateDoc, query } from 'firebase/firestore'
+import { getAuth, onAuthStateChanged } from 'firebase/auth'
 import { Box } from '@mui/system'
 import { Select, ToggleButtonGroup, ToggleButton, MenuItem, FormControl, TextField, Stack, Snackbar, Alert, FormHelperText } from '@mui/material';
 import AsideNav from '../../../../../components/AsideNav'
@@ -46,6 +47,14 @@ export default function ImoveisNovoInformacoes() {
 
     if (router.query.id) router.push(`/imoveis/novo/${doc.id}/informacoes`)
   }, [router.isReady])
+
+  useEffect(() => {
+    const auth = getAuth()
+    console.log('currentUser', auth.currentUser)
+    onAuthStateChanged(auth, (user) => {
+      console.log(user)
+    })
+  }, [])
 
   function handleChange(event) {
     setState({
