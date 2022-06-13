@@ -1,17 +1,22 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useContext } from 'react'
 import { useRouter } from 'next/router'
 import { doc, getDoc, updateDoc } from 'firebase/firestore'
 import dynamic from 'next/dynamic'
 const ReactQuill = dynamic(() => import('react-quill'), { ssr: false })
+
 import { Box } from '@mui/system'
 import { FormControl, TextField, Stack, Snackbar, Alert, Backdrop, CircularProgress } from '@mui/material'
 import 'react-quill/dist/quill.snow.css'
 import styles from './styles.module.css'
+
 import AsideNav from '../../../../../../components/AsideNav'
 import ImoveisAsideNav from '../../../../../../components/imoveis/aside/AsideNav'
 import Main from '../../../../../../components/imoveis/main/Main'
 import Form from '../../../../../../components/imoveis/Form'
+
 import { Firestore } from '../../../../../../Firebase'
+
+import { AuthContext } from '../../../../../../contexts/AuthContext'
 
 export default function Descricao() {
   const [pageTitle, setPageTitle] = useState('')
@@ -29,8 +34,15 @@ export default function Descricao() {
 
   const router = useRouter()
 
+  const authContext = useContext(AuthContext)
+
   useEffect(async () => {
     if (!router.isReady) return
+
+    if (!authContext.user()) {
+      router.push('/login')
+      return
+    }
 
     if (!router.query.id) router.push('/imoveis')
 

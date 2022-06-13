@@ -1,4 +1,4 @@
-import { useState, useEffect, useLayoutEffect } from 'react'
+import { useState, useEffect, useContext } from 'react'
 import { useRouter } from 'next/router'
 import { doc, getDoc, updateDoc, query, orderBy } from 'firebase/firestore'
 
@@ -11,6 +11,8 @@ import Main from '../../../../../../components/imoveis/main/Main'
 import Form from '../../../../../../components/imoveis/Form'
 
 import { Firestore } from '../../../../../../Firebase'
+
+import { AuthContext } from '../../../../../../contexts/AuthContext'
 
 export default function Caracteristicas() {
   const [characteristics, setCharacteristics] = useState([
@@ -64,8 +66,15 @@ export default function Caracteristicas() {
 
   const router = useRouter()
 
+  const authContext = useContext(AuthContext)
+
   useEffect(async () => {
     if (!router.isReady) return
+
+    if (!authContext.user()) {
+      router.push('/login')
+      return
+    }
 
     if (!router.query.id) router.push('/imoveis')
 

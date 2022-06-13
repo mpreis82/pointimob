@@ -1,4 +1,4 @@
-import { useState, useEffect, useLayoutEffect } from 'react'
+import { useState, useEffect, useContext } from 'react'
 import { useRouter } from 'next/router'
 import { doc, getDoc, updateDoc } from 'firebase/firestore'
 
@@ -11,6 +11,8 @@ import Main from '../../../../../../components/imoveis/main/Main'
 import Form from '../../../../../../components/imoveis/Form'
 
 import { Firestore } from '../../../../../../Firebase'
+
+import { AuthContext } from '../../../../../../contexts/AuthContext'
 
 const ufList = ['Escolha um estado', 'AC', 'AL', 'AM', 'AP', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MG', 'MS', 'MT', 'PA', 'PB', 'PE', 'PI', 'PR', 'RJ', 'RN', 'RO', 'RR', 'RS', 'SC', 'SE', 'SP', 'TO',]
 
@@ -61,8 +63,15 @@ export default function Localizacao() {
 
   const router = useRouter()
 
+  const authContext = useContext(AuthContext)
+
   useEffect(async () => {
     if (!router.isReady) return
+
+    if (!authContext.user()) {
+      router.push('/login')
+      return
+    }
 
     if (!router.query.id) router.push('/imoveis')
 

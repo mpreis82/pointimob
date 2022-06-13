@@ -1,42 +1,39 @@
-import { useEffect, useState } from 'react'
-import { collection, query, getDocs, orderBy } from 'firebase/firestore'
-import { Firestore } from "../../Firebase"
+import { useEffect, useState, useContext } from 'react'
+import { useRouter } from 'next/router'
+
+import { Backdrop, CircularProgress } from '@mui/material'
+
+import { AuthContext } from '../../contexts/AuthContext'
 
 export default function Home() {
-  const [propertyTypes, setPropertyTypes] = useState([]);
+  const [loaded, setLoaded] = useState(false)
 
-  useEffect(async () => {
-    const q = query(collection(Firestore, 'propery_types'), orderBy('id'))
-    const querySnapshot = await getDocs(q)
+  const router = useRouter()
 
-    let result = []
+  const authContext = useContext(AuthContext)
 
-    let type = []
+  useEffect(() => {
+    if (!router.isReady) return
 
-    querySnapshot.forEach((doc) => {
-      const data = doc.data()
+    if (!authContext.user()) {
+      router.push('/login')
+      return
+    }
+    setLoaded(true)
+  }, [router.isReady]);
 
-      if (data.type != type) {
-        result.push({ level: 0, value: data.type })
-        type = data.type
-      }
-      result.push({ level: 1, value: data.subtype })
-    })
-
-    setPropertyTypes(result)
-  }, []);
-
-  return (
-    <>
-      <h1>Test firebase</h1>
-      <h2>Lista de tipos e subtipos</h2>
-
-      {propertyTypes.map((t, index) => {
-        if (t.level == 0) return <strong>{t.value}</strong>
-        return <p>{t.value}</p>
-      }
-      )}
-
-    </>
-  )
+  if (loaded) {
+    return (
+      <h1>PointImob</h1>
+    )
+  } else {
+    return (
+      <Backdrop
+        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={true}
+      >
+        <CircularProgress color='inherit' />
+      </Backdrop>
+    )
+  }
 }

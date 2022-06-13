@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useContext } from 'react'
 import { useRouter } from 'next/router'
 
 import { Box } from '@mui/system'
@@ -9,8 +9,10 @@ import ImoveisAsideNav from '../../../../../../components/imoveis/aside/AsideNav
 import Main from '../../../../../../components/imoveis/main/Main'
 import ImageTabs from '../../../../../../components/imoveis/images/ImageTabs'
 
+import { AuthContext } from '../../../../../../contexts/AuthContext'
+
 export default function Imagens() {
-  const [loaded, setLoaded] = useState(true)
+  const [loaded, setLoaded] = useState(false)
   const [alert, setAlert] = useState({
     severity: 'success',
     message: '',
@@ -18,6 +20,18 @@ export default function Imagens() {
   })
 
   const router = useRouter()
+
+  const authContext = useContext(AuthContext)
+
+  useEffect(() => {
+    if (!router.isReady) return
+
+    if (!authContext.user()) {
+      router.push('/login')
+      return
+    }
+
+  }, [router.isReady])
 
   function handleSnackbarClose(event, reason) {
     if (reason === 'clickaway') {

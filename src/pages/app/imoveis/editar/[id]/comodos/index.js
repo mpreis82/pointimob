@@ -1,13 +1,18 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useContext } from 'react'
 import { useRouter } from 'next/router'
 import { doc, getDoc, updateDoc } from 'firebase/firestore'
+
 import { Box } from '@mui/system'
 import { FormControl, TextField, ToggleButtonGroup, ToggleButton, Stack, Snackbar, Alert, Backdrop, CircularProgress } from '@mui/material'
+
 import AsideNav from '../../../../../../components/AsideNav'
 import ImoveisAsideNav from '../../../../../../components/imoveis/aside/AsideNav'
 import Main from '../../../../../../components/imoveis/main/Main'
 import Form from '../../../../../../components/imoveis/Form'
+
 import { Firestore } from '../../../../../../Firebase'
+
+import { AuthContext } from '../../../../../../contexts/AuthContext'
 
 export default function Comodos() {
   const [state, setState] = useState({
@@ -42,8 +47,15 @@ export default function Comodos() {
 
   const router = useRouter();
 
+  const authContext = useContext(AuthContext)
+
   useEffect(async () => {
     if (!router.isReady) return
+
+    if (!authContext.user()) {
+      router.push('/login')
+      return
+    }
 
     if (!router.query.id) router.push('/imoveis')
 

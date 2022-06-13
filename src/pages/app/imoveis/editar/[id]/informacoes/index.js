@@ -1,14 +1,19 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useContext } from 'react'
 import { useRouter } from 'next/router'
 import { doc, getDoc, updateDoc } from 'firebase/firestore'
+
 import { Box } from '@mui/system'
-import { Select, ToggleButtonGroup, ToggleButton, MenuItem, FormControl, TextField, Stack, Snackbar, Alert, FormHelperText } from '@mui/material';
+import { Select, ToggleButtonGroup, ToggleButton, MenuItem, FormControl, TextField, Stack, Snackbar, Alert, FormHelperText, Backdrop, CircularProgress } from '@mui/material';
+
 import AsideNav from '../../../../../../components/AsideNav'
 import ImoveisAsideNav from '../../../../../../components/imoveis/aside/AsideNav'
 import Main from '../../../../../../components/imoveis/main/Main'
 import Form from '../../../../../../components/imoveis/Form'
 import SelectPropertyTypes from '../../../../../../components/SelectPropertyTypes';
+
 import { Firestore } from '../../../../../../Firebase';
+
+import { AuthContext } from '../../../../../../contexts/AuthContext'
 
 export default function ImoveisNovoInformacoes() {
   const [state, setState] = useState({
@@ -41,10 +46,19 @@ export default function ImoveisNovoInformacoes() {
 
   const [propertyId, setPropertyId] = useState('')
 
+  const [loaded, setLoaded] = useState(false)
+
   const router = useRouter()
+
+  const authContext = useContext(AuthContext)
 
   useEffect(async () => {
     if (!router.isReady) return
+
+    if (!authContext.user()) {
+      router.push('/login')
+      return
+    }
 
     const localPropertyId = router.query.id
 
@@ -71,6 +85,7 @@ export default function ImoveisNovoInformacoes() {
         router.push('/imoveis')
       }
     }
+    setLoaded(true)
   }, [router.isReady])
 
   function handleChange(event) {
@@ -159,102 +174,113 @@ export default function ImoveisNovoInformacoes() {
     setMobiliado(newValue);
   };
 
-  return (
-    <Box display='flex' height='calc(100% - 45px)' bgcolor='silver' overflow='hidden'>
-      <AsideNav>
-        <ImoveisAsideNav />
-      </AsideNav>
+  if (loaded) {
+    return (
+      <Box display='flex' height='calc(100% - 45px)' bgcolor='silver' overflow='hidden'>
+        <AsideNav>
+          <ImoveisAsideNav />
+        </AsideNav>
 
-      <Main title='Informações iniciais'>
-        <Form handleSubmit={handleSubmit}>
-          <FormControl variant='outlined'>
-            <Box component='label' htmlFor='' fontWeight='bold' mb={1}>Proprietario</Box>
-            <TextField name='people' value={state.people} onChange={handleChange} error={formValidate.people.error} helperText={formValidate.people.error ? formValidate.people.message : ''} onBlur={handleFormValidateBlur} />
-          </FormControl>
+        <Main title='Informações iniciais'>
+          <Form handleSubmit={handleSubmit}>
+            <FormControl variant='outlined'>
+              <Box component='label' htmlFor='' fontWeight='bold' mb={1}>Proprietario</Box>
+              <TextField name='people' value={state.people} onChange={handleChange} error={formValidate.people.error} helperText={formValidate.people.error ? formValidate.people.message : ''} onBlur={handleFormValidateBlur} />
+            </FormControl>
 
-          <FormControl variant='outlined'>
-            <Box component='label' htmlFor='' fontWeight='bold' mb={1}>Corretor/Agenciador</Box>
-            <TextField name='user' value={state.user} onChange={handleChange} error={formValidate.user.error} helperText={formValidate.user.error ? formValidate.user.message : ''} onBlur={handleFormValidateBlur} />
-          </FormControl>
+            <FormControl variant='outlined'>
+              <Box component='label' htmlFor='' fontWeight='bold' mb={1}>Corretor/Agenciador</Box>
+              <TextField name='user' value={state.user} onChange={handleChange} error={formValidate.user.error} helperText={formValidate.user.error ? formValidate.user.message : ''} onBlur={handleFormValidateBlur} />
+            </FormControl>
 
-          <SelectPropertyTypes value={state.subtype} setValue={handleChange} error={formValidate.subtype.error} message={formValidate.subtype.message} validateBlur={handleFormValidateBlur} />
+            <SelectPropertyTypes value={state.subtype} setValue={handleChange} error={formValidate.subtype.error} message={formValidate.subtype.message} validateBlur={handleFormValidateBlur} />
 
-          <FormControl>
-            <Box component='label' htmlFor='' fontWeight='bold' mb={1}>Perfil do imóvel</Box>
-            <Select name='profile' value={state.profile} onChange={handleChange} error={formValidate.profile.error} onBlur={handleFormValidateBlur} >
-              <MenuItem value={'Residencial'}>Residencial</MenuItem>
-              <MenuItem value={'Comercial'}>Comercial</MenuItem>
-              <MenuItem value={'Residencial/Comercial'}>Residencial/Comercial</MenuItem>
-              <MenuItem value={'Industrial'}>Industrial</MenuItem>
-              <MenuItem value={'Rural'}>Rural</MenuItem>
-              <MenuItem value={'Temporada'}>Temporada</MenuItem>
-            </Select>
-            <FormHelperText error={formValidate.profile.error}>{formValidate.profile.error ? formValidate.profile.message : ''}</FormHelperText>
-          </FormControl>
+            <FormControl>
+              <Box component='label' htmlFor='' fontWeight='bold' mb={1}>Perfil do imóvel</Box>
+              <Select name='profile' value={state.profile} onChange={handleChange} error={formValidate.profile.error} onBlur={handleFormValidateBlur} >
+                <MenuItem value={'Residencial'}>Residencial</MenuItem>
+                <MenuItem value={'Comercial'}>Comercial</MenuItem>
+                <MenuItem value={'Residencial/Comercial'}>Residencial/Comercial</MenuItem>
+                <MenuItem value={'Industrial'}>Industrial</MenuItem>
+                <MenuItem value={'Rural'}>Rural</MenuItem>
+                <MenuItem value={'Temporada'}>Temporada</MenuItem>
+              </Select>
+              <FormHelperText error={formValidate.profile.error}>{formValidate.profile.error ? formValidate.profile.message : ''}</FormHelperText>
+            </FormControl>
 
-          <FormControl>
-            <Box component='label' htmlFor='' fontWeight='bold' mb={1}>Situação</Box>
-            <Select name='situation' value={state.situation} onChange={handleChange} error={formValidate.situation.error} onBlur={handleFormValidateBlur} >
-              <MenuItem value={'Breve lançamento'}>Breve lançamento</MenuItem>
-              <MenuItem value={'Na plata'}>Na plata</MenuItem>
-              <MenuItem value={'Em construção'}>Em construção</MenuItem>
-              <MenuItem value={'Lançamento'}>Lançamento</MenuItem>
-              <MenuItem value={'Novo'}>Novo</MenuItem>
-              <MenuItem value={'Semi-novo'}>Semi-novo</MenuItem>
-              <MenuItem value={'Usado'}>Usado</MenuItem>
-              <MenuItem value={'Reformado'}>Reformado</MenuItem>
-              <MenuItem value={'Pronto para morar'}>Pronto para morar</MenuItem>
-              <MenuItem value={'Indefinido'}>Indefinido</MenuItem>
-            </Select>
-            <FormHelperText error={formValidate.situation.error}>{formValidate.situation.error ? formValidate.situation.message : ''}</FormHelperText>
-          </FormControl>
+            <FormControl>
+              <Box component='label' htmlFor='' fontWeight='bold' mb={1}>Situação</Box>
+              <Select name='situation' value={state.situation} onChange={handleChange} error={formValidate.situation.error} onBlur={handleFormValidateBlur} >
+                <MenuItem value={'Breve lançamento'}>Breve lançamento</MenuItem>
+                <MenuItem value={'Na plata'}>Na plata</MenuItem>
+                <MenuItem value={'Em construção'}>Em construção</MenuItem>
+                <MenuItem value={'Lançamento'}>Lançamento</MenuItem>
+                <MenuItem value={'Novo'}>Novo</MenuItem>
+                <MenuItem value={'Semi-novo'}>Semi-novo</MenuItem>
+                <MenuItem value={'Usado'}>Usado</MenuItem>
+                <MenuItem value={'Reformado'}>Reformado</MenuItem>
+                <MenuItem value={'Pronto para morar'}>Pronto para morar</MenuItem>
+                <MenuItem value={'Indefinido'}>Indefinido</MenuItem>
+              </Select>
+              <FormHelperText error={formValidate.situation.error}>{formValidate.situation.error ? formValidate.situation.message : ''}</FormHelperText>
+            </FormControl>
 
-          <FormControl variant='outlined'>
-            <Box component='label' htmlFor='' fontWeight='bold' mb={1}>Ano da construção</Box>
-            <TextField type='number' name='lifetime' value={state.lifetime} onChange={handleChange} InputProps={{ inputProps: { min: 1900, max: new Date().getFullYear() } }} />
-          </FormControl>
+            <FormControl variant='outlined'>
+              <Box component='label' htmlFor='' fontWeight='bold' mb={1}>Ano da construção</Box>
+              <TextField type='number' name='lifetime' value={state.lifetime} onChange={handleChange} InputProps={{ inputProps: { min: 1900, max: new Date().getFullYear() } }} />
+            </FormControl>
 
-          <FormControl variant='outlined'>
-            <Box component='label' htmlFor='' fontWeight='bold' mb={1}>Incorporação</Box>
-            <TextField name='incorporation' value={state.incorporation} onChange={handleChange} />
-          </FormControl>
+            <FormControl variant='outlined'>
+              <Box component='label' htmlFor='' fontWeight='bold' mb={1}>Incorporação</Box>
+              <TextField name='incorporation' value={state.incorporation} onChange={handleChange} />
+            </FormControl>
 
-          <FormControl>
-            <Box component='label' htmlFor='' fontWeight='bold' mb={1}>Próximo ao mar?</Box>
-            <Select name='near_sea' value={state.near_sea} onChange={handleChange} >
-              <MenuItem value={'Frente pro mar'}>Frente pro mar</MenuItem>
-              <MenuItem value={'Quadra do mar'}>Quadra do mar</MenuItem>
-              <MenuItem value={'Próximo ao mar'}>Próximo ao mar</MenuItem>
-            </Select>
-          </FormControl>
+            <FormControl>
+              <Box component='label' htmlFor='' fontWeight='bold' mb={1}>Próximo ao mar?</Box>
+              <Select name='near_sea' value={state.near_sea} onChange={handleChange} >
+                <MenuItem value={'Frente pro mar'}>Frente pro mar</MenuItem>
+                <MenuItem value={'Quadra do mar'}>Quadra do mar</MenuItem>
+                <MenuItem value={'Próximo ao mar'}>Próximo ao mar</MenuItem>
+              </Select>
+            </FormControl>
 
-          <FormControl variant='outlined' sx={{ display: ((Number(state.subtype) > 0 && Number(state.subtype) < 16) ? 'flex' : 'none') }}>
-            <Box component='label' htmlFor='' fontWeight='bold' mb={1}>Andar</Box>
-            <TextField name='floor' value={state.floor} onChange={handleChange} />
-          </FormControl>
+            <FormControl variant='outlined' sx={{ display: ((Number(state.subtype) > 0 && Number(state.subtype) < 16) ? 'flex' : 'none') }}>
+              <Box component='label' htmlFor='' fontWeight='bold' mb={1}>Andar</Box>
+              <TextField name='floor' value={state.floor} onChange={handleChange} />
+            </FormControl>
 
-          <FormControl>
-            <Box component='label' htmlFor='' fontWeight='bold' mb={1}>Tem mobília?</Box>
-            <ToggleButtonGroup
-              value={mobiliado}
-              exclusive
-              color='primary'
-              height='100%'
-              position='relative'
-              onChange={handleMobiliado}
-            >
-              <ToggleButton sx={{ width: 100 }} value='sim'>Sim</ToggleButton>
-              <ToggleButton sx={{ width: 100 }} value='não'>Não</ToggleButton>
-            </ToggleButtonGroup>
-          </FormControl>
-        </Form>
+            <FormControl>
+              <Box component='label' htmlFor='' fontWeight='bold' mb={1}>Tem mobília?</Box>
+              <ToggleButtonGroup
+                value={mobiliado}
+                exclusive
+                color='primary'
+                height='100%'
+                position='relative'
+                onChange={handleMobiliado}
+              >
+                <ToggleButton sx={{ width: 100 }} value='sim'>Sim</ToggleButton>
+                <ToggleButton sx={{ width: 100 }} value='não'>Não</ToggleButton>
+              </ToggleButtonGroup>
+            </FormControl>
+          </Form>
 
-        <Stack spacing={2} sx={{ width: '100%' }}>
-          <Snackbar open={alert.open} autoHideDuration={(alert.severity == 'success' ? 2000 : 6000)} onClose={handleSnackbarClose}>
-            <Alert severity={alert.severity} sx={{ boxShadow: 5 }}>{alert.message}</Alert>
-          </Snackbar>
-        </Stack>
-      </Main>
-    </Box >
-  )
+          <Stack spacing={2} sx={{ width: '100%' }}>
+            <Snackbar open={alert.open} autoHideDuration={(alert.severity == 'success' ? 2000 : 6000)} onClose={handleSnackbarClose}>
+              <Alert severity={alert.severity} sx={{ boxShadow: 5 }}>{alert.message}</Alert>
+            </Snackbar>
+          </Stack>
+        </Main>
+      </Box >
+    )
+  } else {
+    return (
+      <Backdrop
+        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={true}
+      >
+        <CircularProgress color='inherit' />
+      </Backdrop>
+    )
+  }
 }

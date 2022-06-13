@@ -1,8 +1,10 @@
+import { useState, useContext } from 'react'
 import { ThemeProvider, createTheme } from '@mui/material/styles'
 import CssBaseline from '@mui/material/CssBaseline'
 import { Layout } from '../components/Layout'
 import '../../styles/globals.css'
 import { pink, purple, grey, blue } from '@mui/material/colors'
+import { AuthContextProvider } from '../contexts/AuthContext'
 
 function MyApp({ Component, pageProps }) {
   const theme = createTheme({
@@ -46,13 +48,15 @@ function MyApp({ Component, pageProps }) {
   })
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline>
-        <Layout>
-          <Component {...pageProps} />
-        </Layout>
-      </CssBaseline>
-    </ThemeProvider>
+    <AuthContextProvider>
+      <ThemeProvider theme={theme}>
+        <CssBaseline>
+          <Layout>
+            <Component {...pageProps} />
+          </Layout>
+        </CssBaseline>
+      </ThemeProvider>
+    </AuthContextProvider>
   )
 }
 
