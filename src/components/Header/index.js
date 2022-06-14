@@ -1,13 +1,21 @@
 import { useState, useContext } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
+
 import { Avatar, Badge, Button, IconButton } from "@mui/material"
 import { green, grey, pink, purple } from "@mui/material/colors"
 import { Box } from "@mui/system"
+
 import { MdNotifications } from 'react-icons/md'
+
 import HeaderNav from "../HeaderNav"
 import SettingsNav from '../SettingsNav'
+
 import { FirebaseApp } from '../../Firebase'
+
 import { AuthContext } from '../../contexts/AuthContext'
+
+import logo from '../../../public/images/logoBranco.png'
 
 function Header() {
   const [notification, setNotification] = useState(1)
@@ -27,7 +35,11 @@ function Header() {
         bgcolor={purple[800]}
         color={grey[200]}
       >
-        <Box component='h1' fontSize={16}>Pointimob</Box>
+        <Box>
+          <Box width='80px' display='flex' alignItems='center'>
+            <Image src={logo} />
+          </Box>
+        </Box>
 
         <HeaderNav />
 

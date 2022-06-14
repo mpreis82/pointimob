@@ -24,16 +24,18 @@ const AuthContextProvider = ({ children }) => {
 
   const login = (email, password) => {
     const auth = getAuth()
-    signInWithEmailAndPassword(auth, email, password)
-      .then(userCredential => {
-        setCurrentUser({
-          username: userCredential.user.displayName,
-          email: userCredential.user.email,
-          uid: userCredential.user.uid
+    return new Promise((resolve, reject) => {
+      signInWithEmailAndPassword(auth, email, password)
+        .then(userCredential => {
+          setCurrentUser({
+            username: userCredential.user.displayName,
+            email: userCredential.user.email,
+            uid: userCredential.user.uid
+          })
+          resolve(true)
         })
-        return true
-      })
-      .catch((error) => false)
+        .catch((error) => reject(false))
+    })
   }
 
   const user = () => {
@@ -50,14 +52,8 @@ const AuthContextProvider = ({ children }) => {
       .catch(error => false)
   }
 
-  const isProtectedRoute = (router) => {
-    if (!currentUser) {
-      router.push('/imoveis')
-    }
-  }
-
   return (
-    <AuthContext.Provider value={{ user, login, logout, isProtectedRoute }}>
+    <AuthContext.Provider value={{ user, login, logout }}>
       {children}
     </AuthContext.Provider>
   )

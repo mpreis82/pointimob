@@ -24,7 +24,7 @@ export default function Home() {
 
   if (loaded) {
     return (
-      <h1>PointImob</h1>
+      <></>
     )
   } else {
     return (

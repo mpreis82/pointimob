@@ -4,7 +4,7 @@ import CssBaseline from '@mui/material/CssBaseline'
 import { Layout } from '../components/Layout'
 import '../../styles/globals.css'
 import { pink, purple, grey, blue } from '@mui/material/colors'
-import { AuthContextProvider } from '../contexts/AuthContext'
+import { AuthContext, AuthContextProvider } from '../contexts/AuthContext'
 
 function MyApp({ Component, pageProps }) {
   const theme = createTheme({
