@@ -1,23 +1,39 @@
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import Link from 'next/link'
+
 import { Box } from "@mui/system";
 import MaterialLink from '@mui/material/Link'
 import { grey, pink } from "@mui/material/colors"
 import { Grow } from "@mui/material"
+
 import { MdSettings, MdKeyboardArrowDown, MdPerson, MdOutlineLanguage, MdOutlineShare, MdEmail, MdOutlineCardTravel, MdExitToApp } from 'react-icons/md'
 
+import { AuthContext } from '../../contexts/AuthContext';
+
 export default function SettingsNav() {
+  const settingsItems = [
+    { label: 'Ajustes gerais', href: '/', icon: <MdSettings />, action: handleActionCick },
+    { label: 'Corretores/Usuários', href: '/', icon: <MdPerson />, action: handleActionCick },
+    { label: 'Portais imobiliários', href: '/', icon: <MdOutlineLanguage />, action: handleActionCick },
+    { label: 'Integrações', href: '/', icon: <MdOutlineShare />, action: handleActionCick },
+    { label: 'Contas de e-mail', href: '/', icon: <MdEmail />, action: handleActionCick },
+    { label: 'Financeiro', href: '/', icon: <MdOutlineCardTravel />, action: handleActionCick },
+    { label: 'Sair', href: '/', icon: <MdExitToApp />, action: handleExitClick },
+  ]
+
   const [open, setOpen] = useState(false)
 
-  const settingsItems = [
-    { label: 'Ajustes gerais', href: '/', icon: <MdSettings /> },
-    { label: 'Corretores/Usuários', href: '/', icon: <MdPerson /> },
-    { label: 'Portais imobiliários', href: '/', icon: <MdOutlineLanguage /> },
-    { label: 'Integrações', href: '/', icon: <MdOutlineShare /> },
-    { label: 'Contas de e-mail', href: '/', icon: <MdEmail /> },
-    { label: 'Financeiro', href: '/', icon: <MdOutlineCardTravel /> },
-    { label: 'Sair', href: '/', icon: <MdExitToApp /> },
-  ]
+  const authContext = useContext(AuthContext)
+
+  async function handleExitClick(event) {
+    event.preventDefault()
+    await authContext.logout()
+  }
+
+  function handleActionCick(event) {
+    event.preventDefault()
+    console.log('Action click')
+  }
 
   return (
     <Box
@@ -25,6 +41,7 @@ export default function SettingsNav() {
       position='relative'
       display='flex'
       alignItems='center'
+      zIndex='99999'
       sx={{ cursor: 'pointer' }}
       onMouseEnter={() => setOpen(true)}
       onMouseLeave={() => setOpen(false)}
@@ -71,6 +88,7 @@ export default function SettingsNav() {
               >
                 <Link href={item.href} passHref={true}>
                   <MaterialLink
+                    onClick={item.action}
                     component='a'
                     underline='none'
                     p={1}

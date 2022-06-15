@@ -32,7 +32,7 @@ export default function Login() {
   const authContext = useContext(AuthContext)
 
   useEffect(() => {
-    if (authContext.user) {
+    if (authContext.user()) {
       router.push('/')
       return
     }

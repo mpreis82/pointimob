@@ -1,6 +1,7 @@
 import { useState, useEffect, createContext } from 'react'
 import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebase/auth'
 import { FirebaseApp } from '../../Firebase'
+import { getTabId } from '@mui/base'
 
 const AuthContext = createContext()
 
@@ -44,12 +45,16 @@ const AuthContextProvider = ({ children }) => {
 
   const logout = () => {
     const auth = getAuth()
-    signOut(auth)
-      .then(() => {
-        setCurrentUser(null)
-        return true
-      })
-      .catch(error => false)
+    return new Promise((resolve, reject) => {
+      signOut(auth)
+        .then(() => {
+          setCurrentUser(null)
+          resolve(true)
+        })
+        .catch(error => {
+          resolve(false)
+        })
+    })
   }
 
   return (
