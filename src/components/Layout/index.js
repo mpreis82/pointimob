@@ -6,12 +6,14 @@ import { Header } from "../Header"
 
 import { AuthContext } from '../../contexts/AuthContext'
 
+const headerBlockRoutes = ['/login', '/register']
+
 function Layout({ children }) {
   const authContext = useContext(AuthContext)
 
   const router = useRouter()
 
-  if (authContext.user() && router.asPath != '/login') {
+  if (authContext.user() && headerBlockRoutes.indexOf(router.asPath) == -1) {
     return (
       <Box bgcolor={grey[100]} height='100vh'>
         <Header />

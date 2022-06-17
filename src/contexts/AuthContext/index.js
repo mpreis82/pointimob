@@ -1,7 +1,6 @@
 import { useState, useEffect, createContext } from 'react'
-import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebase/auth'
+import { createUserWithEmailAndPassword, getAuth, onAuthStateChanged, sendPasswordResetEmail, signInWithEmailAndPassword, signOut, updateProfile } from 'firebase/auth'
 import { FirebaseApp } from '../../Firebase'
-import { getTabId } from '@mui/base'
 
 const AuthContext = createContext()
 
@@ -22,6 +21,26 @@ const AuthContextProvider = ({ children }) => {
       })
     }
   }, [])
+
+  const register = (name, email, password) => {
+    const auth = getAuth()
+    return new Promise((resolve, reject) => {
+      createUserWithEmailAndPassword(auth, email, password)
+        .then(userCredential => {
+          updateProfile(userCredential.user, { displayName: name })
+            .then(() => {
+              setCurrentUser({
+                username: name,
+                email: email,
+                uid: userCredential.user.uid
+              })
+              resolve({ created: true, error: '' })
+            })
+            .catch(error => reject({ created: false, error: error.code }))
+        })
+        .catch(error => reject({ created: false, error: error.code }))
+    })
+  }
 
   const login = (email, password) => {
     const auth = getAuth()
@@ -58,7 +77,7 @@ const AuthContextProvider = ({ children }) => {
   }
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, login, logout, register, sendPasswordResetEmail }}>
       {children}
     </AuthContext.Provider>
   )

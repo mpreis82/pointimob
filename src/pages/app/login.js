@@ -92,9 +92,6 @@ export default function Login() {
   }
 
   if (loaded) {
-
-
-
     return (
       <Box height='100vh' display='flex' flexDirection='row' overflow='hidden'>
         <Box display='flex' flexDirection='column' alignItems='center' px='35px' py='50px'
@@ -136,8 +133,8 @@ export default function Login() {
             <FormControl variant='outlined' sx={{ mb: 3 }}>
               <Box display='flex' alignItems='center' justifyContent='space-between' mb={1}>
                 <Box component='label' htmlFor='' fontWeight='bold'>Senha</Box>
-                <NextLink href='/register'>
-                  <Link href='/register'>Esqueceu sua senha?</Link>
+                <NextLink href='/recovery'>
+                  <Link href='/recovery'>Esqueceu sua senha?</Link>
                 </NextLink>
               </Box>
               <TextField name='password' value={password} onChange={handlePasswordChange} helperText={(formValidate.password.error ? formValidate.password.message : '')} error={formValidate.password.error} />
