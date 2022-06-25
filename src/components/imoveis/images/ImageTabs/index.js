@@ -20,6 +20,7 @@ export default function ImageTabs({ setAlert }) {
 
   useEffect(async () => {
     setIsBackdrop(true)
+
     if (!router.isReady) return
 
     if (!router.query.id) router.push('/imoveis')
@@ -29,6 +30,7 @@ export default function ImageTabs({ setAlert }) {
     const localPropertyId = router.query.id
 
     const docRef = doc(Firestore, 'properties', localPropertyId)
+
     const docSnap = await getDoc(docRef)
 
     if (!docSnap.exists()) router.push('/imoveis')

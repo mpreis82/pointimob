@@ -37,7 +37,7 @@ function Header() {
       >
         <Box>
           <Box width='80px' display='flex' alignItems='center'>
-            <Image src={logo} />
+            <Image src={logo} priority />
           </Box>
         </Box>
 

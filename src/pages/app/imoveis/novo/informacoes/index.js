@@ -136,7 +136,7 @@ export default function ImoveisNovoInformacoes() {
           characteristics: 'pending',
           condominium: 'pending',
           location: 'pending',
-          nearby: 'pending',
+          nearbys: 'pending',
           description: 'pending',
           images: 'pending',
           publish: 'pending',

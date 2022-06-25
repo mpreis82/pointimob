@@ -8,6 +8,9 @@ import { Grow } from "@mui/material"
 
 import { MdSettings, MdKeyboardArrowDown, MdPerson, MdOutlineLanguage, MdOutlineShare, MdEmail, MdOutlineCardTravel, MdExitToApp } from 'react-icons/md'
 
+import { FirebaseApp } from '../../Firebase'
+import { getAuth } from 'firebase/auth'
+
 import { AuthContext } from '../../contexts/AuthContext';
 
 export default function SettingsNav() {
@@ -32,7 +35,8 @@ export default function SettingsNav() {
 
   function handleActionCick(event) {
     event.preventDefault()
-    console.log('Action click')
+    const auth = getAuth()
+    console.log(auth.currentUser)
   }
 
   return (

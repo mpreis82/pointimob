@@ -25,6 +25,8 @@ export default function ImagesList({ propertyListImages, setPropertyListImages }
 
       if (!docSnap.exists()) return
 
+      console.log('entrou')
+
       const images = Promise.all(Array.from(files).map(async (file, index) => {
         const storageRef = ref(Storage, `imoveis/images/${propertyId}/${file.name}`)
         const uploadResult = await uploadBytes(storageRef, file)

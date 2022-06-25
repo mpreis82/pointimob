@@ -2,13 +2,17 @@ import { useState } from 'react'
 import { useRouter } from 'next/router'
 import { deleteObject, ref, listAll } from 'firebase/storage';
 import { deleteDoc, doc } from 'firebase/firestore';
+
 import { Button, Box, Card, CardContent, CardMedia, IconButton, Menu, MenuItem, Typography, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { blue, grey } from '@mui/material/colors';
 import { MdDirectionsCar, MdCropFree, MdModeEdit, MdDelete } from 'react-icons/md'
 import { FaBed } from 'react-icons/fa'
+
 import { Firestore, Storage } from '../../../../Firebase'
 import PropertyDetails from '../../show/PropertyDetails'
+
+import noImage from '../../../../../public/images/no-image-property.jpg'
 
 export default function PropertyCard({ property, list, setList, setIsBackdrop }) {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -75,7 +79,7 @@ export default function PropertyCard({ property, list, setList, setIsBackdrop })
         <CardMedia
           component="img"
           sx={{ width: 151 }}
-          image={property.images.filter(image => image.isThumb)[0].src}
+          image={(property.images.length ? property.images.filter(image => image.isThumb)[0].src : noImage.src)}
         />
 
         <Box sx={{ display: 'flex', flexDirection: 'column' }}>

@@ -97,7 +97,7 @@ export default function Caracteristicas() {
   function handleChange(event) {
     let newCharacteristics = [...characteristics]
     const index = newCharacteristics.findIndex((c) => c.name == event.target.name)
-    newCharacteristics[index]['checked'] = true
+    newCharacteristics[index]['checked'] = event.target.checked
     setCharacteristics(newCharacteristics)
   }
 

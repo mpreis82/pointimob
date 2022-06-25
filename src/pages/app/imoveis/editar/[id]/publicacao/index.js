@@ -90,7 +90,7 @@ export default function Publicacao() {
 
       setAlert({
         severity: 'success',
-        message: 'Mais um imóvel cadastrado! 🎊🎉',
+        message: 'Imóvel atualizado! 👍',
         open: true
       })
 

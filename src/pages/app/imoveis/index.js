@@ -22,17 +22,31 @@ export default function Imoveis() {
   useEffect(async () => {
     setIsBackdrop(true)
 
-    if (!authContext.user()) {
-      router.push('/login')
-      return
-    }
+    // if (!authContext.user()) {
+    //   router.push('/login')
+    //   return
+    // }
 
-    const q = query(collection(Firestore, 'properties'), where('uid', '==', authContext.user().uid))
+    const q = query(collection(Firestore, 'properties'),
+      where('uid', '==', authContext.user().uid),
+      where('steps_progress.financial', '==', 'done'),
+      where('steps_progress.condominium', '==', 'done'),
+      where('steps_progress.description', '==', 'done'),
+      where('steps_progress.characteristics', '==', 'done'),
+      where('steps_progress.images', '==', 'done'),
+      where('steps_progress.initial_informations', '==', 'done'),
+      where('steps_progress.location', '==', 'done'),
+      where('steps_progress.measures', '==', 'done'),
+      where('steps_progress.nearbys', '==', 'done'),
+      where('steps_progress.publish', '==', 'done'),
+      where('steps_progress.rooms', '==', 'done'))
+
     const querySnap = await getDocs(q)
     const list = []
     querySnap.forEach((doc) => {
       list.push({ docId: doc.id, ...doc.data() })
     })
+
     setPropertiesList(list)
     setIsBackdrop(false)
   }, [router.isReady])

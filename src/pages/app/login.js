@@ -12,6 +12,9 @@ import { AuthContext } from '../../contexts/AuthContext';
 import image from '../../../public/images/appBackgroud.jpg'
 import logo from '../../../public/images/logo.png'
 
+import { FirebaseApp } from '../../Firebase'
+import { getAuth, onAuthStateChanged } from 'firebase/auth'
+
 export default function Login() {
   const [email, setEmail] = useState('mpreis82@gmail.com')
   const [password, setPassword] = useState('Deadfish001')
@@ -37,6 +40,13 @@ export default function Login() {
       return
     }
     setLoaded(true)
+  }, [])
+
+  useEffect(() => {
+    setLoaded(true)
+    const auth = getAuth()
+    onAuthStateChanged(auth, user => console.log(user))
+    console.log(auth.currentUser)
   }, [])
 
   function handleEmailChange(event) {

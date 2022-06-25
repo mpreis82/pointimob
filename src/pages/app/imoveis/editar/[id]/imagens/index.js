@@ -31,6 +31,7 @@ export default function Imagens() {
       return
     }
 
+    setLoaded(true)
   }, [router.isReady])
 
   function handleSnackbarClose(event, reason) {

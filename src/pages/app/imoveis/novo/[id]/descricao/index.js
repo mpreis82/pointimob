@@ -2,9 +2,12 @@ import { useState, useEffect, useContext } from 'react'
 import { useRouter } from 'next/router'
 import { doc, getDoc, updateDoc } from 'firebase/firestore'
 import dynamic from 'next/dynamic'
+
 const ReactQuill = dynamic(() => import('react-quill'), { ssr: false })
+
 import { Box } from '@mui/system'
 import { FormControl, TextField, Stack, Snackbar, Alert, Backdrop, CircularProgress } from '@mui/material'
+
 import 'react-quill/dist/quill.snow.css'
 import styles from './styles.module.css'
 
@@ -14,10 +17,11 @@ import Main from '../../../../../../components/imoveis/main/Main'
 import Form from '../../../../../../components/imoveis/Form'
 
 import { Firestore } from '../../../../../../Firebase'
-
-import { AuthContext } from '../../../../../../contexts/AuthContext'
+import { getAuth, onAuthStateChanged } from 'firebase/auth'
 
 export default function Descricao() {
+  const [loaded, setLoaded] = useState(false)
+
   const [pageTitle, setPageTitle] = useState('')
   const [description, setDescription] = useState('')
 
@@ -27,39 +31,50 @@ export default function Descricao() {
     open: false
   })
 
-  const [loaded, setLoaded] = useState(false)
-
   const [propertyId, setPropertyId] = useState('')
 
   const router = useRouter()
 
-  const authContext = useContext(AuthContext)
-
-  useEffect(async () => {
+  useEffect(() => {
     if (!router.isReady) return
 
-    if (!authContext.user()) {
-      router.push('/login')
+    const abortController = new AbortController
+
+    if (!router.query.id) {
+      router.push('/imoveis')
       return
     }
 
-    if (!router.query.id) router.push('/imoveis')
+    const auth = getAuth()
 
-    setPropertyId(router.query.id)
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        router.push('/login')
+        return
+      }
+      const docRef = doc(Firestore, 'properties', router.query.id)
+      const docSnap = await getDoc(docRef)
 
-    const docRef = doc(Firestore, 'properties', router.query.id)
-    const docSnap = await getDoc(docRef)
+      if (!docSnap.exists()) {
+        router.push('/imoveis')
+        return
+      }
 
-    if (!docSnap.exists()) router.push('/imoveis')
-
-    if (docSnap.data().description) {
       const data = docSnap.data().description
-      setPageTitle(data.page_title)
-      setDescription(data.description)
+
+      if (data) {
+        setPageTitle(data.page_title)
+        setDescription(data.description)
+      }
+
+      setPropertyId(router.query.id)
+
+      setLoaded(true)
+    })
+
+    return () => {
+      abortController.abort()
     }
-
-    setLoaded(true)
-
   }, [router.isReady])
 
   function handleSnackbarClose(event, reason) {
@@ -100,40 +115,39 @@ export default function Descricao() {
 
   if (loaded) {
     return (
-      <Box display='flex' height='calc(100% - 45px)' bgcolor='silver' overflow='hidden'>
-        <AsideNav>
-          <ImoveisAsideNav />
-        </AsideNav>
+      <>
+        <Box display='flex' height='calc(100% - 45px)' bgcolor='silver' overflow='hidden'>
+          <AsideNav>
+            <ImoveisAsideNav />
+          </AsideNav>
 
-        <Main title='Descrição'>
-          <Form handleSubmit={handleSubmit} gridTemplateColumnsCustom='1fr'>
-            <FormControl variant='outlined'>
-              <Box component='label' fontWeight='bold' mb={1}>Título da página de detalhamento do imóvel</Box>
-              <TextField value={pageTitle} onChange={event => setPageTitle(event.target.value)} helperText='' />
-            </FormControl>
+          <Main title='Descrição'>
+            <Form handleSubmit={handleSubmit} gridTemplateColumnsCustom='1fr'>
+              <FormControl variant='outlined'>
+                <Box component='label' fontWeight='bold' mb={1}>Título da página de detalhamento do imóvel</Box>
+                <TextField value={pageTitle} onChange={event => setPageTitle(event.target.value)} helperText='' />
+              </FormControl>
 
-            <Box position='relative' mb={6}>
-              <ReactQuill theme='snow' value={description} onChange={setDescription} className={styles.quillBox}>
-              </ReactQuill>
-            </Box>
-          </Form>
+              <Box position='relative' mb={6}>
+                <ReactQuill theme='snow' value={description} onChange={setDescription} className={styles.quillBox}>
+                </ReactQuill>
+              </Box>
+            </Form>
 
-          <Stack spacing={2} sx={{ width: '100%' }}>
-            <Snackbar open={alert.open} autoHideDuration={(alert.severity == 'success' ? 2000 : 6000)} onClose={handleSnackbarClose}>
-              <Alert severity={alert.severity} sx={{ boxShadow: 5 }}>{alert.message}</Alert>
-            </Snackbar>
-          </Stack>
-        </Main>
-      </Box >
-    )
-  } else {
-    return (
-      <Backdrop
-        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
-        open={true}
-      >
-        <CircularProgress color='inherit' />
-      </Backdrop>
+            <Stack spacing={2} sx={{ width: '100%' }}>
+              <Snackbar open={alert.open} autoHideDuration={(alert.severity == 'success' ? 2000 : 6000)} onClose={handleSnackbarClose}>
+                <Alert severity={alert.severity} sx={{ boxShadow: 5 }}>{alert.message}</Alert>
+              </Snackbar>
+            </Stack>
+          </Main>
+        </Box >
+      </>
     )
   }
+
+  return (
+    <Backdrop sx={{ color: '#fff', zIndex: 99999 }} open={!loaded}>
+      <CircularProgress color='inherit' />
+    </Backdrop>
+  )
 }
