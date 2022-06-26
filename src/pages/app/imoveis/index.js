@@ -68,7 +68,7 @@ export default function Imoveis() {
       <>
         <Box display='flex' height='calc(100% - 45px)' bgcolor='silver' overflow='hidden'>
           <AsideNav>
-            <ImoveisListAside setPropertiesList={setPropertiesList} setIsBackdrop={setIsBackdrop} />
+            <ImoveisListAside setPropertiesList={setPropertiesList} setIsBackdrop={setIsBackdrop} user={user} />
           </AsideNav>
 
           <Main title='Sua lista de imóveis'>

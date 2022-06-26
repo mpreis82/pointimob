@@ -9,7 +9,7 @@ import style from './style.module.css'
 
 const ufList = ['Todos', 'AC', 'AL', 'AM', 'AP', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MG', 'MS', 'MT', 'PA', 'PB', 'PE', 'PI', 'PR', 'RJ', 'RN', 'RO', 'RR', 'RS', 'SC', 'SE', 'SP', 'TO',]
 
-export default function ImoveisListAside({ setPropertiesList, setIsBackdrop }) {
+export default function ImoveisListAside({ setPropertiesList, setIsBackdrop, user }) {
   const asideFilterBoxRef = createRef()
   const [positionButtons, setPositionButtons] = useState('sticky')
   const [type, setType] = useState('')
@@ -109,10 +109,9 @@ export default function ImoveisListAside({ setPropertiesList, setIsBackdrop }) {
   async function handleFilterClick(event) {
     setIsBackdrop(true)
 
-    console.log(minPrice.replace(/\D/g, '') / 100, maxPrice.replace(/\D/g, '') / 100)
-
     const queryConstraints = []
 
+    queryConstraints.push(where('uid', '==', user.uid))
     queryConstraints.push(where('financial.transaction', '==', transaction))
     if (type) queryConstraints.push(where('initial_informations.subtype.docId', '==', type))
     if (profile) queryConstraints.push(where('initial_informations.profile', '==', profile))
@@ -146,7 +145,7 @@ export default function ImoveisListAside({ setPropertiesList, setIsBackdrop }) {
     setCityList(['Todas'])
     setCity('Todas')
 
-    const q = query(collection(Firestore, 'properties'))
+    const q = query(collection(Firestore, 'properties'), where('uid', '==', user.uid))
     const querySnap = await getDocs(q)
     const list = []
     querySnap.forEach((doc) => {
