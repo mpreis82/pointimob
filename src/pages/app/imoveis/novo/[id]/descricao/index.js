@@ -17,7 +17,8 @@ import Main from '../../../../../../components/imoveis/main/Main'
 import Form from '../../../../../../components/imoveis/Form'
 
 import { Firestore } from '../../../../../../Firebase'
-import { getAuth, onAuthStateChanged } from 'firebase/auth'
+
+import { AuthContext } from '../../../../../../contexts/AuthContext'
 
 export default function Descricao() {
   const [loaded, setLoaded] = useState(false)
@@ -35,46 +36,46 @@ export default function Descricao() {
 
   const router = useRouter()
 
-  useEffect(() => {
+  const authContext = useContext(AuthContext)
+
+  useEffect(async () => {
     if (!router.isReady) return
 
     const abortController = new AbortController
+
+    if (!(await authContext.user())) {
+      router.push('/login')
+      return
+    }
 
     if (!router.query.id) {
       router.push('/imoveis')
       return
     }
 
-    const auth = getAuth()
+    const docRef = doc(Firestore, 'properties', router.query.id)
+    const docSnap = await getDoc(docRef)
 
-    onAuthStateChanged(auth, async (user) => {
-      if (!user) {
-        router.push('/login')
-        return
-      }
-      const docRef = doc(Firestore, 'properties', router.query.id)
-      const docSnap = await getDoc(docRef)
+    if (!docSnap.exists()) {
+      router.push('/imoveis')
+      return
+    }
 
-      if (!docSnap.exists()) {
-        router.push('/imoveis')
-        return
-      }
+    const data = docSnap.data().description
 
-      const data = docSnap.data().description
+    if (data) {
+      setPageTitle(data.page_title)
+      setDescription(data.description)
+    }
 
-      if (data) {
-        setPageTitle(data.page_title)
-        setDescription(data.description)
-      }
+    setPropertyId(router.query.id)
 
-      setPropertyId(router.query.id)
-
-      setLoaded(true)
-    })
+    setLoaded(true)
 
     return () => {
       abortController.abort()
     }
+
   }, [router.isReady])
 
   function handleSnackbarClose(event, reason) {

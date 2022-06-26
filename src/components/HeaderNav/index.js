@@ -15,8 +15,8 @@ export default function HeaderNav() {
         href='/imoveis'
         subitems={
           [
+            { label: 'Imóveis disponíveis', description: 'Seus imóveis disponíveis', href: '/imoveis', icon: < MdOutlineCheck /> },
             { label: 'Novo imóvel', description: 'Cadastre um novo imóvel', href: '/imoveis/novo/informacoes', icon: <MdOutlineAdd /> },
-            { label: 'Imóveis disponíveis', description: 'Seus imóveis disponíveis', href: '/#', icon: < MdOutlineCheck /> },
             { label: 'Imóveis vendidos', description: 'Seus imóveis vendidos', href: '/#', icon: <MdOutlineAttachMoney /> },
             { label: 'Imóveis inativos', description: 'Seus imóveis inativos', href: '/#', icon: <MdDeleteOutline /> },
           ]

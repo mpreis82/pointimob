@@ -33,7 +33,9 @@ export default function Publicacao() {
   useEffect(async () => {
     if (!router.isReady) return
 
-    if (!authContext.user()) {
+    const abortController = new AbortController
+
+    if (!(await authContext.user())) {
       router.push('/login')
       return
     }
@@ -56,6 +58,10 @@ export default function Publicacao() {
     }
 
     setLoaded(true)
+
+    return () => {
+      abortController.abort()
+    }
 
   }, [router.isReady])
 
@@ -85,8 +91,6 @@ export default function Publicacao() {
         'register_status.status': 'done',
         'register_status.update_date': Timestamp.fromDate(new Date())
       })
-
-      localStorage.removeItem('new_property_id')
 
       setAlert({
         severity: 'success',

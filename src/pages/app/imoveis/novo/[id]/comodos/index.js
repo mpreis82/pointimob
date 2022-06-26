@@ -48,11 +48,13 @@ export default function Comodos() {
   const authContext = useContext(AuthContext)
 
   useEffect(async () => {
-    setLoaded(false)
-
     if (!router.isReady) return
 
-    if (!authContext.user()) {
+    const abortController = new AbortController
+
+    const currentUser = await authContext.user()
+
+    if (!(await authContext.user())) {
       router.push('/login')
       return
     }
@@ -90,6 +92,10 @@ export default function Comodos() {
     }
 
     setLoaded(true)
+
+    return () => {
+      abortController.abort()
+    }
 
   }, [router.isReady])
 

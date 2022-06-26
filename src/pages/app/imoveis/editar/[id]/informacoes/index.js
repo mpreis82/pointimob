@@ -55,7 +55,9 @@ export default function ImoveisNovoInformacoes() {
   useEffect(async () => {
     if (!router.isReady) return
 
-    if (!authContext.user()) {
+    const abortController = new AbortController
+
+    if (!(await authContext.user())) {
       router.push('/login')
       return
     }
@@ -86,6 +88,11 @@ export default function ImoveisNovoInformacoes() {
       }
     }
     setLoaded(true)
+
+    return () => {
+      abortController.abort()
+    }
+
   }, [router.isReady])
 
   function handleChange(event) {

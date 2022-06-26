@@ -23,22 +23,28 @@ export default function Imagens() {
 
   const authContext = useContext(AuthContext)
 
-  useEffect(() => {
+  useEffect(async () => {
     if (!router.isReady) return
 
-    if (!authContext.user()) {
+    const abortController = new AbortController
+
+    if (!(await authContext.user())) {
       router.push('/login')
       return
     }
 
     setLoaded(true)
+
+    return () => {
+      abortController.abort()
+    }
+
   }, [router.isReady])
 
   function handleSnackbarClose(event, reason) {
     if (reason === 'clickaway') {
       return;
     }
-    router.push('/imoveis/novo/publicacao')
     setAlert({ ...alert, open: false });
   }
 

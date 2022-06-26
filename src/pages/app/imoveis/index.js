@@ -14,6 +14,7 @@ import { AuthContext } from '../../../contexts/AuthContext'
 export default function Imoveis() {
   const [propertiesList, setPropertiesList] = useState([])
   const [isBackdrop, setIsBackdrop] = useState(false)
+  const [user, setUser] = useState(null)
 
   const router = useRouter()
 
@@ -22,13 +23,19 @@ export default function Imoveis() {
   useEffect(async () => {
     setIsBackdrop(true)
 
-    // if (!authContext.user()) {
-    //   router.push('/login')
-    //   return
-    // }
+    const abortController = new AbortController
+
+    const currentUser = await authContext.user()
+
+    setUser(currentUser)
+
+    if (!currentUser) {
+      router.push('/login')
+      return
+    }
 
     const q = query(collection(Firestore, 'properties'),
-      where('uid', '==', authContext.user().uid),
+      where('uid', '==', currentUser.uid),
       where('steps_progress.financial', '==', 'done'),
       where('steps_progress.condominium', '==', 'done'),
       where('steps_progress.description', '==', 'done'),
@@ -49,9 +56,14 @@ export default function Imoveis() {
 
     setPropertiesList(list)
     setIsBackdrop(false)
+
+    return () => {
+      abortController.abort()
+    }
+
   }, [router.isReady])
 
-  if (authContext.user()) {
+  if (user) {
     return (
       <>
         <Box display='flex' height='calc(100% - 45px)' bgcolor='silver' overflow='hidden'>
@@ -69,7 +81,7 @@ export default function Imoveis() {
         </Box >
 
         <Backdrop
-          sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+          sx={{ color: '#fff', zIndex: 9999 }}
           open={isBackdrop}
         >
           <CircularProgress color='inherit' />

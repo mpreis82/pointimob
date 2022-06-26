@@ -9,15 +9,12 @@ const AuthContextProvider = ({ children }) => {
 
   useEffect(() => {
     if (!currentUser) {
-      const auth = getAuth()
-      onAuthStateChanged(auth, user => {
-        if (user) {
-          setCurrentUser({
-            username: user.displayName,
-            email: user.email,
-            uid: user.uid
-          })
-        }
+      user().then(dataUser => {
+        setCurrentUser({
+          username: dataUser.displayName,
+          email: dataUser.email,
+          uid: dataUser.uid
+        })
       })
     }
   }, [])
@@ -58,13 +55,20 @@ const AuthContextProvider = ({ children }) => {
     })
   }
 
-  const user = () => {
-    return currentUser
+  function user() {
+    const auth = getAuth()
+    return new Promise((resolve) => {
+      onAuthStateChanged(auth, user => resolve({
+        username: user.displayName,
+        email: user.email,
+        uid: user.uid
+      }))
+    })
   }
 
   const logout = () => {
     const auth = getAuth()
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       signOut(auth)
         .then(() => {
           setCurrentUser(null)
@@ -77,7 +81,7 @@ const AuthContextProvider = ({ children }) => {
   }
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, register, sendPasswordResetEmail }}>
+    <AuthContext.Provider value={{ user, login, logout, register, sendPasswordResetEmail, currentUser }}>
       {children}
     </AuthContext.Provider>
   )

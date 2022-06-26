@@ -66,7 +66,9 @@ export default function Condominio() {
   useEffect(async () => {
     if (!router.isReady) return
 
-    if (!authContext.user()) {
+    const abortController = new AbortController
+
+    if (!(await authContext.user())) {
       router.push('/login')
       return
     }
@@ -88,6 +90,10 @@ export default function Condominio() {
     }
 
     setLoaded(true)
+
+    return () => {
+      abortController.abort()
+    }
 
   }, [router.isReady])
 

@@ -42,6 +42,8 @@ export default function ImoveisNovoInformacoes() {
 
   const [loaded, setLoaded] = useState(false)
 
+  const [user, setUser] = useState(null)
+
   const router = useRouter()
 
   const authContext = useContext(AuthContext)
@@ -50,14 +52,25 @@ export default function ImoveisNovoInformacoes() {
     setLoaded(false)
     if (!router.isReady) return
 
-    if (!authContext.user()) {
+    const abortController = new AbortController
+
+    const currentUser = await authContext.user()
+
+    if (!currentUser) {
       router.push('/login')
       return
     }
 
+    setUser(currentUser)
+
     if (router.query.id) router.push(`/imoveis/novo/${doc.id}/informacoes`)
 
     setLoaded(true)
+
+    return () => {
+      abortController.abort()
+    }
+
   }, [router.isReady])
 
   function handleChange(event) {
@@ -141,7 +154,7 @@ export default function ImoveisNovoInformacoes() {
           images: 'pending',
           publish: 'pending',
         },
-        uid: authContext.user().uid
+        uid: user.uid
       })
 
       setAlert({
