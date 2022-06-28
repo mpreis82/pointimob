@@ -5,6 +5,8 @@ import { Box, Modal, Typography, Button, Menu, MenuList, MenuItem, Divider, Avat
 import { grey, pink, purple } from '@mui/material/colors'
 import { MdKeyboardArrowDown, MdDirectionsCar, MdCropFree, MdOutlineAttachMoney, MdShower } from 'react-icons/md'
 import { FaBed } from 'react-icons/fa'
+import { doc, getDoc, updateDoc } from 'firebase/firestore'
+import { Firestore } from '../../../../Firebase'
 
 export default function PropertyDetails({ property, openPropertyDetails, setOpenPropertyDetails }) {
   const [anchorOptionsMenu, setAnchorOptionsMenu] = useState(null)
@@ -12,11 +14,6 @@ export default function PropertyDetails({ property, openPropertyDetails, setOpen
   const optionsMenuIsOpen = Boolean(anchorOptionsMenu)
 
   const router = useRouter()
-
-  useEffect(() => {
-    console.log('entrou')
-    console.log(property)
-  }, [])
 
   function getPropertyCreateDate() {
     let createDate = new Date(1970, 0, 1)
@@ -28,6 +25,20 @@ export default function PropertyDetails({ property, openPropertyDetails, setOpen
     let updateDate = new Date(1970, 0, 1)
     updateDate.setSeconds(property.register_status.update_date.seconds)
     return updateDate.toLocaleDateString('pt-BR', { timeZone: 'UTC', dateStyle: 'short' })
+  }
+
+  async function handleMoveInactiveClick() {
+    console.log(property.register_status)
+
+    const ref = doc(Firestore, 'properties', property.docId)
+    const docSnap = await getDoc(ref)
+
+    await updateDoc(ref, {
+      register_status: { ...property.register_status, status: 'inactive' }
+    })
+
+    console.log('inativado')
+
   }
 
   return (
@@ -96,7 +107,7 @@ export default function PropertyDetails({ property, openPropertyDetails, setOpen
               <MenuItem dense={true} onClick={() => { router.push(`/imoveis/editar/${property.docId}/imagens`) }}>Adicionar fotos</MenuItem>
               <MenuItem dense={true}>Duplicar imóvel</MenuItem>
               <Divider />
-              <MenuItem dense={true}>Mover para inativos</MenuItem>
+              <MenuItem dense={true} onClick={handleMoveInactiveClick} >Mover para inativos</MenuItem>
               <MenuItem dense={true}>Mover para vendidos</MenuItem>
             </MenuList>
           </Menu>

@@ -184,228 +184,39 @@ const types = [
   },
   {
     "id": 37,
-    "type": "Sítio",
-    "subtype": "Sítio"
-  },
-  {
-    "id": 38,
-    "type": "Sítio",
-    "subtype": "Haras"
-  },
-  {
-    "id": 39,
-    "type": "Garagem",
-    "subtype": "Garagem externa"
-  },
-  {
-    "id": 40,
-    "type": "Garagem",
-    "subtype": "Garagem externa coberta"
-  },
-  {
-    "id": 41,
-    "type": "Garagem",
-    "subtype": "Garagem interna"
-  },
-  {
-    "id": 42,
-    "type": "Fazenda",
-    "subtype": "Fazenda"
-  },
-  {
-    "id": 43,
-    "type": "Fazenda",
-    "subtype": "Haras"
-  },
-  {
-    "id": 44,
-    "type": "Fazenda",
-    "subtype": "Pecuária"
-  },
-  {
-    "id": 45,
-    "type": "Fazenda",
-    "subtype": "Lavoura"
-  },
-  {
-    "id": 46,
-    "type": "Fazenda",
-    "subtype": "Mista"
-  },
-  {
-    "id": 47,
     "type": "Chácara",
     "subtype": "Chácara"
   },
   {
-    "id": 48,
-    "type": "Rancho",
-    "subtype": "Rancho"
-  },
-  {
-    "id": 49,
-    "type": "Pousada",
-    "subtype": "Pousada"
-  },
-  {
-    "id": 50,
+    "id": 38,
     "type": "Sala",
     "subtype": "Andar comercial"
   },
   {
-    "id": 51,
+    "id": 39,
     "type": "Sala",
     "subtype": "Comercial"
   },
   {
-    "id": 52,
+    "id": 40,
     "type": "Loja",
     "subtype": "Loja"
   },
   {
-    "id": 53,
+    "id": 41,
     "type": "Loja",
     "subtype": "Ponto comercial"
-  },
-  {
-    "id": 54,
-    "type": "Flat",
-    "subtype": "Flat"
-  },
-  {
-    "id": 55,
-    "type": "Sobrado",
-    "subtype": "Alto padrão"
-  },
-  {
-    "id": 56,
-    "type": "Sobrado",
-    "subtype": "Em condomínio"
-  },
-  {
-    "id": 57,
-    "type": "Sobrado",
-    "subtype": "Germinado"
-  },
-  {
-    "id": 58,
-    "type": "Sobrado",
-    "subtype": "Padrão"
-  },
-  {
-    "id": 59,
-    "type": "Prédio",
-    "subtype": "Comercial"
-  },
-  {
-    "id": 60,
-    "type": "Prédio",
-    "subtype": "Residêncial"
-  },
-  {
-    "id": 61,
-    "type": "Indústria",
-    "subtype": "Indústria"
-  },
-  {
-    "id": 62,
-    "type": "Pavilhão/Galpão",
-    "subtype": "Industrial"
-  },
-  {
-    "id": 63,
-    "type": "Pavilhão/Galpão",
-    "subtype": "Salão comercial"
-  },
-  {
-    "id": 64,
-    "type": "Área",
-    "subtype": "Comercial"
-  },
-  {
-    "id": 65,
-    "type": "Área",
-    "subtype": "Industrial"
-  },
-  {
-    "id": 66,
-    "type": "Área",
-    "subtype": "Residêncial"
-  },
-  {
-    "id": 67,
-    "type": "Área",
-    "subtype": "Residêncial/Comercial"
-  },
-  {
-    "id": 68,
-    "type": "Área",
-    "subtype": "Rural"
-  },
-  {
-    "id": 69,
-    "type": "Área",
-    "subtype": "Reflorestamento"
-  },
-  {
-    "id": 70,
-    "type": "Ponto comercial",
-    "subtype": "Andar comercial"
-  },
-  {
-    "id": 71,
-    "type": "Ponto comercial",
-    "subtype": "Coméricio"
-  },
-  {
-    "id": 72,
-    "type": "Ponto comercial",
-    "subtype": "Indústria"
-  },
-  {
-    "id": 73,
-    "type": "Sala comercial",
-    "subtype": "Andar comercial"
-  },
-  {
-    "id": 74,
-    "type": "Sala comercial",
-    "subtype": "Duplex"
-  },
-  {
-    "id": 75,
-    "type": "Sala comercial",
-    "subtype": "Em edifício"
-  },
-  {
-    "id": 76,
-    "type": "Sala comercial",
-    "subtype": "Nível de rua"
-  },
-  {
-    "id": 77,
-    "type": "Sala comercial",
-    "subtype": "Sobreposta"
-  },
-  {
-    "id": 78,
-    "type": "Sala comercial",
-    "subtype": "Térreo"
-  },
-  {
-    "id": 79,
-    "type": "Salão comercial",
-    "subtype": "Salão comercial"
   }
 ]
 
 export default function handler(req, res) {
   types.map(async (t) => {
-    await addDoc(collection(Firestore, 'propery_types'), {
+    const doc = await addDoc(collection(Firestore, 'propery_types'), {
       id: t.id,
       type: t.type,
       subtype: t.subtype,
     })
+    console.log(doc)
   })
   res.status(200).json({ message: 'Property types uploaded' })
 }

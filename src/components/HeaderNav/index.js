@@ -1,5 +1,5 @@
 import { Box } from '@mui/system'
-import { MdOutlineAdd, MdOutlineCheck, MdOutlineAttachMoney, MdDeleteOutline, MdPeople, MdSupportAgent, MdOutlineReport, MdOutlineAutoStories, MdOutlineFavorite, MdRemoveRedEye, MdSettings, MdPostAdd, MdOutlineWarning } from 'react-icons/md'
+import { MdOutlineAdd, MdOutlineCheck, MdOutlineAttachMoney, MdDeleteOutline, MdPeople, MdSupportAgent, MdOutlineReport, MdOutlineAutoStories, MdOutlineFavorite, MdRemoveRedEye, MdSettings, MdPostAdd, MdOutlineWarning, MdOutlineFamilyRestroom } from 'react-icons/md'
 import HeaderNavItem from "../HeaderNavItem"
 
 export default function HeaderNav() {
@@ -17,13 +17,14 @@ export default function HeaderNav() {
           [
             { label: 'Imóveis disponíveis', description: 'Seus imóveis disponíveis', href: '/imoveis', icon: < MdOutlineCheck /> },
             { label: 'Novo imóvel', description: 'Cadastre um novo imóvel', href: '/imoveis/novo/informacoes', icon: <MdOutlineAdd /> },
-            { label: 'Imóveis vendidos', description: 'Seus imóveis vendidos', href: '/#', icon: <MdOutlineAttachMoney /> },
-            { label: 'Imóveis inativos', description: 'Seus imóveis inativos', href: '/#', icon: <MdDeleteOutline /> },
+            { label: 'Imóveis vendidos', description: 'Seus imóveis vendidos', href: '/imoveis/vendidos', icon: <MdOutlineAttachMoney /> },
+            { label: 'Imóveis alugados', description: 'Seus imóveis alugados', href: '/imoveis/alugados', icon: <MdOutlineFamilyRestroom /> },
+            { label: 'Imóveis inativos', description: 'Seus imóveis inativos', href: '/imoveis/inativos', icon: <MdDeleteOutline /> },
           ]
         }
       />
 
-      <HeaderNavItem
+      {/* <HeaderNavItem
         label='Clientes'
         href='/clients/show'
         subitems={
@@ -32,7 +33,7 @@ export default function HeaderNav() {
             { label: 'Meus clientes', description: 'Veja todos os seus clientes', href: '/#', icon: <MdPeople /> },
           ]
         }
-      />
+      /> */}
 
       <HeaderNavItem
         label='Site'

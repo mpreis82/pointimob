@@ -1,6 +1,6 @@
 import { useState, useEffect, useContext } from 'react'
 import { useRouter } from 'next/router'
-import { doc, getDoc, updateDoc } from 'firebase/firestore'
+import { collection, doc, getDoc, getDocs, orderBy, query, updateDoc, where } from 'firebase/firestore'
 
 import { Box } from '@mui/system'
 import { FormControlLabel, Checkbox, FormGroup, Stack, Snackbar, Alert, Backdrop, CircularProgress } from '@mui/material'
@@ -90,10 +90,25 @@ export default function Caracteristicas() {
 
     if (!docSnap.exists()) router.push('/imoveis')
 
+    const propertyType = docSnap.data().initial_informations.subtype.type
+
+    const docCharacteristicsRef = collection(Firestore, "characteristics");
+    const queryCharacteristics = query(docCharacteristicsRef, where("property_type", "==", propertyType), orderBy('characteristic'));
+    const characteristicsSnapshot = await getDocs(queryCharacteristics);
+
+    const characteristicsList = []
+    let checkedList = []
+
     if (docSnap.data().characteristics) {
-      const data = docSnap.data().characteristics
-      setCharacteristics(data)
+      checkedList = docSnap.data().characteristics
     }
+
+    characteristicsSnapshot.forEach(doc => {
+      const checked = checkedList.find(c => c.id == doc.data().id)
+      characteristicsList.push({ ...doc.data(), checked: (checked ? true : false) })
+    })
+
+    if (characteristicsList.length) setCharacteristics(characteristicsList)
 
     setLoaded(true)
 
@@ -105,7 +120,7 @@ export default function Caracteristicas() {
 
   function handleChange(event) {
     let newCharacteristics = [...characteristics]
-    const index = newCharacteristics.findIndex((c) => c.name == event.target.name)
+    const index = newCharacteristics.findIndex((c) => c.characteristic == event.target.name)
     newCharacteristics[index]['checked'] = event.target.checked
     setCharacteristics(newCharacteristics)
   }
@@ -121,7 +136,7 @@ export default function Caracteristicas() {
       const ref = doc(Firestore, 'properties', propertyId)
 
       await updateDoc(ref, {
-        characteristics,
+        characteristics: [...characteristics.filter(c => c.checked)],
         'steps_progress.characteristics': 'done'
       })
 
@@ -158,9 +173,9 @@ export default function Caracteristicas() {
                 {characteristics.map((characteristic, index) => (
                   <Box key={index}>
                     <FormControlLabel
-                      name={characteristic.name}
+                      name={characteristic.characteristic}
                       control={<Checkbox />}
-                      label={characteristic.name}
+                      label={characteristic.characteristic}
                       display='block'
                       width='100%'
                       onChange={handleChange}

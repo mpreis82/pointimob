@@ -34,7 +34,7 @@ export default function SelectPropertyTypes({ value, setValue, error = false, me
 
 
   return (
-    <FormControl>
+    <FormControl fullWidth sx={{ mb: 2 }}>
       <Box component='label' htmlFor="" fontWeight='bold' mb={1}>Tipo/Subtipo</Box>
       <Select native name="subtype" value={value} onChange={setValue} error={error} onBlur={validateBlur} size={size ?? 'medium'}>
         <option aria-label="None" value={'0'} />

@@ -9,7 +9,7 @@ import style from './style.module.css'
 
 const ufList = ['Todos', 'AC', 'AL', 'AM', 'AP', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MG', 'MS', 'MT', 'PA', 'PB', 'PE', 'PI', 'PR', 'RJ', 'RN', 'RO', 'RR', 'RS', 'SC', 'SE', 'SP', 'TO',]
 
-export default function ImoveisListAside({ setPropertiesList, setIsBackdrop, user }) {
+export default function ImoveisListAside({ setPropertiesList, setIsBackdrop, user, propertiesStatus }) {
   const asideFilterBoxRef = createRef()
   const [positionButtons, setPositionButtons] = useState('sticky')
   const [type, setType] = useState('')
@@ -113,6 +113,8 @@ export default function ImoveisListAside({ setPropertiesList, setIsBackdrop, use
 
     queryConstraints.push(where('uid', '==', user.uid))
     queryConstraints.push(where('financial.transaction', '==', transaction))
+    queryConstraints.push(where('register_status.status', '==', propertiesStatus))
+
     if (type) queryConstraints.push(where('initial_informations.subtype.docId', '==', type))
     if (profile) queryConstraints.push(where('initial_informations.profile', '==', profile))
     if (uf != 'Todos') queryConstraints.push(where('location.uf', '==', uf))
@@ -145,7 +147,7 @@ export default function ImoveisListAside({ setPropertiesList, setIsBackdrop, use
     setCityList(['Todas'])
     setCity('Todas')
 
-    const q = query(collection(Firestore, 'properties'), where('uid', '==', user.uid))
+    const q = query(collection(Firestore, 'properties'), where('uid', '==', user.uid), where('register_status.status', '==', propertiesStatus))
     const querySnap = await getDocs(q)
     const list = []
     querySnap.forEach((doc) => {
@@ -161,23 +163,25 @@ export default function ImoveisListAside({ setPropertiesList, setIsBackdrop, use
         <Box fontWeight='bold' mb={2}>FILTROS:</Box>
 
         <SelectPropertyTypes value={type} setValue={handleType} size='small' />
+        {((propertiesStatus == 'done' || propertiesStatus == 'inactive') && (
+          <FormControl fullWidth sx={{ mb: 2 }}>
+            <Box component='label' fontWeight='bold' mb={1}>Tipo de transação</Box>
+            <ToggleButtonGroup
+              name='transaction'
+              id='transaction'
+              value={transaction}
+              exclusive
+              color='primary'
+              position='relative'
+              sx={{ height: '100%' }}
+              onChange={handleTransaction}
+            >
+              <ToggleButton name='transaction' size="small" sx={{ width: '50%', height: '100%' }} value='Venda'>Venda</ToggleButton>
+              <ToggleButton name='transaction' size="small" sx={{ width: '50%', height: '100%' }} value='Aluguel'>Aluguel</ToggleButton>
+            </ToggleButtonGroup>
+          </FormControl>
+        ))}
 
-        <FormControl fullWidth sx={{ mb: 2 }}>
-          <Box component='label' fontWeight='bold' mb={1}>Tipo de transação</Box>
-          <ToggleButtonGroup
-            name='transaction'
-            id='transaction'
-            value={transaction}
-            exclusive
-            color='primary'
-            position='relative'
-            sx={{ height: '100%' }}
-            onChange={handleTransaction}
-          >
-            <ToggleButton name='transaction' size="small" sx={{ width: '50%', height: '100%' }} value='Venda'>Venda</ToggleButton>
-            <ToggleButton name='transaction' size="small" sx={{ width: '50%', height: '100%' }} value='Aluguel'>Aluguel</ToggleButton>
-          </ToggleButtonGroup>
-        </FormControl>
 
         <FormControl fullWidth sx={{ mb: 2 }} size='small'>
           <Box component='label' htmlFor="" fontWeight='bold' mb={1}>Perfil do imóvel</Box>

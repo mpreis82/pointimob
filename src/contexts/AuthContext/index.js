@@ -58,11 +58,13 @@ const AuthContextProvider = ({ children }) => {
   function user() {
     const auth = getAuth()
     return new Promise((resolve) => {
-      onAuthStateChanged(auth, user => resolve({
-        username: user.displayName,
-        email: user.email,
-        uid: user.uid
-      }))
+      onAuthStateChanged(auth, user => {
+        resolve({
+          username: user.displayName,
+          email: user.email,
+          uid: user.uid
+        })
+      })
     })
   }
 

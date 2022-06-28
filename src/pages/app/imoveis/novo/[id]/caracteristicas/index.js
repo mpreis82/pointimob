@@ -1,6 +1,6 @@
 import { useState, useEffect, useContext } from 'react'
 import { useRouter } from 'next/router'
-import { doc, getDoc, updateDoc, query, orderBy } from 'firebase/firestore'
+import { doc, getDoc, updateDoc, query, orderBy, collection, getDocs, where } from 'firebase/firestore'
 
 import { Box } from '@mui/system'
 import { FormControlLabel, Checkbox, FormGroup, Stack, Snackbar, Alert, Backdrop, CircularProgress } from '@mui/material'
@@ -15,44 +15,7 @@ import { Firestore } from '../../../../../../Firebase'
 import { AuthContext } from '../../../../../../contexts/AuthContext'
 
 export default function Caracteristicas() {
-  const [characteristics, setCharacteristics] = useState([
-    { name: 'Academia', checked: false },
-    { name: 'Aquecimento a gás', checked: false },
-    { name: 'Aquecimento central', checked: false },
-    { name: 'Aquecimento solar', checked: false },
-    { name: 'Ar condicionado central', checked: false },
-    { name: 'Área de lazer', checked: false },
-    { name: 'Área esportiva', checked: false },
-    { name: 'Calefação', checked: false },
-    { name: 'Churrasqueira', checked: false },
-    { name: 'Circuito de segurança', checked: false },
-    { name: 'Deck Molhado', checked: false },
-    { name: 'Depósito', checked: false },
-    { name: 'Elevador', checked: false },
-    { name: 'Espaço Gourmet', checked: false },
-    { name: 'Espaço verde', checked: false },
-    { name: 'Estacionamento', checked: false },
-    { name: 'Forro de gesso', checked: false },
-    { name: 'Forro de madeira', checked: false },
-    { name: 'Forro de PVC', checked: false },
-    { name: 'Gás central', checked: false },
-    { name: 'Gás individual', checked: false },
-    { name: 'Hidromassagem', checked: false },
-    { name: 'Hidrômetro individual', checked: false },
-    { name: 'Interfone', checked: false },
-    { name: 'Internet', checked: false },
-    { name: 'Lareira', checked: false },
-    { name: 'Lavanderia', checked: false },
-    { name: 'Piscina', checked: false },
-    { name: 'Playground', checked: false },
-    { name: 'Portaria', checked: false },
-    { name: 'Sacada', checked: false },
-    { name: 'Salão de festas', checked: false },
-    { name: 'Sauna', checked: false },
-    { name: 'Sistema de alarme', checked: false },
-    { name: 'SPA', checked: false },
-    { name: 'Vigia', checked: false },
-  ])
+  const [characteristics, setCharacteristics] = useState([])
 
   const [alert, setAlert] = useState({
     severity: 'success',
@@ -87,10 +50,25 @@ export default function Caracteristicas() {
 
     if (!docSnap.exists()) router.push('/imoveis')
 
+    const propertyType = docSnap.data().initial_informations.subtype.type
+
+    const docCharacteristicsRef = collection(Firestore, "characteristics");
+    const queryCharacteristics = query(docCharacteristicsRef, where("property_type", "==", propertyType), orderBy('characteristic'));
+    const characteristicsSnapshot = await getDocs(queryCharacteristics);
+
+    const characteristicsList = []
+    let checkedList = []
+
     if (docSnap.data().characteristics) {
-      const data = docSnap.data().characteristics
-      setCharacteristics(data)
+      checkedList = docSnap.data().characteristics
     }
+
+    characteristicsSnapshot.forEach(doc => {
+      const checked = checkedList.find(c => c.id == doc.data().id)
+      characteristicsList.push({ ...doc.data(), checked: (checked ? true : false) })
+    })
+
+    if (characteristicsList.length) setCharacteristics(characteristicsList)
 
     setLoaded(true)
 
@@ -102,9 +80,11 @@ export default function Caracteristicas() {
 
   function handleChange(event) {
     let newCharacteristics = [...characteristics]
-    const index = newCharacteristics.findIndex((c) => c.name == event.target.name)
-    newCharacteristics[index]['checked'] = event.target.checked
-    setCharacteristics(newCharacteristics)
+    const index = newCharacteristics.findIndex((c) => c.characteristic == event.target.name)
+    if (index > -1) {
+      newCharacteristics[index]['checked'] = event.target.checked
+      setCharacteristics(newCharacteristics)
+    }
   }
 
   function handleSnackbarClose() {
@@ -118,7 +98,7 @@ export default function Caracteristicas() {
       const ref = doc(Firestore, 'properties', propertyId)
 
       await updateDoc(ref, {
-        characteristics,
+        characteristics: [...characteristics.filter(c => c.checked)],
         'steps_progress.characteristics': 'done'
       })
 
@@ -155,9 +135,9 @@ export default function Caracteristicas() {
                 {characteristics.map((characteristic, index) => (
                   <Box key={index}>
                     <FormControlLabel
-                      name={characteristic.name}
+                      name={characteristic.characteristic}
                       control={<Checkbox />}
-                      label={characteristic.name}
+                      label={characteristic.characteristic}
                       display='block'
                       width='100%'
                       onChange={handleChange}

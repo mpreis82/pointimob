@@ -21,13 +21,14 @@ export default function Form({ children, handleSubmit, gridTemplateColumnsCustom
   }
 
   async function handleDialogCancelClick() {
-    const propertyId = localStorage.getItem('new_property_id')
+
+    const propertyId = router.query.id
 
     if (propertyId) {
       const ref = doc(Firestore, 'properties', propertyId)
       deleteDoc(ref)
-      localStorage.removeItem('new_property_id')
     }
+
     router.push('/imoveis')
   }
 
