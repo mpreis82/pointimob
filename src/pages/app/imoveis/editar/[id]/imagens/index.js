@@ -10,6 +10,8 @@ import Main from '../../../../../../components/imoveis/main/Main'
 import ImageTabs from '../../../../../../components/imoveis/images/ImageTabs'
 
 import { AuthContext } from '../../../../../../contexts/AuthContext'
+import { Firestore } from '../../../../../../Firebase'
+import { doc, getDoc } from 'firebase/firestore'
 
 export default function Imagens() {
   const [loaded, setLoaded] = useState(false)
@@ -18,6 +20,8 @@ export default function Imagens() {
     message: '',
     open: false
   })
+
+  const [property, setProperty] = useState([])
 
   const router = useRouter()
 
@@ -32,6 +36,11 @@ export default function Imagens() {
       router.push('/login')
       return
     }
+
+    const docRef = doc(Firestore, 'properties', router.query.id)
+    const docSnap = await getDoc(docRef)
+
+    setProperty(docSnap.data())
 
     setLoaded(true)
 
@@ -52,7 +61,7 @@ export default function Imagens() {
     return (
       <Box display='flex' height='calc(100% - 45px)' bgcolor='silver' overflow='hidden'>
         <AsideNav>
-          <ImoveisAsideNav />
+          <ImoveisAsideNav property={property} />
         </AsideNav>
 
         <Main title='Imagens'>

@@ -17,16 +17,18 @@ export default function SelectPropertyTypes({ value, setValue, error = false, me
     let type = ''
 
     querySnapshot.forEach(doc => {
+      const value = JSON.stringify({ docId: doc.id, id: doc.data().id, type: doc.data().type, subtype: doc.data().subtype })
+
       if (type == '') {
         type = doc.data().type
-        options.push(React.createElement('option', { value: doc.id, key: doc.id + doc.data().subtype }, doc.data().subtype))
+        options.push(React.createElement('option', { value: value, key: doc.id }, doc.data().subtype))
       } else if (type == doc.data().type) {
-        options.push(React.createElement('option', { value: doc.id, key: doc.id + doc.data().subtype }, doc.data().subtype))
+        options.push(React.createElement('option', { value: value, key: doc.id }, doc.data().subtype))
       } else {
         container.push(React.createElement('optgroup', { label: type, key: type }, options))
         options = []
         type = doc.data().type
-        options.push(React.createElement('option', { value: doc.id, key: doc.id + doc.data().subtype }, doc.data().subtype))
+        options.push(React.createElement('option', { value: value, key: doc.id }, doc.data().subtype))
       }
     })
     setPropertyTypes(container)
@@ -37,7 +39,7 @@ export default function SelectPropertyTypes({ value, setValue, error = false, me
     <FormControl fullWidth sx={{ mb: 2 }}>
       <Box component='label' htmlFor="" fontWeight='bold' mb={1}>Tipo/Subtipo</Box>
       <Select native name="subtype" value={value} onChange={setValue} error={error} onBlur={validateBlur} size={size ?? 'medium'}>
-        <option aria-label="None" value={'0'} />
+        <option aria-label="None" value={''} />
         {propertyTypes.map(t => t)}
       </Select>
       <FormHelperText error={error}>{error ? message : ''}</FormHelperText>

@@ -22,15 +22,10 @@ export default function Comodos() {
     garage: '',
     covered_garage: '',
     tvroom: '',
-    diningroom: '',
-    livingroom: '',
-    washbasin: '',
     service_area: '',
     kitchen: '',
-    closet: '',
     office: '',
-    employeeDependency: '',
-    pantry: ''
+    employeeDependency: ''
   })
 
   const [coveredGarage, setCoveredGarage] = useState('')
@@ -44,6 +39,7 @@ export default function Comodos() {
   const [loaded, setLoaded] = useState(false)
 
   const [propertyId, setPropertyId] = useState('')
+  const [property, setProperty] = useState([])
 
   const router = useRouter();
 
@@ -68,6 +64,8 @@ export default function Comodos() {
 
     if (!docSnap.exists()) router.push('/imoveis')
 
+    setProperty(docSnap.data())
+
     if (docSnap.data().rooms) {
       const data = docSnap.data().rooms
       setState({
@@ -78,15 +76,10 @@ export default function Comodos() {
         garage: data.garage,
         covered_garage: data.covered_garage,
         tvroom: data.tvroom,
-        diningroom: data.diningroom,
-        livingroom: data.livingroom,
-        washbasin: data.washbasin,
         service_area: data.service_area,
         kitchen: data.kitchen,
-        closet: data.closet,
         office: data.office,
-        employeeDependency: data.employeeDependency,
-        pantry: data.pantry,
+        employeeDependency: data.employeeDependency
       })
       setCoveredGarage(data.covered_garage)
     }
@@ -131,15 +124,10 @@ export default function Comodos() {
           garage: state.garage,
           covered_garage: state.covered_garage,
           tvroom: state.tvroom,
-          diningroom: state.diningroom,
-          livingroom: state.livingroom,
-          washbasin: state.washbasin,
           service_area: state.service_area,
           kitchen: state.kitchen,
-          closet: state.closet,
           office: state.office,
           employeeDependency: state.employeeDependency,
-          pantry: state.pantry
         },
         'steps_progress.rooms': 'done'
       })
@@ -167,25 +155,60 @@ export default function Comodos() {
     return (
       <Box display='flex' height='calc(100% - 45px)' bgcolor='silver' overflow='hidden'>
         <AsideNav>
-          <ImoveisAsideNav />
+          <ImoveisAsideNav property={property} />
         </AsideNav>
 
         <Main title='Comodos'>
           <Form handleSubmit={handleSubmit}>
-            <FormControl variant="outlined">
-              <Box component='label' fontWeight='bold' mb={1}>Dormitórios</Box>
-              <TextField type='number' name="bedroom" value={state.bedroom} onChange={handleChange} />
-            </FormControl>
+            {(property.initial_informations.subtype.type == 'Sala' && (
+              <FormControl variant="outlined">
+                <Box component='label' fontWeight='bold' mb={1}>Escritório</Box>
+                <TextField type='number' name="office" value={state.office} onChange={handleChange} />
+              </FormControl>
+            ))}
 
-            <FormControl variant="outlined">
-              <Box component='label' fontWeight='bold' mb={1}>Sendo suíte</Box>
-              <TextField type='number' name="suite" value={state.suite} onChange={handleChange} />
-            </FormControl>
+            {(property.initial_informations.subtype.type != 'Sala' && (
+              <FormControl variant="outlined">
+                <Box component='label' fontWeight='bold' mb={1}>Dormitórios</Box>
+                <TextField type='number' name="bedroom" value={state.bedroom} onChange={handleChange} />
+              </FormControl>
+            ))}
+
+            {(property.initial_informations.subtype.type != 'Sala' && (
+              <FormControl variant="outlined">
+                <Box component='label' fontWeight='bold' mb={1}>Sendo suíte</Box>
+                <TextField type='number' name="suite" value={state.suite} onChange={handleChange} />
+              </FormControl>
+            ))}
 
             <FormControl variant="outlined">
               <Box component='label' fontWeight='bold' mb={1}>Banheiro</Box>
               <TextField type='number' name="bathroom" value={state.bathroom} onChange={handleChange} />
             </FormControl>
+
+            {(property.initial_informations.subtype.type != 'Sala' && (
+              <FormControl variant="outlined">
+                <Box component='label' fontWeight='bold' mb={1}>Sala de TV</Box>
+                <TextField type='number' name="tvroom" value={state.tvroom} onChange={handleChange} />
+              </FormControl>
+            ))}
+
+            <FormControl variant="outlined">
+              <Box component='label' fontWeight='bold' mb={1}>Cozinha</Box>
+              <TextField type='number' name="kitchen" value={state.kitchen} onChange={handleChange} />
+            </FormControl>
+
+            <FormControl variant="outlined">
+              <Box component='label' fontWeight='bold' mb={1}>Área de serviço</Box>
+              <TextField type='number' name="service_area" value={state.service_area} onChange={handleChange} />
+            </FormControl>
+
+            {(property.initial_informations.subtype.type != 'Sala' && (
+              <FormControl variant="outlined">
+                <Box component='label' fontWeight='bold' mb={1}>Dependência para empregada</Box>
+                <TextField type='number' name="employeeDependency" value={state.employeeDependency} onChange={handleChange} />
+              </FormControl>
+            ))}
 
             <FormControl variant="outlined">
               <Box component='label' fontWeight='bold' mb={1}>Garagem</Box>
@@ -207,56 +230,6 @@ export default function Comodos() {
                 <ToggleButton sx={{ width: '50%', height: '100%' }} value='sim'>Sim</ToggleButton>
                 <ToggleButton sx={{ width: '50%', height: '100%' }} value='não'>Não</ToggleButton>
               </ToggleButtonGroup>
-            </FormControl>
-
-            <FormControl variant="outlined">
-              <Box component='label' fontWeight='bold' mb={1}>Sala de TV</Box>
-              <TextField type='number' name="tvroom" value={state.tvroom} onChange={handleChange} />
-            </FormControl>
-
-            <FormControl variant="outlined">
-              <Box component='label' fontWeight='bold' mb={1}>Sala de jantar</Box>
-              <TextField type='number' name="diningroom" value={state.diningroom} onChange={handleChange} />
-            </FormControl>
-
-            <FormControl variant="outlined">
-              <Box component='label' fontWeight='bold' mb={1}>Sala de estar</Box>
-              <TextField type='number' name="livingroom" value={state.livingroom} onChange={handleChange} />
-            </FormControl>
-
-            <FormControl variant="outlined">
-              <Box component='label' fontWeight='bold' mb={1}>Lavabo</Box>
-              <TextField type='number' name="washbasin" value={state.washbasin} onChange={handleChange} />
-            </FormControl>
-
-            <FormControl variant="outlined">
-              <Box component='label' fontWeight='bold' mb={1}>Área de serviço</Box>
-              <TextField type='number' name="service_area" value={state.service_area} onChange={handleChange} />
-            </FormControl>
-
-            <FormControl variant="outlined">
-              <Box component='label' fontWeight='bold' mb={1}>Cozinha</Box>
-              <TextField type='number' name="kitchen" value={state.kitchen} onChange={handleChange} />
-            </FormControl>
-
-            <FormControl variant="outlined">
-              <Box component='label' fontWeight='bold' mb={1}>Closet</Box>
-              <TextField type='number' name="closet" value={state.closet} onChange={handleChange} />
-            </FormControl>
-
-            <FormControl variant="outlined">
-              <Box component='label' fontWeight='bold' mb={1}>Escritório</Box>
-              <TextField type='number' name="office" value={state.office} onChange={handleChange} />
-            </FormControl>
-
-            <FormControl variant="outlined">
-              <Box component='label' fontWeight='bold' mb={1}>Dependência para empregada</Box>
-              <TextField type='number' name="employeeDependency" value={state.employeeDependency} onChange={handleChange} />
-            </FormControl>
-
-            <FormControl variant="outlined">
-              <Box component='label' fontWeight='bold' mb={1}>Copa</Box>
-              <TextField type='number' name="pantry" value={state.pantry} onChange={handleChange} />
             </FormControl>
           </Form>
 

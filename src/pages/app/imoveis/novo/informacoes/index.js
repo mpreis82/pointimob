@@ -1,6 +1,6 @@
 import { useState, useEffect, useContext } from 'react'
 import { useRouter } from 'next/router'
-import { collection, doc, getDoc, addDoc, Timestamp, updateDoc, query } from 'firebase/firestore'
+import { collection, doc, addDoc, Timestamp } from 'firebase/firestore'
 import { Box } from '@mui/system'
 import { Select, ToggleButtonGroup, ToggleButton, MenuItem, FormControl, TextField, Stack, Snackbar, Alert, FormHelperText, Backdrop, CircularProgress } from '@mui/material';
 import AsideNav from '../../../../../components/AsideNav'
@@ -48,8 +48,17 @@ export default function ImoveisNovoInformacoes() {
 
   const authContext = useContext(AuthContext)
 
+  const [property, setProperty] = useState({
+    initial_informations: {
+      subtype: {
+        type: ''
+      }
+    }
+  })
+
   useEffect(async () => {
     setLoaded(false)
+
     if (!router.isReady) return
 
     const abortController = new AbortController
@@ -78,6 +87,14 @@ export default function ImoveisNovoInformacoes() {
       ...state,
       [event.target.name]: event.target.value
     })
+
+    if (event.target.name == 'subtype') {
+      setProperty({
+        initial_informations: {
+          subtype: JSON.parse(event.target.value)
+        }
+      })
+    }
   }
 
   function handleFormValidateBlur(event) {
@@ -120,21 +137,15 @@ export default function ImoveisNovoInformacoes() {
     if (!handleFormValidate()) return
 
     try {
-      const typeDocRef = doc(Firestore, 'propery_types', state.subtype)
-
-      const typeSnap = await getDoc(typeDocRef)
-
       const newDoc = await addDoc(collection(Firestore, 'properties'), {
         initial_informations: {
           people: state.people,
           user: state.user,
-          subtype: { docId: typeSnap.id, ...typeSnap.data() },
+          subtype: JSON.parse(state.subtype),
           profile: state.profile,
           situation: state.situation,
-          lifetime: state.lifetime,
-          incorporation: state.incorporation,
-          near_sea: state.near_sea,
           floor: state.floor,
+          mobiliado: mobiliado,
         },
         register_status: {
           status: 'pending',
@@ -143,7 +154,7 @@ export default function ImoveisNovoInformacoes() {
         },
         steps_progress: {
           initial_informations: 'done',
-          rooms: 'pending',
+          rooms: (JSON.parse(state.subtype).type == 'Terreno' ? 'done' : 'pending'),
           measures: 'pending',
           financial: 'pending',
           characteristics: 'pending',
@@ -164,7 +175,11 @@ export default function ImoveisNovoInformacoes() {
       })
 
       setTimeout(() => {
-        router.push(`/imoveis/novo/${newDoc.id}/comodos`)
+        if (JSON.parse(state.subtype).type != 'Terreno') {
+          router.push(`/imoveis/novo/${newDoc.id}/comodos`)
+        } else {
+          router.push(`/imoveis/novo/${newDoc.id}/medidas`)
+        }
       }, 2000);
 
     } catch (err) {
@@ -181,7 +196,7 @@ export default function ImoveisNovoInformacoes() {
     return (
       <Box display='flex' height='calc(100% - 45px)' bgcolor='silver' overflow='hidden'>
         <AsideNav>
-          <ImoveisAsideNav />
+          <ImoveisAsideNav property={property} />
         </AsideNav>
 
         <Main title='Informações iniciais'>
@@ -228,44 +243,29 @@ export default function ImoveisNovoInformacoes() {
               <FormHelperText error={formValidate.situation.error}>{formValidate.situation.error ? formValidate.situation.message : ''}</FormHelperText>
             </FormControl>
 
-            <FormControl variant='outlined'>
-              <Box component='label' htmlFor='' fontWeight='bold' mb={1}>Ano da construção</Box>
-              <TextField type='number' name='lifetime' value={state.lifetime} onChange={handleChange} InputProps={{ inputProps: { min: 1900, max: new Date().getFullYear() } }} />
-            </FormControl>
+            {(state.subtype.length > 0 && (JSON.parse(state.subtype).type == 'Apartamento' || JSON.parse(state.subtype).type == 'Sala') && (
+              <FormControl variant='outlined'>
+                <Box component='label' htmlFor='' fontWeight='bold' mb={1}>Andar</Box>
+                <TextField name='floor' value={state.floor} onChange={handleChange} />
+              </FormControl>
+            ))}
 
-            <FormControl variant='outlined'>
-              <Box component='label' htmlFor='' fontWeight='bold' mb={1}>Incorporação</Box>
-              <TextField name='incorporation' value={state.incorporation} onChange={handleChange} />
-            </FormControl>
-
-            <FormControl>
-              <Box component='label' htmlFor='' fontWeight='bold' mb={1}>Próximo ao mar?</Box>
-              <Select name='near_sea' value={state.near_sea} onChange={handleChange} >
-                <MenuItem value={'Frente pro mar'}>Frente pro mar</MenuItem>
-                <MenuItem value={'Quadra do mar'}>Quadra do mar</MenuItem>
-                <MenuItem value={'Próximo ao mar'}>Próximo ao mar</MenuItem>
-              </Select>
-            </FormControl>
-
-            <FormControl variant='outlined' sx={{ display: ((Number(state.subtype) > 0 && Number(state.subtype) < 16) ? 'flex' : 'none') }}>
-              <Box component='label' htmlFor='' fontWeight='bold' mb={1}>Andar</Box>
-              <TextField name='floor' value={state.floor} onChange={handleChange} />
-            </FormControl>
-
-            <FormControl>
-              <Box component='label' htmlFor='' fontWeight='bold' mb={1}>Tem mobília?</Box>
-              <ToggleButtonGroup
-                value={mobiliado}
-                exclusive
-                color='primary'
-                height='100%'
-                position='relative'
-                onChange={handleMobiliado}
-              >
-                <ToggleButton sx={{ width: 100 }} value='sim'>Sim</ToggleButton>
-                <ToggleButton sx={{ width: 100 }} value='não'>Não</ToggleButton>
-              </ToggleButtonGroup>
-            </FormControl>
+            {(state.subtype.length > 0 && (JSON.parse(state.subtype).type != 'Terreno') && (
+              <FormControl>
+                <Box component='label' htmlFor='' fontWeight='bold' mb={1}>Tem mobília?</Box>
+                <ToggleButtonGroup
+                  value={mobiliado}
+                  exclusive
+                  color='primary'
+                  height='100%'
+                  position='relative'
+                  onChange={handleMobiliado}
+                >
+                  <ToggleButton sx={{ width: 100 }} value='sim'>Sim</ToggleButton>
+                  <ToggleButton sx={{ width: 100 }} value='não'>Não</ToggleButton>
+                </ToggleButtonGroup>
+              </FormControl>
+            ))}
           </Form>
 
           <Stack spacing={2} sx={{ width: '100%' }}>

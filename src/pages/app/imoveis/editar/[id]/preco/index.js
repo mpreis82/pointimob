@@ -43,6 +43,7 @@ export default function Preco() {
   const [loaded, setLoaded] = useState(false)
 
   const [propertyId, setPropertyId] = useState('')
+  const [property, setProperty] = useState([])
 
   const router = useRouter()
 
@@ -66,6 +67,8 @@ export default function Preco() {
     const docSnap = await getDoc(docRef)
 
     if (!docSnap.exists()) router.push('/imoveis')
+
+    setProperty(docSnap.data())
 
     if (docSnap.data().financial) {
       const data = docSnap.data().financial
@@ -202,7 +205,7 @@ export default function Preco() {
     return (
       <Box display='flex' height='calc(100% - 45px)' bgcolor='silver' overflow='hidden'>
         <AsideNav>
-          <ImoveisAsideNav />
+          <ImoveisAsideNav property={property} />
         </AsideNav>
 
         <Main title='Preço'>

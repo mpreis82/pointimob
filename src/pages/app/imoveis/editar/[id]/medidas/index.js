@@ -30,6 +30,7 @@ export default function Medidas() {
   const [loaded, setLoaded] = useState(false)
 
   const [propertyId, setPropertyId] = useState('')
+  const [property, setProperty] = useState([])
 
   const router = useRouter()
 
@@ -53,6 +54,8 @@ export default function Medidas() {
     const docSnap = await getDoc(docRef)
 
     if (!docSnap.exists()) router.push('/imoveis')
+
+    setProperty(docSnap.data())
 
     if (docSnap.data().measures) {
       const data = docSnap.data().measures
@@ -123,7 +126,7 @@ export default function Medidas() {
     return (
       <Box display='flex' height='calc(100% - 45px)' bgcolor='silver' overflow='hidden'>
         <AsideNav>
-          <ImoveisAsideNav />
+          <ImoveisAsideNav property={property} />
         </AsideNav>
 
         <Main title='Medidas'>

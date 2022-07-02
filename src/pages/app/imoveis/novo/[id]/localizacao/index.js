@@ -60,6 +60,7 @@ export default function Localizacao() {
   })
 
   const [propertyId, setPropertyId] = useState('')
+  const [property, setProperty] = useState()
 
   const router = useRouter()
 
@@ -83,6 +84,8 @@ export default function Localizacao() {
     const docSnap = await getDoc(docRef)
 
     if (!docSnap.exists()) router.push('/imoveis')
+
+    setProperty(docSnap.data())
 
     if (docSnap.data().location) {
       const data = docSnap.data().location
@@ -256,7 +259,7 @@ export default function Localizacao() {
     return (
       <Box display='flex' height='calc(100% - 45px)' bgcolor='silver' overflow='hidden'>
         <AsideNav>
-          <ImoveisAsideNav />
+          <ImoveisAsideNav property={property} />
         </AsideNav>
 
         <Main title='Localização'>

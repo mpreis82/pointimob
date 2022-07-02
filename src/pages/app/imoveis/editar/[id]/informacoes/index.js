@@ -45,6 +45,7 @@ export default function ImoveisNovoInformacoes() {
   })
 
   const [propertyId, setPropertyId] = useState('')
+  const [property, setProperty] = useState([])
 
   const [loaded, setLoaded] = useState(false)
 
@@ -71,22 +72,29 @@ export default function ImoveisNovoInformacoes() {
       const docSnap = await getDoc(docRef)
 
       if (docSnap.exists()) {
+        setProperty(docSnap.data())
         const data = docSnap.data().initial_informations
         setState({
           people: data.people,
           user: data.user,
-          subtype: data.subtype.docId,
+          subtype: JSON.stringify({
+            docId: data.subtype.docId,
+            id: data.subtype.id,
+            type: data.subtype.type,
+            subtype: data.subtype.subtype
+          }),
           profile: data.profile,
           situation: data.situation,
-          lifetime: data.lifetime,
-          incorporation: data.incorporation,
-          near_sea: data.near_sea,
           floor: data.floor,
         })
+
+        setMobiliado(data.mobiliado)
+
       } else {
         router.push('/imoveis')
       }
     }
+
     setLoaded(true)
 
     return () => {
@@ -138,22 +146,16 @@ export default function ImoveisNovoInformacoes() {
     if (!handleFormValidate()) return
 
     try {
-      const typeDoc = doc(Firestore, 'propery_types', state.subtype)
-      const typeSnap = await getDoc(typeDoc)
-
       const docRef = doc(Firestore, 'properties', propertyId)
-
       await updateDoc(docRef, {
         initial_informations: {
           people: state.people,
           user: state.user,
-          subtype: { docId: typeSnap.id, ...typeSnap.data() },
+          subtype: JSON.parse(state.subtype),
           profile: state.profile,
           situation: state.situation,
-          lifetime: state.lifetime,
-          incorporation: state.incorporation,
-          near_sea: state.near_sea,
           floor: state.floor,
+          mobiliado: mobiliado,
         }
       })
 
@@ -164,7 +166,11 @@ export default function ImoveisNovoInformacoes() {
       })
 
       setTimeout(() => {
-        router.push(`/imoveis/editar/${propertyId}/comodos`)
+        if (JSON.parse(state.subtype).type != 'Terreno') {
+          router.push(`/imoveis/novo/${newDoc.id}/comodos`)
+        } else {
+          router.push(`/imoveis/novo/${newDoc.id}/medidas`)
+        }
       }, 2000);
 
     } catch (err) {
@@ -185,7 +191,7 @@ export default function ImoveisNovoInformacoes() {
     return (
       <Box display='flex' height='calc(100% - 45px)' bgcolor='silver' overflow='hidden'>
         <AsideNav>
-          <ImoveisAsideNav />
+          <ImoveisAsideNav property={property} />
         </AsideNav>
 
         <Main title='Informações iniciais'>
@@ -232,44 +238,29 @@ export default function ImoveisNovoInformacoes() {
               <FormHelperText error={formValidate.situation.error}>{formValidate.situation.error ? formValidate.situation.message : ''}</FormHelperText>
             </FormControl>
 
-            <FormControl variant='outlined'>
-              <Box component='label' htmlFor='' fontWeight='bold' mb={1}>Ano da construção</Box>
-              <TextField type='number' name='lifetime' value={state.lifetime} onChange={handleChange} InputProps={{ inputProps: { min: 1900, max: new Date().getFullYear() } }} />
-            </FormControl>
+            {(state.subtype.length > 0 && (JSON.parse(state.subtype).type == 'Apartamento' || JSON.parse(state.subtype).type == 'Sala') && (
+              <FormControl variant='outlined'>
+                <Box component='label' htmlFor='' fontWeight='bold' mb={1}>Andar</Box>
+                <TextField name='floor' value={state.floor} onChange={handleChange} />
+              </FormControl>
+            ))}
 
-            <FormControl variant='outlined'>
-              <Box component='label' htmlFor='' fontWeight='bold' mb={1}>Incorporação</Box>
-              <TextField name='incorporation' value={state.incorporation} onChange={handleChange} />
-            </FormControl>
-
-            <FormControl>
-              <Box component='label' htmlFor='' fontWeight='bold' mb={1}>Próximo ao mar?</Box>
-              <Select name='near_sea' value={state.near_sea} onChange={handleChange} >
-                <MenuItem value={'Frente pro mar'}>Frente pro mar</MenuItem>
-                <MenuItem value={'Quadra do mar'}>Quadra do mar</MenuItem>
-                <MenuItem value={'Próximo ao mar'}>Próximo ao mar</MenuItem>
-              </Select>
-            </FormControl>
-
-            <FormControl variant='outlined' sx={{ display: ((Number(state.subtype) > 0 && Number(state.subtype) < 16) ? 'flex' : 'none') }}>
-              <Box component='label' htmlFor='' fontWeight='bold' mb={1}>Andar</Box>
-              <TextField name='floor' value={state.floor} onChange={handleChange} />
-            </FormControl>
-
-            <FormControl>
-              <Box component='label' htmlFor='' fontWeight='bold' mb={1}>Tem mobília?</Box>
-              <ToggleButtonGroup
-                value={mobiliado}
-                exclusive
-                color='primary'
-                height='100%'
-                position='relative'
-                onChange={handleMobiliado}
-              >
-                <ToggleButton sx={{ width: 100 }} value='sim'>Sim</ToggleButton>
-                <ToggleButton sx={{ width: 100 }} value='não'>Não</ToggleButton>
-              </ToggleButtonGroup>
-            </FormControl>
+            {(state.subtype.length > 0 && (JSON.parse(state.subtype).type != 'Terreno') && (
+              <FormControl>
+                <Box component='label' htmlFor='' fontWeight='bold' mb={1}>Tem mobília?</Box>
+                <ToggleButtonGroup
+                  value={mobiliado}
+                  exclusive
+                  color='primary'
+                  height='100%'
+                  position='relative'
+                  onChange={handleMobiliado}
+                >
+                  <ToggleButton sx={{ width: 100 }} value='sim'>Sim</ToggleButton>
+                  <ToggleButton sx={{ width: 100 }} value='não'>Não</ToggleButton>
+                </ToggleButtonGroup>
+              </FormControl>
+            ))}
           </Form>
 
           <Stack spacing={2} sx={{ width: '100%' }}>

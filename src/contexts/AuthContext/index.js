@@ -10,11 +10,13 @@ const AuthContextProvider = ({ children }) => {
   useEffect(() => {
     if (!currentUser) {
       user().then(dataUser => {
-        setCurrentUser({
-          username: dataUser.displayName,
-          email: dataUser.email,
-          uid: dataUser.uid
-        })
+        if (dataUser) {
+          setCurrentUser({
+            username: dataUser.displayName,
+            email: dataUser.email,
+            uid: dataUser.uid
+          })
+        }
       })
     }
   }, [])
@@ -59,11 +61,14 @@ const AuthContextProvider = ({ children }) => {
     const auth = getAuth()
     return new Promise((resolve) => {
       onAuthStateChanged(auth, user => {
-        resolve({
-          username: user.displayName,
-          email: user.email,
-          uid: user.uid
-        })
+        if (user) {
+          resolve({
+            username: user.displayName,
+            email: user.email,
+            uid: user.uid
+          })
+        }
+        resolve(null)
       })
     })
   }

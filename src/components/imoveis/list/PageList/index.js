@@ -24,6 +24,7 @@ export default function PageList({ propertiesStatus }) {
   const [propertiesList, setPropertiesList] = useState([])
   const [isBackdrop, setIsBackdrop] = useState(false)
   const [user, setUser] = useState(null)
+  const [trigger, setTrigger] = useState(false)
 
   const router = useRouter()
 
@@ -73,7 +74,7 @@ export default function PageList({ propertiesStatus }) {
       abortController.abort()
     }
 
-  }, [router.isReady])
+  }, [router.isReady, trigger])
 
   if (user) {
     return (
@@ -87,7 +88,7 @@ export default function PageList({ propertiesStatus }) {
             <Box mb={3}>{propertiesList.length} resultados encontrados</Box>
 
             <Box display='grid' sx={{ gridTemplateColumns: { md: '1fr', lg: '1fr 1fr' } }} gap={2}>
-              <PropertiesList list={propertiesList} setList={setPropertiesList} setIsBackdrop={setIsBackdrop} />
+              <PropertiesList list={propertiesList} setList={setPropertiesList} setIsBackdrop={setIsBackdrop} setTrigger={setTrigger} trigger={trigger} />
             </Box>
           </Main>
         </Box >

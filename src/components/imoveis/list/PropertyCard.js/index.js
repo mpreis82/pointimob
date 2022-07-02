@@ -14,7 +14,7 @@ import PropertyDetails from '../../show/PropertyDetails'
 
 import noImage from '../../../../../public/images/no-image-property.jpg'
 
-export default function PropertyCard({ property, list, setList, setIsBackdrop }) {
+export default function PropertyCard({ property, list, setList, setIsBackdrop, setTrigger, trigger }) {
   const [anchorEl, setAnchorEl] = useState(null);
   const [openDialog, setOpenDialog] = useState(false)
   const [openPropertyDetails, setOpenPropertyDetails] = useState(false)
@@ -78,13 +78,14 @@ export default function PropertyCard({ property, list, setList, setIsBackdrop })
       <Card sx={{ display: 'flex', backgroundColor: grey[100] }}>
         <CardMedia
           component="img"
-          sx={{ width: 151 }}
+          sx={{ width: 151, cursor: 'pointer' }}
           image={(property.images.length ? property.images.filter(image => image.isThumb)[0].src : noImage.src)}
+          onClick={handleDetailsClick}
         />
 
         <Box sx={{ display: 'flex', flexDirection: 'column' }}>
           <CardContent sx={{ flex: '1 0 auto' }}>
-            <Typography component="div" variant="h6" color='secondary' mb={1}>
+            <Typography component="div" variant="h6" color='secondary' mb={1} sx={{ cursor: 'pointer', ':hover': { textDecoration: 'underline' } }} onClick={handleDetailsClick}>
               {`${property.initial_informations.subtype.type} - ${property.initial_informations.subtype.subtype}`}
             </Typography>
 
@@ -97,15 +98,22 @@ export default function PropertyCard({ property, list, setList, setIsBackdrop })
             </Typography>
 
             <Box display='flex' alignItems='center'>
-              <Typography variant="subtitle1" color="text.secondary" component="div" display='flex' alignItems='center' mr={2}>
-                <Typography component='span' color={blue[600]} fontSize={18} mr={1} display='flex' alignItems='center'><FaBed /></Typography>
-                <Typography component='span' lineHeight={1}>{property.rooms.bedroom} {(property.rooms.suite > 0 ? `(${property.rooms.suite} suite)` : '')}</Typography>
-              </Typography>
+              {property.initial_informations.subtype.type != 'Terreno'
+                && property.initial_informations.subtype.type != 'Sala'
+                && (
+                  <>
+                    <Typography variant="subtitle1" color="text.secondary" component="div" display='flex' alignItems='center' mr={2}>
+                      <Typography component='span' color={blue[600]} fontSize={18} mr={1} display='flex' alignItems='center'><FaBed /></Typography>
+                      <Typography component='span' lineHeight={1}>{property.rooms.bedroom} {(property.rooms.suite > 0 ? `(${property.rooms.suite} suite)` : '')}</Typography>
+                    </Typography>
 
-              <Typography variant="subtitle1" color="text.secondary" component="div" display='flex' alignItems='center' mr={2}>
-                <Typography component='span' lineHeight={1} color={blue[600]} fontSize={18} mr={1} display='flex' alignItems='start'><MdDirectionsCar /></Typography>
-                <Typography component='span' lineHeight={1}>{property.rooms.garage}</Typography>
-              </Typography>
+                    <Typography variant="subtitle1" color="text.secondary" component="div" display='flex' alignItems='center' mr={2}>
+                      <Typography component='span' lineHeight={1} color={blue[600]} fontSize={18} mr={1} display='flex' alignItems='start'><MdDirectionsCar /></Typography>
+                      <Typography component='span' lineHeight={1}>{property.rooms.garage}</Typography>
+                    </Typography>
+                  </>
+                )
+              }
 
               <Typography variant="subtitle1" color="text.secondary" component="div" display='flex' alignItems='center' mr={2}>
                 <Typography component='span' lineHeight={1} color={blue[600]} fontSize={18} mr={1} display='flex' alignItems='center'><MdCropFree /></Typography>
@@ -171,7 +179,7 @@ export default function PropertyCard({ property, list, setList, setIsBackdrop })
         </DialogActions>
       </Dialog>
 
-      {(openPropertyDetails && <PropertyDetails property={property} openPropertyDetails={openPropertyDetails} setOpenPropertyDetails={setOpenPropertyDetails} />)}
+      {(openPropertyDetails && <PropertyDetails property={property} openPropertyDetails={openPropertyDetails} setOpenPropertyDetails={setOpenPropertyDetails} setIsBackdrop={setIsBackdrop} setTrigger={setTrigger} trigger={trigger} />)}
       {/* {(openPropertyDetails && <Box>Teste</Box>)} */}
     </>
   )

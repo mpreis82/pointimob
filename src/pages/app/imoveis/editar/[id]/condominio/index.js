@@ -58,6 +58,7 @@ export default function Condominio() {
   })
 
   const [propertyId, setPropertyId] = useState('')
+  const [property, setProperty] = useState([])
 
   const router = useRouter()
 
@@ -81,6 +82,8 @@ export default function Condominio() {
     const docSnap = await getDoc(docRef)
 
     if (!docSnap.exists()) router.push('/imoveis')
+
+    setProperty(docSnap.data())
 
     if (docSnap.data().condominium) {
       const data = docSnap.data().condominium
@@ -153,7 +156,7 @@ export default function Condominio() {
     return (
       <Box display='flex' height='calc(100% - 45px)' bgcolor='silver' overflow='hidden'>
         <AsideNav>
-          <ImoveisAsideNav />
+          <ImoveisAsideNav property={property} />
         </AsideNav>
 
         <Main title='Características do condomínio '>
@@ -183,7 +186,7 @@ export default function Condominio() {
 
             <Box display={(isCondo == 'sim' ? 'block' : 'none')}>
               <FormGroup position='relative' display='block' width='100%'>
-                <Box position='relative' display='block' width='100%' sx={{ columnCount: 3 }}>
+                <Box position='relative' width='100%' sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: '1fr 1fr 1fr', lg: '1fr 1fr 1fr 1fr' } }}>
                   {condoCharacteristics.map((characteristic, index) => (
                     <Box key={index}>
                       <FormControlLabel

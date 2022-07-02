@@ -35,6 +35,7 @@ export default function Descricao() {
   })
 
   const [propertyId, setPropertyId] = useState('')
+  const [property, setProperty] = useState([])
 
   const authContext = useContext(AuthContext)
 
@@ -54,6 +55,8 @@ export default function Descricao() {
       router.push('/imoveis')
       return
     }
+
+    setProperty(docSnap.data())
 
     const data = docSnap.data().description
 
@@ -119,7 +122,7 @@ export default function Descricao() {
       <>
         <Box display='flex' height='calc(100% - 45px)' bgcolor='silver' overflow='hidden'>
           <AsideNav>
-            <ImoveisAsideNav />
+            <ImoveisAsideNav property={property} />
           </AsideNav>
 
           <Main title='Descrição'>

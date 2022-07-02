@@ -8,12 +8,16 @@ import { FaBed } from 'react-icons/fa'
 import { doc, getDoc, updateDoc } from 'firebase/firestore'
 import { Firestore } from '../../../../Firebase'
 
-export default function PropertyDetails({ property, openPropertyDetails, setOpenPropertyDetails }) {
+export default function PropertyDetails({ property, openPropertyDetails, setOpenPropertyDetails, setIsBackdrop, setTrigger, trigger }) {
   const [anchorOptionsMenu, setAnchorOptionsMenu] = useState(null)
 
   const optionsMenuIsOpen = Boolean(anchorOptionsMenu)
 
   const router = useRouter()
+
+  const isTerrain = (property.initial_informations.subtype.type == 'Terreno')
+  const isCommercialRoom = (property.initial_informations.subtype.type == 'Sala')
+  const isTerrainOrCommercialRoom = (property.initial_informations.subtype.type == 'Terreno' || property.initial_informations.subtype.type == 'Sala')
 
   function getPropertyCreateDate() {
     let createDate = new Date(1970, 0, 1)
@@ -27,19 +31,23 @@ export default function PropertyDetails({ property, openPropertyDetails, setOpen
     return updateDate.toLocaleDateString('pt-BR', { timeZone: 'UTC', dateStyle: 'short' })
   }
 
-  async function handleMoveInactiveClick() {
-    console.log(property.register_status)
-
+  async function handleChangeStatusClick(status) {
+    setIsBackdrop(true)
     const ref = doc(Firestore, 'properties', property.docId)
-    const docSnap = await getDoc(ref)
-
     await updateDoc(ref, {
-      register_status: { ...property.register_status, status: 'inactive' }
+      register_status: { ...property.register_status, status: status }
     })
-
-    console.log('inativado')
-
+    setTrigger(!trigger)
+    setOpenPropertyDetails(false)
+    setIsBackdrop(false)
   }
+
+  if (false) {
+    return (
+      <h1>Sample {isTerrainOrCommercialRoom ? 'true' : 'false'}</h1>
+    )
+  }
+
 
   return (
     <Modal open={openPropertyDetails} onClose={() => setOpenPropertyDetails(false)} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -75,7 +83,7 @@ export default function PropertyDetails({ property, openPropertyDetails, setOpen
         <Box display='flex' alignItems='center' justifyContent={'space-between'} pb={2} mb={4} borderBottom={1} borderColor={grey[500]}>
           <Box>
             <Typography fontSize={'1.25rem'} fontWeight='bold' >{property.initial_informations.subtype.type} - {property.initial_informations.subtype.subtype}</Typography>
-            <Typography>São Paulo / SP </Typography>
+            <Typography>{property.location.city} / {property.location.uf} </Typography>
           </Box>
 
           <Button
@@ -107,8 +115,10 @@ export default function PropertyDetails({ property, openPropertyDetails, setOpen
               <MenuItem dense={true} onClick={() => { router.push(`/imoveis/editar/${property.docId}/imagens`) }}>Adicionar fotos</MenuItem>
               <MenuItem dense={true}>Duplicar imóvel</MenuItem>
               <Divider />
-              <MenuItem dense={true} onClick={handleMoveInactiveClick} >Mover para inativos</MenuItem>
-              <MenuItem dense={true}>Mover para vendidos</MenuItem>
+              {(property.register_status.status != 'done' && <MenuItem dense={true} onClick={() => handleChangeStatusClick('done')} >Mover para ativos</MenuItem>)}
+              {(property.financial.transaction == 'Venda' && property.register_status.status != 'sold' && (<MenuItem dense={true} onClick={() => handleChangeStatusClick('sold')}>Mover para vendidos</MenuItem>))}
+              {(property.financial.transaction == 'Aluguel' && property.register_status.status != 'rented' && <MenuItem dense={true} onClick={() => handleChangeStatusClick('rented')}>Mover para alugados</MenuItem>)}
+              {(property.register_status.status != 'inactive' && <MenuItem dense={true} onClick={() => handleChangeStatusClick('inactive')} >Mover para inativos</MenuItem>)}
             </MenuList>
           </Menu>
         </Box>
@@ -141,35 +151,42 @@ export default function PropertyDetails({ property, openPropertyDetails, setOpen
             </Box>
           </Box>
 
-          <Box minWidth='180px' mb={2} display='flex' alignItems='center'>
-            <Box width={40} height={40} bgcolor={grey[300]} borderRadius='50%' display='flex' alignItems='center' justifyContent='center'>
-              <FaBed fontSize={20} />
+          {!isTerrainOrCommercialRoom && (
+            <Box minWidth='180px' mb={2} display='flex' alignItems='center'>
+              <Box width={40} height={40} bgcolor={grey[300]} borderRadius='50%' display='flex' alignItems='center' justifyContent='center'>
+                <FaBed fontSize={20} />
+              </Box>
+              <Box ml={1}>
+                <Typography variant='subtitle2'>Dormitórios</Typography>
+                <Typography>{property.rooms.bedroom}{(property.rooms.suite > 0 ? ` (sendo ${property.rooms.suite} suíte)` : '')}</Typography>
+              </Box>
             </Box>
-            <Box ml={1}>
-              <Typography variant='subtitle2'>Dormitórios</Typography>
-              <Typography>{property.rooms.bedroom}{(property.rooms.suite > 0 ? ` (sendo ${property.rooms.suite} suíte)` : '')}</Typography>
-            </Box>
-          </Box>
+          )}
 
-          <Box minWidth='180px' mb={2} display='flex' alignItems='center'>
-            <Box width={40} height={40} bgcolor={grey[300]} borderRadius='50%' display='flex' alignItems='center' justifyContent='center'>
-              <MdShower fontSize={20} />
-            </Box>
-            <Box ml={1}>
-              <Typography variant='subtitle2'>Banheiros</Typography>
-              <Typography>{property.rooms.bathroom}</Typography>
-            </Box>
-          </Box>
+          {!isTerrain && (
+            <>
+              <Box minWidth='180px' mb={2} display='flex' alignItems='center'>
+                <Box width={40} height={40} bgcolor={grey[300]} borderRadius='50%' display='flex' alignItems='center' justifyContent='center'>
+                  <MdShower fontSize={20} />
+                </Box>
+                <Box ml={1}>
+                  <Typography variant='subtitle2'>Banheiros</Typography>
+                  <Typography>{property.rooms.bathroom}</Typography>
+                </Box>
+              </Box>
 
-          <Box minWidth='180px' mb={2} display='flex' alignItems='center'>
-            <Box width={40} height={40} bgcolor={grey[300]} borderRadius='50%' display='flex' alignItems='center' justifyContent='center'>
-              <MdDirectionsCar fontSize={20} />
-            </Box>
-            <Box ml={1}>
-              <Typography variant='subtitle2'>Garagens</Typography>
-              <Typography>{property.rooms.garage}</Typography>
-            </Box>
-          </Box>
+
+              <Box minWidth='180px' mb={2} display='flex' alignItems='center'>
+                <Box width={40} height={40} bgcolor={grey[300]} borderRadius='50%' display='flex' alignItems='center' justifyContent='center'>
+                  <MdDirectionsCar fontSize={20} />
+                </Box>
+                <Box ml={1}>
+                  <Typography variant='subtitle2'>Garagens</Typography>
+                  <Typography>{property.rooms.garage}</Typography>
+                </Box>
+              </Box>
+            </>
+          )}
 
           <Box minWidth='180px' mb={2} display='flex' alignItems='center'>
             <Box width={40} height={40} bgcolor={grey[300]} borderRadius='50%' display='flex' alignItems='center' justifyContent='center'>
@@ -190,21 +207,30 @@ export default function PropertyDetails({ property, openPropertyDetails, setOpen
               <Box component={'ul'} maxWidth={600} sx={{ columns: 2 }}>
                 {property.characteristics.filter(characteristic => characteristic.checked == true)
                   .map((characteristic, index) => (
-                    <Box key={index} component='li' sx={{ listStyle: 'disc inside none' }} >{characteristic.name}</Box>
+                    <Box key={index} component='li' sx={{ listStyle: 'disc inside none' }} >{characteristic.characteristic}</Box>
                   ))}
               </Box>
             </Box>
 
             {/* *************  ROOMS ************* */}
-            <Box mb={2} pb={2} borderBottom={1} borderColor={grey[300]}>
-              <Typography variant='subtitle2'>Cômodos</Typography>
-              <Box component={'ul'} maxWidth={600} sx={{ columns: 2 }}>
-                <Box component='li' sx={{ listStyle: 'disc inside none' }} >{property.rooms.garage} garagens</Box>
-                <Box component='li' sx={{ listStyle: 'disc inside none' }}>{property.rooms.bathroom} dormitórios</Box>
-                <Box component='li' sx={{ listStyle: 'disc inside none' }}>{property.rooms.suite} suíte</Box>
-                <Box component='li' sx={{ listStyle: 'disc inside none' }}>{property.rooms.bedroom} banheiros</Box>
+            {!isTerrain && (
+              <Box mb={2} pb={2} borderBottom={1} borderColor={grey[300]}>
+                <Typography variant='subtitle2'>Cômodos</Typography>
+                <Box component={'ul'} maxWidth={600} sx={{ columns: 2 }}>
+                  <Box component='li' sx={{ listStyle: 'disc inside none' }} >{property.rooms.garage} garagens</Box>
+                  {!isCommercialRoom && (
+                    <>
+                      <Box component='li' sx={{ listStyle: 'disc inside none' }}>{property.rooms.bathroom} dormitórios</Box>
+                      <Box component='li' sx={{ listStyle: 'disc inside none' }}>{property.rooms.suite} suíte</Box>
+                    </>
+                  )}
+                  <Box component='li' sx={{ listStyle: 'disc inside none' }}>{property.rooms.bedroom == '' ? 0 : property.rooms.bedroom} banheiros</Box>
+                  {isCommercialRoom && (
+                    <Box component='li' sx={{ listStyle: 'disc inside none' }}>{property.rooms.office} escritórios</Box>
+                  )}
+                </Box>
               </Box>
-            </Box>
+            )}
 
             {/* *************  NEARBYS ************* */}
             <Box mb={2} pb={2} borderBottom={1} borderColor={grey[300]}>

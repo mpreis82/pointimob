@@ -39,6 +39,7 @@ export default function Proximidades() {
   const [loaded, setLoaded] = useState(false)
 
   const [propertyId, setPropertyId] = useState('')
+  const [property, setProperty] = useState([])
 
   const router = useRouter()
 
@@ -62,6 +63,8 @@ export default function Proximidades() {
     const docSnap = await getDoc(docRef)
 
     if (!docSnap.exists()) router.push('/imoveis')
+
+    setProperty(docSnap.data())
 
     if (docSnap.data().nearbys) {
       const data = docSnap.data().nearbys
@@ -124,13 +127,13 @@ export default function Proximidades() {
     return (
       <Box display='flex' height='calc(100% - 45px)' bgcolor='silver' overflow='hidden'>
         <AsideNav>
-          <ImoveisAsideNav />
+          <ImoveisAsideNav property={property} />
         </AsideNav>
 
         <Main title='Proximidades'>
           <Form handleSubmit={handleSubmit} gridTemplateColumnsCustom='1fr'>
             <FormGroup position='relative' display='block' width='100%'>
-              <Box position='relative' display='block' width='100%' sx={{ columnCount: { xs: 1, sm: 2, md: 3, lg: 4 } }}>
+              <Box position='relative' width='100%' sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: '1fr 1fr 1fr', lg: '1fr 1fr 1fr 1fr' } }}>
                 {nearbys.map((nearby, index) => (
                   <Box key={index}>
                     <FormControlLabel
