@@ -1,14 +1,27 @@
+import { useState } from 'react'
 import { Box } from '@mui/system'
-import { MdOutlineAdd, MdOutlineCheck, MdOutlineAttachMoney, MdDeleteOutline, MdPeople, MdSupportAgent, MdOutlineReport, MdOutlineAutoStories, MdOutlineFavorite, MdRemoveRedEye, MdSettings, MdPostAdd, MdOutlineWarning, MdOutlineFamilyRestroom } from 'react-icons/md'
+import { MdOutlineAdd, MdOutlineCheck, MdOutlineAttachMoney, MdDeleteOutline, MdSupportAgent, MdOutlineAutoStories, MdOutlineFavorite, MdRemoveRedEye, MdSettings, MdPostAdd, MdOutlineWarning, MdOutlineFamilyRestroom } from 'react-icons/md'
 import HeaderNavItem from "../HeaderNavItem"
+import TalkSupport from '../help/TalkSupport'
+import FeatureSuggest from '../help/FeatureSuggest'
 
 export default function HeaderNav() {
+  const [openTalkSupport, setOpenTalkSupport] = useState(false)
+  const [openFeatureSuggest, setOpenFeatureSuggest] = useState(true)
+
+  function handleOpenTalkSupportClick(event) {
+    event.preventDefault()
+    setOpenTalkSupport(true)
+  }
+
+  function handleOpenFeatureSuggest(event) {
+    event.preventDefault()
+    setOpenFeatureSuggest(true)
+  }
+
   return (
     <Box component='nav' height='100%' display='flex' alignItems='center'>
-      <HeaderNavItem
-        label='Início'
-        href='/'
-      />
+      <HeaderNavItem label='Início' href='/' />
 
       <HeaderNavItem
         label='Imóveis'
@@ -52,13 +65,17 @@ export default function HeaderNav() {
         href='/ajuda'
         subitems={
           [
-            { label: 'Falar com o suporte', description: 'Nossos contatos', href: '/#', icon: <MdSupportAgent /> },
-            { label: 'Central de ajuda', description: 'Manual de uso', href: '/#', icon: <MdOutlineAutoStories /> },
-            { label: 'Sugerir novos recursos', description: 'Nos ajude a melhorar', href: '/#', icon: <MdOutlineFavorite /> },
-            { label: 'Relatar um problema', description: 'Informe um problema de uso', href: '/#', icon: <MdOutlineWarning /> },
+            { label: 'Falar com o suporte', description: 'Nossos contatos', href: '/#', icon: <MdSupportAgent />, onClickAction: handleOpenTalkSupportClick },
+            { label: 'Central de ajuda', description: 'Manual de uso', href: '/#', icon: <MdOutlineAutoStories />, onClickAction: () => { console.log('Central de ajuda') } },
+            { label: 'Sugerir novos recursos', description: 'Nos ajude a melhorar', href: '/#', icon: <MdOutlineFavorite />, onClickAction: handleOpenFeatureSuggest },
+            { label: 'Relatar um problema', description: 'Informe um problema de uso', href: '/#', icon: <MdOutlineWarning />, onClickAction: () => { console.log('Relatar um problema') } },
           ]
         }
       />
+
+      <TalkSupport openTalkSupport={openTalkSupport} setOpenTalkSupport={setOpenTalkSupport} />
+
+      <FeatureSuggest openFeatureSuggest={openFeatureSuggest} setOpenFeatureSuggest={setOpenFeatureSuggest} />
     </Box>
   )
 }

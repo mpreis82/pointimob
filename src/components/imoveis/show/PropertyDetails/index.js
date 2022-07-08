@@ -42,13 +42,6 @@ export default function PropertyDetails({ property, openPropertyDetails, setOpen
     setIsBackdrop(false)
   }
 
-  if (false) {
-    return (
-      <h1>Sample {isTerrainOrCommercialRoom ? 'true' : 'false'}</h1>
-    )
-  }
-
-
   return (
     <Modal open={openPropertyDetails} onClose={() => setOpenPropertyDetails(false)} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <Box
