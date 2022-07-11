@@ -2,16 +2,19 @@ import { useState, useContext } from 'react'
 import dynamic from 'next/dynamic'
 
 import { Box } from '@mui/system'
-import { TextField, FormControl, Button, FormHelperText } from '@mui/material'
+import { TextField, FormControl, Button, FormHelperText, Typography } from '@mui/material'
 import { pink } from '@mui/material/colors'
 
 const ReactQuill = dynamic(() => import('react-quill'), { ssr: false })
 import 'react-quill/dist/quill.snow.css'
 
+import { addDoc, collection, Timestamp } from 'firebase/firestore'
+
 import { Firestore } from '../../../Firebase'
+import HelpSendError from '../HelpSendError'
+import HelpSended from '../HelpSended'
 
 import { AuthContext } from '../../../contexts/AuthContext'
-import { addDoc, collection, Timestamp } from 'firebase/firestore'
 
 const quillStyle = {
   height: '120px'
@@ -41,7 +44,7 @@ const submitButtonStyle = {
   }
 }
 
-export default function FeatureSuggestForm({ setSended, setSendError, handleCloseClick }) {
+export default function HelpFormBase({ sended, setSended, sendError, setSendError, handleCloseClick, collectionName }) {
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
 
@@ -93,41 +96,51 @@ export default function FeatureSuggestForm({ setSended, setSendError, handleClos
     }
 
     try {
-      await addDoc(collection(Firestore, 'feature_suggest'), docData)
+      await addDoc(collection(Firestore, collectionName), docData)
       setSended(true)
 
     } catch (error) {
       setSended(true)
       setSendError(true)
+      console.log(error)
     }
   }
 
-  return (
-    <Box component='form' onSubmit={handleSubmit} width='100%' px={3}>
-      <FormControl variant='outlined' fullWidth sx={{ mb: 3 }}>
-        <Box component='label' htmlFor='' fontWeight='bold' mb={1}>Título</Box>
-        <TextField size='small' fullWidth name='title' value={title} onChange={(event) => setTitle(event.target.value)} error={formValidate.title.error} helperText={formValidate.title.error ? formValidate.title.message : ''} />
-      </FormControl>
+  if (!sended) {
+    return (
+      <Box component='form' onSubmit={handleSubmit} width='100%' px={3}>
+        <FormControl variant='outlined' fullWidth sx={{ mb: 3 }}>
+          <Box component='label' htmlFor='' fontWeight='bold' mb={1}>
+            Título
+          </Box>
+          <TextField size='small' fullWidth name='title' value={title} onChange={(event) => setTitle(event.target.value)} error={formValidate.title.error} helperText={formValidate.title.error ? formValidate.title.message : ''} />
+        </FormControl>
 
-      <Box position='relative' pb='20px'>
-        <Box component='label' htmlFor='' fontWeight='bold'>Descreva a sua sugestão</Box>
-        <Box mt={1}>
-          <ReactQuill theme='snow' value={description} onChange={setDescription} style={quillStyle}>
-          </ReactQuill>
+        <Box position='relative' pb='20px'>
+          <Box component='label' htmlFor='' fontWeight='bold'>
+            Descrição
+          </Box>
 
-          <FormHelperText sx={{ mt: '45px', ml: '14px' }} error={formValidate.description.error}>{formValidate.description.error ? formValidate.description.message : ''}</FormHelperText>
+          <Box mt={1}>
+            <ReactQuill theme='snow' value={description} onChange={setDescription} style={quillStyle}></ReactQuill>
+            <FormHelperText sx={{ mt: '45px', ml: '14px' }} error={formValidate.description.error}>{formValidate.description.error ? formValidate.description.message : ''}</FormHelperText>
+          </Box>
+        </Box>
+
+        <Box display='flex' alignItems='center' justifyContent='space-between'>
+          <Button variant='outlined' sx={{ ...buttonStyle, ...cancelButtonStyle }} onClick={handleCloseClick}>
+            Cancelar
+          </Button>
+
+          <Button onClick={handleSubmit} variant='contained' sx={{ ...buttonStyle, ...submitButtonStyle }} type='submit'>
+            Enviar
+          </Button>
         </Box>
       </Box>
+    )
+  }
 
-      <Box display='flex' alignItems='center' justifyContent='space-between' mb={4}>
-        <Button variant='outlined' sx={{ ...buttonStyle, ...cancelButtonStyle }} onClick={handleCloseClick}>
-          Cancelar
-        </Button>
+  if (sended && !sendError) return <HelpSended />
 
-        <Button onClick={handleSubmit} variant='contained' sx={{ ...buttonStyle, ...submitButtonStyle }} type='submit'>
-          Enviar
-        </Button>
-      </Box>
-    </Box>
-  )
+  if (sended && sendError) return <HelpSendError />
 }

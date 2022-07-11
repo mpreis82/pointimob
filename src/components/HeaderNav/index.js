@@ -4,10 +4,12 @@ import { MdOutlineAdd, MdOutlineCheck, MdOutlineAttachMoney, MdDeleteOutline, Md
 import HeaderNavItem from "../HeaderNavItem"
 import TalkSupport from '../help/TalkSupport'
 import FeatureSuggest from '../help/FeatureSuggest'
+import ReportProblem from '../help/ReportProblem'
 
 export default function HeaderNav() {
   const [openTalkSupport, setOpenTalkSupport] = useState(false)
-  const [openFeatureSuggest, setOpenFeatureSuggest] = useState(true)
+  const [openFeatureSuggest, setOpenFeatureSuggest] = useState(false)
+  const [openReportProblem, setOpenReportProblem] = useState(false)
 
   function handleOpenTalkSupportClick(event) {
     event.preventDefault()
@@ -17,6 +19,11 @@ export default function HeaderNav() {
   function handleOpenFeatureSuggest(event) {
     event.preventDefault()
     setOpenFeatureSuggest(true)
+  }
+
+  function handleOpenReportProblem(event) {
+    event.preventDefault()
+    setOpenReportProblem(true)
   }
 
   return (
@@ -62,20 +69,22 @@ export default function HeaderNav() {
 
       <HeaderNavItem
         label='Ajuda'
-        href='/ajuda'
+        href='/#'
         subitems={
           [
             { label: 'Falar com o suporte', description: 'Nossos contatos', href: '/#', icon: <MdSupportAgent />, onClickAction: handleOpenTalkSupportClick },
-            { label: 'Central de ajuda', description: 'Manual de uso', href: '/#', icon: <MdOutlineAutoStories />, onClickAction: () => { console.log('Central de ajuda') } },
+            // { label: 'Central de ajuda', description: 'Manual de uso', href: '/#', icon: <MdOutlineAutoStories />, onClickAction: () => { console.log('Central de ajuda') } },
             { label: 'Sugerir novos recursos', description: 'Nos ajude a melhorar', href: '/#', icon: <MdOutlineFavorite />, onClickAction: handleOpenFeatureSuggest },
-            { label: 'Relatar um problema', description: 'Informe um problema de uso', href: '/#', icon: <MdOutlineWarning />, onClickAction: () => { console.log('Relatar um problema') } },
+            { label: 'Relatar um problema', description: 'Informe um problema de uso', href: '/#', icon: <MdOutlineWarning />, onClickAction: handleOpenReportProblem },
           ]
         }
       />
 
       <TalkSupport openTalkSupport={openTalkSupport} setOpenTalkSupport={setOpenTalkSupport} />
 
-      <FeatureSuggest openFeatureSuggest={openFeatureSuggest} setOpenFeatureSuggest={setOpenFeatureSuggest} />
+      <FeatureSuggest open={openFeatureSuggest} setOpen={setOpenFeatureSuggest} />
+
+      <ReportProblem open={openReportProblem} setOpen={setOpenReportProblem} />
     </Box>
   )
 }

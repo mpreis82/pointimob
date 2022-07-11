@@ -36,10 +36,10 @@ export default function SelectPropertyTypes({ value, setValue, error = false, me
 
 
   return (
-    <FormControl fullWidth sx={{ mb: 2 }}>
+    <FormControl fullWidth>
       <Box component='label' htmlFor="" fontWeight='bold' mb={1}>Tipo/Subtipo</Box>
       <Select native name="subtype" value={value} onChange={setValue} error={error} onBlur={validateBlur} size={size ?? 'medium'}>
-        <option aria-label="None" value={''} />
+        <option value={'Selecione'}>Selecione</option>
         {propertyTypes.map(t => t)}
       </Select>
       <FormHelperText error={error}>{error ? message : ''}</FormHelperText>

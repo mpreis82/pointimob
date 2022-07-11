@@ -1,6 +1,6 @@
 import { useState, useEffect, useContext } from 'react'
 import { useRouter } from 'next/router'
-import { doc, getDoc, updateDoc } from 'firebase/firestore'
+import { collection, doc, getDoc, getDocs, orderBy, query, updateDoc, where } from 'firebase/firestore'
 
 import { Box } from '@mui/system'
 import { Select, ToggleButtonGroup, ToggleButton, MenuItem, FormControl, TextField, Stack, Snackbar, Alert, FormHelperText, Backdrop, CircularProgress } from '@mui/material';
@@ -36,8 +36,6 @@ export default function ImoveisNovoInformacoes() {
     situation: { error: false, message: 'Campo obrigatório' },
   })
 
-  const [mobiliado, setMobiliado] = useState('não')
-
   const [alert, setAlert] = useState({
     severity: 'success',
     message: '',
@@ -46,8 +44,10 @@ export default function ImoveisNovoInformacoes() {
 
   const [propertyId, setPropertyId] = useState('')
   const [property, setProperty] = useState([])
-
+  const [lastPropertyType, setLastPropertyType] = useState('')
+  const [situationList, setSituationList] = useState([])
   const [loaded, setLoaded] = useState(false)
+  const [mobiliado, setMobiliado] = useState('não')
 
   const router = useRouter()
 
@@ -102,6 +102,35 @@ export default function ImoveisNovoInformacoes() {
     }
 
   }, [router.isReady])
+
+  useEffect(async () => {
+    if (!state.subtype) return
+
+    const currentPropertyType = JSON.parse(state.subtype).type
+
+    if (lastPropertyType == currentPropertyType) return
+
+    let newSituationList = []
+
+    const situationsRef = collection(Firestore, 'situations')
+    const q = query(
+      situationsRef,
+      where('property_type', '==', currentPropertyType),
+      orderBy('order')
+    )
+
+    const querySnap = await getDocs(q);
+    querySnap.forEach(doc => newSituationList.push(doc.data().situation))
+
+    if (newSituationList.indexOf(state.situation) == -1) {
+      setState({ ...state, situation: 'Selecione' })
+    }
+
+    setSituationList(newSituationList)
+
+    setLastPropertyType(currentPropertyType)
+
+  }, [state.subtype])
 
   function handleChange(event) {
     setState({
@@ -167,9 +196,9 @@ export default function ImoveisNovoInformacoes() {
 
       setTimeout(() => {
         if (JSON.parse(state.subtype).type != 'Terreno') {
-          router.push(`/imoveis/novo/${newDoc.id}/comodos`)
+          router.push(`/imoveis/novo/${propertyId}/comodos`)
         } else {
-          router.push(`/imoveis/novo/${newDoc.id}/medidas`)
+          router.push(`/imoveis/novo/${propertyId}/medidas`)
         }
       }, 2000);
 
@@ -223,29 +252,23 @@ export default function ImoveisNovoInformacoes() {
 
             <FormControl>
               <Box component='label' htmlFor='' fontWeight='bold' mb={1}>Situação</Box>
-              <Select name='situation' value={state.situation} onChange={handleChange} error={formValidate.situation.error} onBlur={handleFormValidateBlur} >
-                <MenuItem value={'Breve lançamento'}>Breve lançamento</MenuItem>
-                <MenuItem value={'Na plata'}>Na plata</MenuItem>
-                <MenuItem value={'Em construção'}>Em construção</MenuItem>
-                <MenuItem value={'Lançamento'}>Lançamento</MenuItem>
-                <MenuItem value={'Novo'}>Novo</MenuItem>
-                <MenuItem value={'Semi-novo'}>Semi-novo</MenuItem>
-                <MenuItem value={'Usado'}>Usado</MenuItem>
-                <MenuItem value={'Reformado'}>Reformado</MenuItem>
-                <MenuItem value={'Pronto para morar'}>Pronto para morar</MenuItem>
-                <MenuItem value={'Indefinido'}>Indefinido</MenuItem>
+              <Select name='situation' value={state.situation} onChange={handleChange} disabled={(situationList.length == 0)} error={formValidate.situation.error} onBlur={handleFormValidateBlur} >
+                <MenuItem value='Selecione'>Selecione</MenuItem>
+                {situationList.map(situation => (
+                  <MenuItem value={situation} key={situation}>{situation}</MenuItem>
+                ))}
               </Select>
               <FormHelperText error={formValidate.situation.error}>{formValidate.situation.error ? formValidate.situation.message : ''}</FormHelperText>
             </FormControl>
 
-            {(state.subtype.length > 0 && (JSON.parse(state.subtype).type == 'Apartamento' || JSON.parse(state.subtype).type == 'Sala') && (
+            {(lastPropertyType.length > 0 && (lastPropertyType == 'Apartamento' || lastPropertyType == 'Sala') && (
               <FormControl variant='outlined'>
                 <Box component='label' htmlFor='' fontWeight='bold' mb={1}>Andar</Box>
                 <TextField name='floor' value={state.floor} onChange={handleChange} />
               </FormControl>
             ))}
 
-            {(state.subtype.length > 0 && (JSON.parse(state.subtype).type != 'Terreno') && (
+            {(lastPropertyType.length > 0 && (lastPropertyType != 'Terreno') && (
               <FormControl>
                 <Box component='label' htmlFor='' fontWeight='bold' mb={1}>Tem mobília?</Box>
                 <ToggleButtonGroup

@@ -1,6 +1,6 @@
 import { useState, useEffect, useContext } from 'react'
 import { useRouter } from 'next/router'
-import { collection, doc, addDoc, Timestamp } from 'firebase/firestore'
+import { collection, doc, addDoc, Timestamp, query, where, getDocs, orderBy } from 'firebase/firestore'
 import { Box } from '@mui/system'
 import { Select, ToggleButtonGroup, ToggleButton, MenuItem, FormControl, TextField, Stack, Snackbar, Alert, FormHelperText, Backdrop, CircularProgress } from '@mui/material';
 import AsideNav from '../../../../../components/AsideNav'
@@ -16,13 +16,15 @@ export default function ImoveisNovoInformacoes() {
     people: '',
     user: '',
     subtype: '',
-    profile: '',
-    situation: '',
+    profile: 'Selecione',
+    situation: 'Selecione',
     lifetime: '',
     incorporation: '',
     near_sea: '',
     floor: '',
   })
+
+  const [lastPropertyType, setLastPropertyType] = useState('')
 
   const [formValidate, setFormValidate] = useState({
     people: { error: false, message: 'Campo obrigatório' },
@@ -43,6 +45,8 @@ export default function ImoveisNovoInformacoes() {
   const [loaded, setLoaded] = useState(false)
 
   const [user, setUser] = useState(null)
+
+  const [situationList, setSituationList] = useState([])
 
   const router = useRouter()
 
@@ -82,6 +86,33 @@ export default function ImoveisNovoInformacoes() {
 
   }, [router.isReady])
 
+  useEffect(async () => {
+    if (!state.subtype) return
+
+    const currentPropertyType = JSON.parse(state.subtype).type
+
+    if (lastPropertyType == currentPropertyType) return
+
+    let newSituationList = []
+
+    const situationsRef = collection(Firestore, 'situations')
+    const q = query(
+      situationsRef,
+      where('property_type', '==', currentPropertyType),
+      orderBy('order')
+    )
+
+    const querySnap = await getDocs(q);
+    querySnap.forEach(doc => newSituationList.push(doc.data().situation))
+
+    setState({ ...state, situation: 'Selecione' })
+
+    setSituationList(newSituationList)
+
+    setLastPropertyType(currentPropertyType)
+
+  }, [state.subtype])
+
   function handleChange(event) {
     setState({
       ...state,
@@ -116,7 +147,7 @@ export default function ImoveisNovoInformacoes() {
     let validate = { ...formValidate }
 
     Object.keys(formValidate).forEach(formComponent => {
-      if (state[formComponent] && state[formComponent] != '0') {
+      if (state[formComponent] && state[formComponent] != '0' && state[formComponent] != 'Selecione') {
         validate[formComponent]['error'] = false
       } else {
         validate[formComponent]['error'] = true
@@ -216,6 +247,7 @@ export default function ImoveisNovoInformacoes() {
             <FormControl>
               <Box component='label' htmlFor='' fontWeight='bold' mb={1}>Perfil do imóvel</Box>
               <Select name='profile' value={state.profile} onChange={handleChange} error={formValidate.profile.error} onBlur={handleFormValidateBlur} >
+                <MenuItem value={'Selecione'}>Selecione</MenuItem>
                 <MenuItem value={'Residencial'}>Residencial</MenuItem>
                 <MenuItem value={'Comercial'}>Comercial</MenuItem>
                 <MenuItem value={'Residencial/Comercial'}>Residencial/Comercial</MenuItem>
@@ -228,17 +260,11 @@ export default function ImoveisNovoInformacoes() {
 
             <FormControl>
               <Box component='label' htmlFor='' fontWeight='bold' mb={1}>Situação</Box>
-              <Select name='situation' value={state.situation} onChange={handleChange} error={formValidate.situation.error} onBlur={handleFormValidateBlur} >
-                <MenuItem value={'Breve lançamento'}>Breve lançamento</MenuItem>
-                <MenuItem value={'Na plata'}>Na plata</MenuItem>
-                <MenuItem value={'Em construção'}>Em construção</MenuItem>
-                <MenuItem value={'Lançamento'}>Lançamento</MenuItem>
-                <MenuItem value={'Novo'}>Novo</MenuItem>
-                <MenuItem value={'Semi-novo'}>Semi-novo</MenuItem>
-                <MenuItem value={'Usado'}>Usado</MenuItem>
-                <MenuItem value={'Reformado'}>Reformado</MenuItem>
-                <MenuItem value={'Pronto para morar'}>Pronto para morar</MenuItem>
-                <MenuItem value={'Indefinido'}>Indefinido</MenuItem>
+              <Select name='situation' value={state.situation} onChange={handleChange} disabled={(situationList.length == 0)} error={formValidate.situation.error} onBlur={handleFormValidateBlur} >
+                <MenuItem value='Selecione'>Selecione</MenuItem>
+                {situationList.map(situation => (
+                  <MenuItem value={situation} key={situation}>{situation}</MenuItem>
+                ))}
               </Select>
               <FormHelperText error={formValidate.situation.error}>{formValidate.situation.error ? formValidate.situation.message : ''}</FormHelperText>
             </FormControl>

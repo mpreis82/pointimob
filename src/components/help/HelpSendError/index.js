@@ -3,7 +3,7 @@ import { Typography } from "@mui/material";
 
 import { MdOutlineSentimentDissatisfied } from 'react-icons/md'
 
-export default function FeatureSuggestSendError() {
+export default function HelpSendError() {
   return (
     <Box px={3} display='flex' flexDirection='column' justifyContent='center' alignItems='center'>
       <Typography fontSize={48} color='secondary' lineHeight={1}><MdOutlineSentimentDissatisfied /></Typography>

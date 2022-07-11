@@ -31,7 +31,6 @@ export default function AsideNav({ property }) {
     let listSteps = []
 
     if (property.initial_informations.subtype.type != 'Terreno') {
-      // if (true) {
       listSteps = [
         { label: 'Informações', href: (propertyId.length > 0 ? `/imoveis/${action}/${propertyId}/informacoes` : '/imoveis/novo/informacoes'), disabled: false },
         { label: 'Cômodos', href: (propertyId.length > 0 ? `/imoveis/${action}/${propertyId}/comodos` : '#'), disabled: (propertyId.length > 0 ? false : true) },
