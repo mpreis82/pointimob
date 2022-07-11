@@ -196,9 +196,9 @@ export default function ImoveisNovoInformacoes() {
 
       setTimeout(() => {
         if (JSON.parse(state.subtype).type != 'Terreno') {
-          router.push(`/imoveis/novo/${propertyId}/comodos`)
+          router.push(`/imoveis/editar/${propertyId}/comodos`)
         } else {
-          router.push(`/imoveis/novo/${propertyId}/medidas`)
+          router.push(`/imoveis/editar/${propertyId}/medidas`)
         }
       }, 2000);
 
