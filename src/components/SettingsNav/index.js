@@ -15,12 +15,12 @@ import { AuthContext } from '../../contexts/AuthContext';
 
 export default function SettingsNav() {
   const settingsItems = [
-    { label: 'Ajustes gerais', href: '/', icon: <MdSettings />, action: handleActionCick },
-    { label: 'Corretores/Usuários', href: '/', icon: <MdPerson />, action: handleActionCick },
-    { label: 'Portais imobiliários', href: '/', icon: <MdOutlineLanguage />, action: handleActionCick },
-    { label: 'Integrações', href: '/', icon: <MdOutlineShare />, action: handleActionCick },
-    { label: 'Contas de e-mail', href: '/', icon: <MdEmail />, action: handleActionCick },
-    { label: 'Financeiro', href: '/', icon: <MdOutlineCardTravel />, action: handleActionCick },
+    { label: 'Meus dados', href: '/configuracoes/meus-dados', icon: <MdPerson /> },
+    // { label: 'Corretores/Usuários', href: '/', icon: <MdPerson />, action: handleActionCick },
+    // { label: 'Portais imobiliários', href: '/', icon: <MdOutlineLanguage />, action: handleActionCick },
+    // { label: 'Integrações', href: '/', icon: <MdOutlineShare />, action: handleActionCick },
+    // { label: 'Contas de e-mail', href: '/', icon: <MdEmail />, action: handleActionCick },
+    { label: 'Financeiro', href: '/configuracoes/financeiro', icon: <MdOutlineCardTravel /> },
     { label: 'Sair', href: '/', icon: <MdExitToApp />, action: handleExitClick },
   ]
 
@@ -86,7 +86,6 @@ export default function SettingsNav() {
                 fontSize={14}
                 bgcolor='white'
                 sx={{
-                  ':first-of-type': { borderBottom: 1, borderColor: grey[300] },
                   ':last-of-type': { borderTop: 1, borderColor: grey[300] }
                 }}
               >
