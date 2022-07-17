@@ -8,7 +8,7 @@ import { pink } from '@mui/material/colors'
 
 import { Firestore } from '../../../Firebase'
 
-export default function Form({ children, handleSubmit, gridTemplateColumnsCustom, buttonSubmitText = 'Próximo', showCancel = true }) {
+export default function Form({ children, handleSubmit, gridTemplateColumnsCustom }) {
   const [openDialog, setOpenDialog] = useState(false)
 
   const gridTemplateColumns = (gridTemplateColumnsCustom ?? { xs: '1fr', md: '1fr 1fr', lg: '1fr 1fr 1fr' })
@@ -51,7 +51,7 @@ export default function Form({ children, handleSubmit, gridTemplateColumnsCustom
       <Box
         position='fixed'
         display='flex'
-        justifyContent={(showCancel ? 'space-between' : 'flex-end')}
+        justifyContent='space-between'
         bottom='0'
         left='240px'
         right='8px'
@@ -60,26 +60,24 @@ export default function Form({ children, handleSubmit, gridTemplateColumnsCustom
         bgcolor='#fff'
         sx={{ boxShadow: '0 -4px 20px rgba(0,0,0,0.3)' }}
       >
-        {showCancel && (
-          <Button
-            variant='outlined'
-            sx={{
-              fontSize: 12,
-              fontWeight: 'regular',
-              px: 3,
-              py: 2,
-              color: 'secondary.main',
-              borderColor: 'secondary.main',
-              ':hover': {
-                borderColor: 'secondary.light',
-                backgroundColor: pink[50]
-              }
-            }}
-            onClick={handleCancelClick}
-          >
-            Cancelar
-          </Button>
-        )}
+        <Button
+          variant='outlined'
+          sx={{
+            fontSize: 12,
+            fontWeight: 'regular',
+            px: 3,
+            py: 2,
+            color: 'secondary.main',
+            borderColor: 'secondary.main',
+            ':hover': {
+              borderColor: 'secondary.light',
+              backgroundColor: pink[50]
+            }
+          }}
+          onClick={handleCancelClick}
+        >
+          Cancelar
+        </Button>
 
         <Button
           variant='contained'
@@ -95,7 +93,7 @@ export default function Form({ children, handleSubmit, gridTemplateColumnsCustom
           }}
           type='submit'
         >
-          {(router.asPath == '/imoveis/novo/publicacao' ? 'Finalizar' : buttonSubmitText)}
+          {(router.asPath == '/imoveis/novo/publicacao' ? 'Finalizar' : 'Próximo')}
         </Button>
       </Box>
 
