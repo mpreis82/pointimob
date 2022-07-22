@@ -13,9 +13,14 @@ import SelectPropertyTypes from '../../../../../../components/SelectPropertyType
 
 import { Firestore } from '../../../../../../Firebase';
 
-import { AuthContext } from '../../../../../../contexts/AuthContext'
-
 export default function ImoveisNovoInformacoes() {
+  const [propertyId, setPropertyId] = useState('')
+  const [property, setProperty] = useState([])
+  const [lastPropertyType, setLastPropertyType] = useState('')
+  const [situationList, setSituationList] = useState([])
+  const [loaded, setLoaded] = useState(false)
+  const [mobiliado, setMobiliado] = useState('não')
+
   const [state, setState] = useState({
     people: '',
     user: '',
@@ -42,26 +47,12 @@ export default function ImoveisNovoInformacoes() {
     open: false
   })
 
-  const [propertyId, setPropertyId] = useState('')
-  const [property, setProperty] = useState([])
-  const [lastPropertyType, setLastPropertyType] = useState('')
-  const [situationList, setSituationList] = useState([])
-  const [loaded, setLoaded] = useState(false)
-  const [mobiliado, setMobiliado] = useState('não')
-
   const router = useRouter()
-
-  const authContext = useContext(AuthContext)
 
   useEffect(async () => {
     if (!router.isReady) return
 
     const abortController = new AbortController
-
-    if (!(await authContext.user())) {
-      router.push('/login')
-      return
-    }
 
     const localPropertyId = router.query.id
 
@@ -100,7 +91,6 @@ export default function ImoveisNovoInformacoes() {
     return () => {
       abortController.abort()
     }
-
   }, [router.isReady])
 
   useEffect(async () => {

@@ -12,14 +12,14 @@ import Form from '../../../../../../components/imoveis/Form'
 
 import { Firestore } from '../../../../../../Firebase'
 
-import { AuthContext } from '../../../../../../contexts/AuthContext'
-
 const ufList = ['Escolha um estado', 'AC', 'AL', 'AM', 'AP', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MG', 'MS', 'MT', 'PA', 'PB', 'PE', 'PI', 'PR', 'RJ', 'RN', 'RO', 'RR', 'RS', 'SC', 'SE', 'SP', 'TO',]
 
 export default function Localizacao() {
   const [zipcode, setZipcode] = useState('')
-
   const [cityList, setCityList] = useState(['Escolha uma cidade'])
+  const [loaded, setLoaded] = useState(false)
+  const [propertyId, setPropertyId] = useState('')
+  const [property, setProperty] = useState([])
 
   const [state, setState] = useState({
     uf: 'Escolha um estado',
@@ -48,8 +48,6 @@ export default function Localizacao() {
     open: false
   })
 
-  const [loaded, setLoaded] = useState(false)
-
   const [formValidate, setFormValidate] = useState({
     uf: { error: false, message: 'Campo obrigatório' },
     city: { error: false, message: 'Campo obrigatório' },
@@ -59,22 +57,12 @@ export default function Localizacao() {
     zipcode: { error: false, message: 'Campo obrigatório' },
   })
 
-  const [propertyId, setPropertyId] = useState('')
-  const [property, setProperty] = useState([])
-
   const router = useRouter()
-
-  const authContext = useContext(AuthContext)
 
   useEffect(async () => {
     if (!router.isReady) return
 
     const abortController = new AbortController
-
-    if (!(await authContext.user())) {
-      router.push('/login')
-      return
-    }
 
     if (!router.query.id) router.push('/imoveis')
 

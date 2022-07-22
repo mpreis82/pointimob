@@ -1,4 +1,4 @@
-import { useState, useEffect, useLayoutEffect, useContext } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import { doc, getDoc, updateDoc } from 'firebase/firestore'
 
@@ -12,9 +12,16 @@ import Form from '../../../../../../components/imoveis/Form'
 
 import { Firestore } from '../../../../../../Firebase'
 
-import { AuthContext } from '../../../../../../contexts/AuthContext'
-
 export default function Preco() {
+  const [price_show, setPriceShow] = useState('sim')
+  const [territorial_tax_type, setTerritorialTaxType] = useState('')
+  const [has_finance, setHasFinance] = useState('')
+  const [is_financeable, setIsFinanceable] = useState('')
+  const [is_exchangeable, setIsExchangeable] = useState('')
+  const [loaded, setLoaded] = useState(false)
+  const [propertyId, setPropertyId] = useState('')
+  const [property, setProperty] = useState([])
+
   const [state, setState] = useState({
     transaction: '',
     price: '',
@@ -28,36 +35,18 @@ export default function Preco() {
     price: { error: false, message: 'Campo obrigatório' },
   })
 
-  const [price_show, setPriceShow] = useState('sim')
-  const [territorial_tax_type, setTerritorialTaxType] = useState('')
-  const [has_finance, setHasFinance] = useState('')
-  const [is_financeable, setIsFinanceable] = useState('')
-  const [is_exchangeable, setIsExchangeable] = useState('')
-
   const [alert, setAlert] = useState({
     severity: 'success',
     message: '',
     open: false
   })
 
-  const [loaded, setLoaded] = useState(false)
-
-  const [propertyId, setPropertyId] = useState('')
-  const [property, setProperty] = useState([])
-
   const router = useRouter()
-
-  const authContext = useContext(AuthContext)
 
   useEffect(async () => {
     if (!router.isReady) return
 
     const abortController = new AbortController
-
-    if (!(await authContext.user())) {
-      router.push('/login')
-      return
-    }
 
     if (!router.query.id) router.push('/imoveis')
 

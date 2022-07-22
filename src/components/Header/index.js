@@ -23,8 +23,8 @@ function Header() {
   const [user, setUser] = useState(null)
 
   useEffect(() => {
-    authContext.user().then(currentUser => { setUser(currentUser) })
-  }, [])
+    setUser(authContext.currentUser)
+  }, [user])
 
   if (user) {
     return (

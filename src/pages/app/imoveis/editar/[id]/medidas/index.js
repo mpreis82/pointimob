@@ -12,9 +12,11 @@ import Form from "../../../../../../components/imoveis/Form"
 
 import { Firestore } from '../../../../../../Firebase'
 
-import { AuthContext } from '../../../../../../contexts/AuthContext'
-
 export default function Medidas() {
+  const [loaded, setLoaded] = useState(false)
+  const [propertyId, setPropertyId] = useState('')
+  const [property, setProperty] = useState([])
+
   const [state, setState] = useState({
     built_area: '',
     private_area: '',
@@ -27,24 +29,12 @@ export default function Medidas() {
     open: false
   })
 
-  const [loaded, setLoaded] = useState(false)
-
-  const [propertyId, setPropertyId] = useState('')
-  const [property, setProperty] = useState([])
-
   const router = useRouter()
-
-  const authContext = useContext(AuthContext)
 
   useEffect(async () => {
     if (!router.isReady) return
 
     const abortController = new AbortController
-
-    if (!(await authContext.user())) {
-      router.push('/login')
-      return
-    }
 
     if (!router.query.id) router.push('/imoveis')
 

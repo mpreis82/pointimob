@@ -46,7 +46,7 @@ export default function MeusDados() {
 
   useEffect(async () => {
     try {
-      const currentUser = await authContext.user()
+      const currentUser = authContext.currentUser
 
       if (!currentUser) throw new Error('User not authenticated')
 

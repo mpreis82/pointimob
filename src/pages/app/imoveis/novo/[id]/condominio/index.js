@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import { doc, getDoc, updateDoc } from 'firebase/firestore'
 
@@ -12,9 +12,13 @@ import Form from '../../../../../../components/imoveis/Form'
 
 import { Firestore } from '../../../../../../Firebase'
 
-import { AuthContext } from '../../../../../../contexts/AuthContext'
-
 export default function Condominio() {
+  const [condominiumName, setCondominiumName] = useState('')
+  const [isCondo, setIsCondo] = useState('não')
+  const [loaded, setLoaded] = useState(false)
+  const [propertyId, setPropertyId] = useState('')
+  const [property, setProperty] = useState([])
+
   const [condoCharacteristics, setCondoCharacteristics] = useState([
     { name: 'Academia de ginástica', checked: false },
     { name: 'Área verde preservada', checked: false },
@@ -46,10 +50,6 @@ export default function Condominio() {
     { name: 'Salão de festas infantil', checked: false },
     { name: 'Sauna', checked: false },
   ])
-  const [condominiumName, setCondominiumName] = useState('')
-  const [isCondo, setIsCondo] = useState('não')
-  const [showCondoCharacteristics, setShowCondoCharacteristics] = useState(false)
-  const [loaded, setLoaded] = useState(false)
 
   const [alert, setAlert] = useState({
     severity: 'success',
@@ -57,22 +57,12 @@ export default function Condominio() {
     open: false
   })
 
-  const [propertyId, setPropertyId] = useState('')
-  const [property, setProperty] = useState([])
-
   const router = useRouter()
-
-  const authContext = useContext(AuthContext)
 
   useEffect(async () => {
     if (!router.isReady) return
 
     const abortController = new AbortController
-
-    if (!(await authContext.user())) {
-      router.push('/login')
-      return
-    }
 
     if (!router.query.id) router.push('/imoveis')
 

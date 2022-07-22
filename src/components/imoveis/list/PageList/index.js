@@ -37,14 +37,9 @@ export default function PageList({ propertiesStatus }) {
 
     const abortController = new AbortController
 
-    const currentUser = await authContext.user()
+    const currentUser = authContext.currentUser
 
     setUser(currentUser)
-
-    if (!currentUser) {
-      router.push('/login')
-      return
-    }
 
     const q = query(collection(Firestore, 'properties'),
       where('uid', '==', currentUser.uid),

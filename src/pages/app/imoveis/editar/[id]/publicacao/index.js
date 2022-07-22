@@ -12,34 +12,23 @@ import Form from '../../../../../../components/imoveis/Form'
 
 import { Firestore } from '../../../../../../Firebase'
 
-import { AuthContext } from '../../../../../../contexts/AuthContext'
-
 export default function Publicacao() {
+  const [alert, setAlert] = useState({ severity: 'success', message: '', open: false })
+  const [loaded, setLoaded] = useState(false)
+  const [propertyId, setPropertyId] = useState('')
+  const [property, setProperty] = useState([])
+
   const [state, setState] = useState({
     show_property: 'sim',
     is_highlighted: 'não',
   })
 
-  const [alert, setAlert] = useState({ severity: 'success', message: '', open: false })
-
-  const [loaded, setLoaded] = useState(false)
-
-  const [propertyId, setPropertyId] = useState('')
-  const [property, setProperty] = useState([])
-
   const router = useRouter()
-
-  const authContext = useContext(AuthContext)
 
   useEffect(async () => {
     if (!router.isReady) return
 
     const abortController = new AbortController
-
-    if (!(await authContext.user())) {
-      router.push('/login')
-      return
-    }
 
     if (!router.query.id) router.push('/imoveis')
 

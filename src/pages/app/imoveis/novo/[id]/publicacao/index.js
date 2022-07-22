@@ -1,4 +1,4 @@
-import { useState, useEffect, useLayoutEffect, useContext } from 'react'
+import { useState, useEffect, useLayoutEffect } from 'react'
 import { useRouter } from 'next/router'
 import { doc, updateDoc, Timestamp, getDoc } from 'firebase/firestore'
 
@@ -11,8 +11,6 @@ import Main from '../../../../../../components/imoveis/main/Main'
 import Form from '../../../../../../components/imoveis/Form'
 
 import { Firestore } from '../../../../../../Firebase'
-
-import { AuthContext } from '../../../../../../contexts/AuthContext'
 
 export default function Publicacao() {
   const [state, setState] = useState({
@@ -29,17 +27,10 @@ export default function Publicacao() {
 
   const router = useRouter()
 
-  const authContext = useContext(AuthContext)
-
   useEffect(async () => {
     if (!router.isReady) return
 
     const abortController = new AbortController
-
-    if (!(await authContext.user())) {
-      router.push('/login')
-      return
-    }
 
     if (!router.query.id) router.push('/imoveis')
 

@@ -12,10 +12,11 @@ import Form from '../../../../../../components/imoveis/Form'
 
 import { Firestore } from '../../../../../../Firebase'
 
-import { AuthContext } from '../../../../../../contexts/AuthContext'
-
 export default function Caracteristicas() {
   const [characteristics, setCharacteristics] = useState([])
+  const [loaded, setLoaded] = useState(false)
+  const [propertyId, setPropertyId] = useState('')
+  const [property, setProperty] = useState([])
 
   const [alert, setAlert] = useState({
     severity: 'success',
@@ -23,24 +24,12 @@ export default function Caracteristicas() {
     open: false,
   })
 
-  const [loaded, setLoaded] = useState(false)
-
-  const [propertyId, setPropertyId] = useState('')
-  const [property, setProperty] = useState([])
-
   const router = useRouter()
-
-  const authContext = useContext(AuthContext)
 
   useEffect(async () => {
     if (!router.isReady) return
 
     const abortController = new AbortController
-
-    if (!(await authContext.user())) {
-      router.push('/login')
-      return
-    }
 
     if (!router.query.id) router.push('/imoveis')
 
@@ -84,7 +73,6 @@ export default function Caracteristicas() {
   function handleChange(event) {
     console.log(event.target)
     let newCharacteristics = [...characteristics]
-    // console.log(newCharacteristics)
     const index = newCharacteristics.findIndex((c) => c.characteristic == event.target.name)
     if (index > -1) {
       newCharacteristics[index]['checked'] = event.target.checked

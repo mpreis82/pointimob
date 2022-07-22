@@ -84,7 +84,7 @@ export default function HelpFormBase({ sended, setSended, sendError, setSendErro
 
     if (!handleFormValidate()) return
 
-    const currentUser = await authContext.user()
+    const currentUser = authContext.currentUser
 
     const docData = {
       title: title,

@@ -210,3 +210,5 @@ export default function Register() {
     )
   }
 }
+
+Register.requiredAuth = false

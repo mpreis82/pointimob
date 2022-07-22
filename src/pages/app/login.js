@@ -14,7 +14,7 @@ import logo from '../../../public/images/logo.png'
 
 export default function Login() {
   const [email, setEmail] = useState('mpreis82@gmail.com')
-  const [password, setPassword] = useState('Deadfish001')
+  const [password, setPassword] = useState('Deadfish001!')
 
   const [formValidate, setFormValidate] = useState({
     email: { error: false, message: 'E-mail inválido' },
@@ -32,7 +32,7 @@ export default function Login() {
   const authContext = useContext(AuthContext)
 
   useEffect(async () => {
-    const currentUser = await authContext.user()
+    const currentUser = authContext.currentUser
     if (currentUser) {
       router.push('/')
       return
@@ -83,8 +83,8 @@ export default function Login() {
     try {
       const login = await authContext.login(email, password)
       if (login) {
+        router.push('/')
         setBackdrop(true)
-        router.push('/imoveis')
         return
       }
     } catch (error) {
@@ -169,3 +169,5 @@ export default function Login() {
     return <></>
   }
 }
+
+Login.requiredAuth = false

@@ -13,7 +13,7 @@ function Layout({ children }) {
 
   const router = useRouter()
 
-  if (authContext.user() && headerBlockRoutes.indexOf(router.asPath) == -1) {
+  if (authContext.currentUser && headerBlockRoutes.indexOf(router.asPath) == -1) {
     return (
       <Box bgcolor={grey[100]} height='100vh'>
         <Header />

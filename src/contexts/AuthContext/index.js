@@ -1,25 +1,42 @@
 import { useState, useEffect, createContext } from 'react'
+import { useRouter } from 'next/router'
 import { createUserWithEmailAndPassword, getAuth, onAuthStateChanged, sendPasswordResetEmail, signInWithEmailAndPassword, signOut, updateProfile } from 'firebase/auth'
-import { FirebaseApp } from '../../Firebase'
+import { Firestore } from '../../Firebase'
+import { collection, getDocs, query, where } from 'firebase/firestore'
+import { Backdrop, CircularProgress } from '@mui/material'
 
 const AuthContext = createContext()
 
 const AuthContextProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null)
+  const [requiredAuth, setRequiredAuth] = useState(true)
+
+  const router = useRouter()
 
   useEffect(() => {
     if (!currentUser) {
       user().then(dataUser => {
         if (dataUser) {
-          setCurrentUser({
-            username: dataUser.displayName,
-            email: dataUser.email,
-            uid: dataUser.uid
-          })
+          setCurrentUser(dataUser)
         }
       })
     }
   }, [])
+
+  useEffect(() => {
+    if (!currentUser) {
+      const requiredAuthLocal = children.props.children.type.requiredAuth ?? true
+
+      setRequiredAuth(requiredAuthLocal)
+
+      if (requiredAuthLocal) {
+        const currentUser = (async () => await user())
+        currentUser().then(usr => {
+          if (!usr) router.push('/login')
+        })
+      }
+    }
+  }, [children.props.children.type.requiredAuth])
 
   const register = (name, email, password) => {
     const auth = getAuth()
@@ -57,9 +74,9 @@ const AuthContextProvider = ({ children }) => {
     })
   }
 
-  function user() {
-    const auth = getAuth()
+  function currentAuth() {
     return new Promise((resolve) => {
+      const auth = getAuth()
       onAuthStateChanged(auth, user => {
         if (user) {
           resolve({
@@ -73,12 +90,34 @@ const AuthContextProvider = ({ children }) => {
     })
   }
 
+  async function user() {
+    const auth = await currentAuth()
+
+    console.log('currentAuth::', auth)
+
+    if (!auth) return null
+
+    const clientRef = collection(Firestore, 'clients')
+    const q = query(clientRef, where('uid', '==', auth.uid))
+    const clientDocs = await getDocs(q)
+    const clientData = clientDocs.docs[0].data()
+
+    return {
+      ...auth,
+      client: {
+        clientId: clientDocs.docs[0].id,
+        ...clientData
+      }
+    }
+  }
+
   const logout = () => {
     const auth = getAuth()
     return new Promise((resolve) => {
       signOut(auth)
         .then(() => {
           setCurrentUser(null)
+          router.push('/login')
           resolve(true)
         })
         .catch(error => {
@@ -87,12 +126,21 @@ const AuthContextProvider = ({ children }) => {
     })
   }
 
+  if ((requiredAuth && currentUser) || !requiredAuth) {
+    return (
+      <AuthContext.Provider value={{ login, logout, register, sendPasswordResetEmail, currentUser }}>
+        {children}
+      </AuthContext.Provider>
+    )
+  }
+
   return (
-    <AuthContext.Provider value={{ user, login, logout, register, sendPasswordResetEmail, currentUser }}>
-      {children}
+    <AuthContext.Provider value={{ authenticated: false }}>
+      <Backdrop open={true} sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}>
+        <CircularProgress color='inherit' />
+      </Backdrop>
     </AuthContext.Provider>
   )
 }
 
 export { AuthContext, AuthContextProvider }
-

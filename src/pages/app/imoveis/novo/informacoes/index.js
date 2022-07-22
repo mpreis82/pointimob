@@ -12,6 +12,12 @@ import { Firestore } from '../../../../../Firebase';
 import { AuthContext } from '../../../../../contexts/AuthContext'
 
 export default function ImoveisNovoInformacoes() {
+  const [loaded, setLoaded] = useState(false)
+  const [mobiliado, setMobiliado] = useState('não')
+  const [user, setUser] = useState(null)
+  const [situationList, setSituationList] = useState([])
+  const [lastPropertyType, setLastPropertyType] = useState('')
+
   const [state, setState] = useState({
     people: '',
     user: '',
@@ -24,8 +30,6 @@ export default function ImoveisNovoInformacoes() {
     floor: '',
   })
 
-  const [lastPropertyType, setLastPropertyType] = useState('')
-
   const [formValidate, setFormValidate] = useState({
     people: { error: false, message: 'Campo obrigatório' },
     user: { error: false, message: 'Campo obrigatório' },
@@ -34,19 +38,11 @@ export default function ImoveisNovoInformacoes() {
     situation: { error: false, message: 'Campo obrigatório' },
   })
 
-  const [mobiliado, setMobiliado] = useState('não')
-
   const [alert, setAlert] = useState({
     severity: 'success',
     message: '',
     open: false
   })
-
-  const [loaded, setLoaded] = useState(false)
-
-  const [user, setUser] = useState(null)
-
-  const [situationList, setSituationList] = useState([])
 
   const router = useRouter()
 
@@ -60,19 +56,14 @@ export default function ImoveisNovoInformacoes() {
     }
   })
 
-  useEffect(async () => {
+  useEffect(() => {
     setLoaded(false)
 
     if (!router.isReady) return
 
     const abortController = new AbortController
 
-    const currentUser = await authContext.user()
-
-    if (!currentUser) {
-      router.push('/login')
-      return
-    }
+    const currentUser = authContext.currentUser
 
     setUser(currentUser)
 

@@ -12,8 +12,6 @@ import Form from '../../../../../../components/imoveis/Form'
 
 import { Firestore } from '../../../../../../Firebase'
 
-import { AuthContext } from '../../../../../../contexts/AuthContext'
-
 export default function Caracteristicas() {
   const [characteristics, setCharacteristics] = useState([
     { name: 'Academia', checked: false },
@@ -67,17 +65,10 @@ export default function Caracteristicas() {
 
   const router = useRouter()
 
-  const authContext = useContext(AuthContext)
-
   useEffect(async () => {
     if (!router.isReady) return
 
     const abortController = new AbortController
-
-    if (!(await authContext.user())) {
-      router.push('/login')
-      return
-    }
 
     if (!router.query.id) {
       router.push('/imoveis')

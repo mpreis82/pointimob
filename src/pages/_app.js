@@ -48,15 +48,15 @@ function MyApp({ Component, pageProps }) {
   })
 
   return (
-    <AuthContextProvider>
-      <ThemeProvider theme={theme}>
-        <CssBaseline>
+    <ThemeProvider theme={theme}>
+      <CssBaseline>
+        <AuthContextProvider>
           <Layout>
             <Component {...pageProps} />
           </Layout>
-        </CssBaseline>
-      </ThemeProvider>
-    </AuthContextProvider>
+        </AuthContextProvider>
+      </CssBaseline>
+    </ThemeProvider>
   )
 }
 

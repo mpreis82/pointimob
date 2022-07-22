@@ -1,6 +1,6 @@
-import { useState, useEffect, useContext } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
-import { collection, doc, getDoc, addDoc, Timestamp, updateDoc, query, where, orderBy, getDocs } from 'firebase/firestore'
+import { collection, doc, getDoc, updateDoc, query, where, orderBy, getDocs } from 'firebase/firestore'
 
 import { Box } from '@mui/system'
 import { Select, ToggleButtonGroup, ToggleButton, MenuItem, FormControl, TextField, Stack, Snackbar, Alert, FormHelperText, Backdrop, CircularProgress } from '@mui/material';
@@ -13,9 +13,14 @@ import SelectPropertyTypes from '../../../../../../components/SelectPropertyType
 
 import { Firestore } from '../../../../../../Firebase';
 
-import { AuthContext } from '../../../../../../contexts/AuthContext'
-
 export default function ImoveisNovoInformacoes() {
+  const [mobiliado, setMobiliado] = useState('não')
+  const [lastPropertyType, setLastPropertyType] = useState('')
+  const [situationList, setSituationList] = useState([])
+  const [propertyId, setPropertyId] = useState('')
+  const [property, setProperty] = useState([])
+  const [loaded, setLoaded] = useState(false)
+
   const [state, setState] = useState({
     people: '',
     user: '',
@@ -42,26 +47,12 @@ export default function ImoveisNovoInformacoes() {
     open: false
   })
 
-  const [mobiliado, setMobiliado] = useState('não')
-  const [lastPropertyType, setLastPropertyType] = useState('')
-  const [situationList, setSituationList] = useState([])
-  const [propertyId, setPropertyId] = useState('')
-  const [property, setProperty] = useState([])
-  const [loaded, setLoaded] = useState(false)
-
   const router = useRouter()
-
-  const authContext = useContext(AuthContext)
 
   useEffect(async () => {
     if (!router.isReady) return
 
     const abortController = new AbortController
-
-    if (!(await authContext.user())) {
-      router.push('/login')
-      return
-    }
 
     if (!router.query.id) router.push('/imoveis/novo/informacoes')
 

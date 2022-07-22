@@ -9,33 +9,25 @@ import ImoveisAsideNav from '../../../../../../components/imoveis/aside/AsideNav
 import Main from '../../../../../../components/imoveis/main/Main'
 import ImageTabs from '../../../../../../components/imoveis/images/ImageTabs'
 
-import { AuthContext } from '../../../../../../contexts/AuthContext'
 import { Firestore } from '../../../../../../Firebase'
 import { doc, getDoc } from 'firebase/firestore'
 
 export default function Imagens() {
   const [loaded, setLoaded] = useState(false)
+  const [property, setProperty] = useState([])
+
   const [alert, setAlert] = useState({
     severity: 'success',
     message: '',
     open: false
   })
 
-  const [property, setProperty] = useState([])
-
   const router = useRouter()
-
-  const authContext = useContext(AuthContext)
 
   useEffect(async () => {
     if (!router.isReady) return
 
     const abortController = new AbortController
-
-    if (!(await authContext.user())) {
-      router.push('/login')
-      return
-    }
 
     const docRef = doc(Firestore, 'properties', router.query.id)
     const docSnap = await getDoc(docRef)
